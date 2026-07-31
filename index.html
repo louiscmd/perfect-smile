@@ -5,618 +5,603 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Perfect Smile">
+<!-- EmailJS — free 200 emails/month, no backend needed -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <style>
+/* ══ TOKENS ══════════════════════════════════════════════ */
 :root {
-  --bg: #F4F7F6;
-  --surface: #FFFFFF;
-  --primary: #1B6B5E;
-  --primary-light: #E4F0ED;
+  --bg:          #F4F7F6;
+  --surface:     #FFFFFF;
+  --primary:     #1B6B5E;
+  --primary-lt:  #E4F0ED;
   --primary-mid: #2E9B89;
-  --accent: #C9973A;
-  --accent-light: #FBF3E4;
-  --text: #0F1C19;
-  --text-muted: #5C7A72;
-  --border: #DDE8E5;
-  --success: #1A8C4E;
-  --warning: #C97C1A;
-  --danger: #C0392B;
-  --shadow: 0 1px 3px rgba(15,28,25,.05), 0 4px 16px rgba(15,28,25,.07);
-  --shadow-md: 0 6px 28px rgba(15,28,25,.12);
-  --r: 14px;
-  --r-lg: 22px;
+  --accent:      #C9973A;
+  --accent-lt:   #FBF3E4;
+  --text:        #0F1C19;
+  --muted:       #5C7A72;
+  --border:      #DDE8E5;
+  --danger:      #C0392B;
+  --success:     #1A8C4E;
+  --warn:        #C97C1A;
+  --sh:   0 1px 3px rgba(15,28,25,.05), 0 4px 16px rgba(15,28,25,.07);
+  --sh-md:0 6px 28px rgba(15,28,25,.12);
+  --r:  14px;
+  --rl: 22px;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0A110F;
-    --surface: #111C19;
-    --primary: #2BA895;
-    --primary-light: #0B1F1B;
-    --primary-mid: #2BA895;
-    --accent: #C9973A;
-    --accent-light: #1A1008;
-    --text: #EBF2EF;
-    --text-muted: #7AA898;
-    --border: #1A2E29;
-    --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
-    --shadow-md: 0 6px 28px rgba(0,0,0,.4);
+@media (prefers-color-scheme: dark) { :root {
+  --bg:#0A110F; --surface:#111C19; --primary:#2BA895; --primary-lt:#0B1F1B;
+  --primary-mid:#2BA895; --accent:#C9973A; --accent-lt:#1A1008;
+  --text:#EBF2EF; --muted:#7AA898; --border:#1A2E29;
+  --sh:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  --sh-md:0 6px 28px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]  { --bg:#0A110F;--surface:#111C19;--primary:#2BA895;--primary-lt:#0B1F1B;--primary-mid:#2BA895;--accent:#C9973A;--accent-lt:#1A1008;--text:#EBF2EF;--muted:#7AA898;--border:#1A2E29; }
+:root[data-theme="light"] { --bg:#F4F7F6;--surface:#FFFFFF;--primary:#1B6B5E;--primary-lt:#E4F0ED;--primary-mid:#2E9B89;--accent:#C9973A;--accent-lt:#FBF3E4;--text:#0F1C19;--muted:#5C7A72;--border:#DDE8E5; }
+
+/* ══ RESET ═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;font-size:16px;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+
+/* ══ DESKTOP FRAME ════════════════════════════════════════
+   On ≥600px: show app as a phone-frame centered on dark background.
+   This makes it feel like an app, not a website. ══════════ */
+@media (min-width:600px){
+  body{
+    background:linear-gradient(150deg,#071410 0%,#183E36 55%,#071410 100%);
+    display:flex;align-items:center;justify-content:center;min-height:100vh;
+    padding:24px;
   }
-}
-:root[data-theme="dark"] {
-  --bg: #0A110F; --surface: #111C19; --primary: #2BA895;
-  --primary-light: #0B1F1B; --primary-mid: #2BA895; --accent: #C9973A;
-  --accent-light: #1A1008; --text: #EBF2EF; --text-muted: #7AA898;
-  --border: #1A2E29;
-  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
-  --shadow-md: 0 6px 28px rgba(0,0,0,.4);
-}
-:root[data-theme="light"] {
-  --bg: #F4F7F6; --surface: #FFFFFF; --primary: #1B6B5E;
-  --primary-light: #E4F0ED; --primary-mid: #2E9B89; --accent: #C9973A;
-  --accent-light: #FBF3E4; --text: #0F1C19; --text-muted: #5C7A72;
-  --border: #DDE8E5;
-  --shadow: 0 1px 3px rgba(15,28,25,.05), 0 4px 16px rgba(15,28,25,.07);
-  --shadow-md: 0 6px 28px rgba(15,28,25,.12);
-}
-
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { font-size: 16px; height: 100%; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100dvh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-#app {
-  max-width: 440px;
-  margin: 0 auto;
-  min-height: 100dvh;
-  position: relative;
+  body::before{
+    content:'Perfect Smile™';
+    position:fixed;top:24px;left:32px;
+    font-family:Georgia,serif;font-size:15px;font-weight:bold;
+    color:rgba(255,255,255,.3);letter-spacing:-.3px;
+    pointer-events:none;
+  }
+  #app{
+    max-width:420px;width:100%;
+    height:min(92vh,880px);
+    border-radius:48px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 50px 120px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.04);
+    position:relative;
+  }
+  .screen{overflow-y:auto;-ms-overflow-style:none;scrollbar-width:none;}
+  .screen::-webkit-scrollbar{display:none;}
 }
 
-/* ── SCREENS ── */
-.screen { display: none; flex-direction: column; min-height: 100dvh; background: var(--bg); }
-.screen.active { display: flex; animation: sIn .3s cubic-bezier(.22,1,.36,1) both; }
-.screen.back { animation: sBack .3s cubic-bezier(.22,1,.36,1) both; }
-@keyframes sIn   { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes sBack { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
-@media (prefers-reduced-motion: reduce) { .screen.active, .screen.back { animation: none; } }
+/* ══ SCREENS ══════════════════════════════════════════════ */
+#app{position:relative;}
+.screen{
+  display:none;flex-direction:column;
+  min-height:100dvh;background:var(--bg);
+}
+@media (min-width:600px){.screen{min-height:100%;}}
+.screen.active{display:flex;animation:sIn .3s cubic-bezier(.22,1,.36,1) both;}
+.screen.back  {display:flex;animation:sBk .3s cubic-bezier(.22,1,.36,1) both;}
+@keyframes sIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes sBk{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){.screen.active,.screen.back{animation:none;}}
 
-/* ── NAV ── */
-.nav {
-  display: flex;
-  align-items: center;
-  padding: 14px 20px;
-  gap: 10px;
-  position: relative;
-  background: var(--bg);
+/* ══ NAV BAR ══════════════════════════════════════════════ */
+.nav{display:flex;align-items:center;padding:14px 20px;gap:10px;background:var(--bg);}
+.logo{font-family:Georgia,serif;font-size:17px;color:var(--primary);letter-spacing:-.2px;font-weight:bold;}
+.logo sup{font-size:8px;opacity:.7;}
+.back-btn{
+  background:none;border:none;cursor:pointer;color:var(--primary);
+  font-size:14px;font-weight:600;padding:6px 10px 6px 0;
+  display:flex;align-items:center;gap:5px;font-family:inherit;
 }
-.logo {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 17px;
-  color: var(--primary);
-  letter-spacing: -.2px;
-  font-weight: bold;
+.nav-meta{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600;}
+.nav-user{
+  margin-left:auto;display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:var(--primary);
 }
-.logo sup { font-size: 8px; opacity: .7; }
-.back-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 6px 10px 6px 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-family: inherit;
-}
-.nav-meta { margin-left: auto; font-size: 12px; color: var(--text-muted); font-weight: 600; }
-
-/* ── PROGRESS ── */
-.prog-wrap { padding: 0 20px 14px; }
-.prog-track { height: 3px; background: var(--border); border-radius: 2px; position: relative; overflow: visible; }
-.prog-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 2px;
-  transition: width .5s cubic-bezier(.22,1,.36,1);
-  position: relative;
-}
-.prog-fill::after {
-  content: '';
-  position: absolute;
-  right: -3px; top: 50%;
-  transform: translateY(-50%);
-  width: 7px; height: 7px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--bg);
+.avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--primary-mid));
+  color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
 }
 
-/* ── BUTTONS ── */
-.btn {
-  display: block;
-  width: 100%;
-  padding: 14px 24px;
-  border: none;
-  border-radius: var(--r);
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: filter .15s, transform .1s, box-shadow .15s;
-  text-align: center;
-  font-family: inherit;
-  letter-spacing: .1px;
+/* ══ PROGRESS ════════════════════════════════════════════ */
+.prog-wrap{padding:0 20px 14px;}
+.prog-track{height:3px;background:var(--border);border-radius:2px;position:relative;overflow:visible;}
+.prog-fill{
+  height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));
+  border-radius:2px;transition:width .5s cubic-bezier(.22,1,.36,1);position:relative;
 }
-.btn:active { transform: scale(.97); }
-.btn:disabled { opacity: .45; pointer-events: none; }
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover { filter: brightness(1.1); box-shadow: 0 4px 18px rgba(27,107,94,.3); }
-.btn-gold {
-  background: linear-gradient(135deg, #B8842E, #D9A942 50%, #C9973A);
-  color: #fff;
-  box-shadow: 0 4px 18px rgba(185,136,50,.28);
-}
-.btn-gold:hover { filter: brightness(1.07); box-shadow: 0 6px 24px rgba(185,136,50,.38); }
-.btn-ghost { background: var(--primary-light); color: var(--primary); }
-.btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
-
-/* ── CARDS ── */
-.card {
-  background: var(--surface);
-  border-radius: var(--r);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+.prog-fill::after{
+  content:'';position:absolute;right:-3px;top:50%;transform:translateY(-50%);
+  width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 0 2px var(--bg);
 }
 
-/* ── DISCLAIMER ── */
-.disc {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 12px 24px 20px;
-  line-height: 1.65;
-  border-top: 1px solid var(--border);
+/* ══ BUTTONS ═════════════════════════════════════════════ */
+.btn{
+  display:block;width:100%;padding:14px 24px;border:none;
+  border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;
+  transition:filter .15s,transform .1s,box-shadow .15s;
+  text-align:center;font-family:inherit;letter-spacing:.1px;
+}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.45;pointer-events:none;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{filter:brightness(1.1);box-shadow:0 4px 18px rgba(27,107,94,.3);}
+.btn-gold{
+  background:linear-gradient(135deg,#B8842E,#D9A942 50%,#C9973A);color:#fff;
+  box-shadow:0 4px 18px rgba(185,136,50,.28);
+}
+.btn-gold:hover{filter:brightness(1.07);box-shadow:0 6px 24px rgba(185,136,50,.38);}
+.btn-ghost{background:var(--primary-lt);color:var(--primary);}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary);}
+.btn-danger{background:#FEE2E2;color:var(--danger);border:none;}
+.btn-sm{padding:9px 18px;font-size:13px;}
+
+/* ══ FORM ELEMENTS ════════════════════════════════════════ */
+.f-label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.f-input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;
+  font-size:15px;background:var(--bg);color:var(--text);font-family:inherit;
+  -webkit-appearance:none;transition:border-color .2s,box-shadow .2s;
+}
+.f-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,107,94,.11);}
+.f-input.err{border-color:var(--danger);}
+.f-row{margin-bottom:14px;}
+.f-err{font-size:12px;color:var(--danger);margin-top:4px;display:none;}
+.f-err.show{display:block;}
+
+/* ══ CARD ════════════════════════════════════════════════ */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);}
+.disc{font-size:11px;color:var(--muted);text-align:center;padding:12px 24px 20px;line-height:1.65;border-top:1px solid var(--border);}
+
+/* ════════════════════════════════════════════════════════
+   AUTH SCREEN ════════════════════════════════════════════ */
+#s-auth{background:linear-gradient(160deg,#0C2420 0%,#1B4A40 50%,#0C2420 100%);}
+.auth-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;}
+.auth-logo{
+  font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#fff;
+  letter-spacing:-.5px;margin-bottom:6px;text-align:center;
+}
+.auth-logo sup{font-size:12px;opacity:.6;}
+.auth-sub{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:48px;text-align:center;}
+.auth-orb{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(145deg,var(--primary) 0%,var(--primary-mid) 55%,var(--accent) 100%);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 20px rgba(27,107,94,.1),0 0 0 40px rgba(27,107,94,.05);
+  margin-bottom:36px;animation:orb-float 5s ease-in-out infinite;
+}
+@keyframes orb-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.auth-orb svg{width:50px;height:50px;}
+.auth-cards{width:100%;display:flex;flex-direction:column;gap:12px;}
+.auth-card{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--r);padding:18px 20px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;
+  transition:background .2s,border-color .2s,transform .1s;
+}
+.auth-card:active{transform:scale(.97);}
+.auth-card:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.2);}
+.auth-card-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+.auth-card.primary-card .auth-card-icon{background:linear-gradient(135deg,#B8842E,#D9A942);}
+.auth-card.ghost-card  .auth-card-icon{background:rgba(255,255,255,.1);}
+.auth-card-body{}
+.auth-card-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;}
+.auth-card-desc{font-size:12.5px;color:rgba(255,255,255,.55);}
+.guest-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(201,151,58,.2);color:#D9A942;
+  padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;margin-top:4px;
 }
 
-/* ═══════════════════════════════════════════
-   SCREEN 1 — WELCOME
-   ═══════════════════════════════════════════ */
-#s-welcome { background: var(--surface); }
-.w-top { padding: 16px 20px 0; display: flex; align-items: center; }
-.w-body {
-  flex: 1;
-  padding: 12px 28px 32px;
-  display: flex;
-  flex-direction: column;
+/* ════════════════════════════════════════════════════════
+   LOGIN / REGISTER ════════════════════════════════════════ */
+#s-login,#s-reg{background:var(--surface);}
+.auth-form-header{
+  background:linear-gradient(155deg,var(--primary),var(--primary-mid));
+  padding:32px 24px 52px;color:#fff;text-align:center;
 }
-.orb-wrap {
-  width: 100%;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 28px;
-  position: relative;
+.auth-form-header h2{font-family:Georgia,serif;font-size:22px;font-weight:normal;margin-bottom:6px;}
+.auth-form-header p{font-size:13px;opacity:.8;line-height:1.6;}
+.auth-form-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--rl);margin:-26px 20px 0;
+  padding:24px 20px;box-shadow:var(--sh-md);
 }
-.orb {
-  width: 148px; height: 148px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #1B6B5E 0%, #2E9B89 55%, #C9973A 100%);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 0 22px rgba(27,107,94,.07), 0 0 0 44px rgba(27,107,94,.04);
-  animation: orb-float 5s ease-in-out infinite;
-}
-@keyframes orb-float {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-9px); }
-}
-.orb svg { width: 72px; height: 72px; }
-.eyebrow {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 10.5px; font-weight: 700; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--primary); margin-bottom: 10px;
-}
-.eyebrow::before { content: ''; width: 22px; height: 2px; background: var(--primary); border-radius: 1px; }
-.w-h1 {
-  font-family: Georgia, serif;
-  font-size: clamp(30px, 8vw, 38px);
-  font-weight: normal;
-  line-height: 1.15;
-  margin-bottom: 14px;
-  text-wrap: balance;
-}
-.w-h1 em { font-style: italic; color: var(--primary); }
-.w-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.65; margin-bottom: 26px; }
-.trust-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-.pill {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--primary-light); color: var(--primary);
-  padding: 5px 11px; border-radius: 100px;
-  font-size: 12px; font-weight: 600;
-}
-.btn-stack { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
-
-/* ═══════════════════════════════════════════
-   SCREEN 2 — GUIDE
-   ═══════════════════════════════════════════ */
-.guide-intro { padding: 16px 20px 4px; }
-.guide-intro h2 { font-family: Georgia, serif; font-size: 23px; font-weight: normal; margin-bottom: 5px; }
-.guide-intro p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
-.guide-cards { display: flex; flex-direction: column; gap: 10px; padding: 0 20px; }
-.g-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 16px 18px;
-  display: flex; gap: 14px; align-items: flex-start;
-  box-shadow: var(--shadow);
-}
-.g-num {
-  min-width: 30px; height: 30px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-mid));
-  color: #fff; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; flex-shrink: 0;
-}
-.g-body h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-.g-body ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.g-body li {
-  font-size: 13px; color: var(--text-muted);
-  display: flex; align-items: center; gap: 6px;
-}
-.g-body li::before { content: '·'; color: var(--accent); font-size: 18px; line-height: 1; }
-.guide-cta { padding: 20px 20px 0; margin-top: auto; }
-
-/* ═══════════════════════════════════════════
-   SCREEN 3 & 4 — UPLOAD
-   ═══════════════════════════════════════════ */
-.upload-body { flex: 1; padding: 0 20px 20px; display: flex; flex-direction: column; }
-.upload-body h2 { font-family: Georgia, serif; font-size: 21px; font-weight: normal; margin-bottom: 5px; }
-.upload-body .sub { font-size: 14px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
-.tip {
-  background: var(--accent-light);
-  border: 1px solid rgba(201,151,58,.18);
-  border-radius: 10px;
-  padding: 11px 13px;
-  font-size: 13px;
-  color: var(--text);
-  margin-bottom: 14px;
-  display: flex; gap: 8px; align-items: flex-start; line-height: 1.55;
-}
-.tip-icon { flex-shrink: 0; }
-.drop-zone {
-  flex: 1; min-height: 200px;
-  border: 2px dashed var(--border);
-  border-radius: var(--r);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center; padding: 36px 20px;
-  cursor: pointer;
-  transition: border-color .2s, background .2s;
-  position: relative;
-  background: var(--surface);
-}
-.drop-zone:hover, .drop-zone.over { border-color: var(--primary); background: var(--primary-light); }
-.drop-zone input[type="file"] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer;
-  width: 100%; height: 100%; font-size: 0;
-}
-.drop-icon { font-size: 42px; margin-bottom: 10px; display: block; }
-.drop-zone h3 { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
-.drop-zone p { font-size: 13px; color: var(--text-muted); }
-.prev-wrap {
-  display: none; border-radius: var(--r); overflow: hidden;
-  position: relative; flex: 1; min-height: 200px;
-}
-.prev-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.prev-bar {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.55), transparent);
-  padding: 14px 14px 12px;
-  display: flex; align-items: center; gap: 8px;
-}
-.prev-ok {
-  background: var(--success); color: #fff;
-  padding: 5px 11px; border-radius: 7px;
-  font-size: 12px; font-weight: 700;
-}
-.prev-retake {
-  margin-left: auto; cursor: pointer;
-  background: rgba(255,255,255,.15);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,.25);
-  color: #fff; padding: 5px 11px;
-  border-radius: 7px; font-size: 12px; font-weight: 600;
-}
-.upload-cta { margin-top: 16px; }
-
-/* ═══════════════════════════════════════════
-   SCREEN 5 — ANALYZING
-   ═══════════════════════════════════════════ */
-#s-analyzing { background: var(--surface); }
-.analyzing-body {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px 28px; text-align: center;
-}
-.spin-wrap {
-  position: relative; width: 116px; height: 116px; margin-bottom: 32px;
-}
-.spin-ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: var(--primary);
-  border-right-color: var(--accent);
-  animation: spin 1.1s linear infinite;
-}
-.spin-ring2 {
-  position: absolute; inset: 9px; border-radius: 50%;
-  border: 2px solid var(--border);
-  border-top-color: var(--primary-mid);
-  animation: spin 2.2s linear infinite reverse;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin-core {
-  position: absolute; inset: 18px; border-radius: 50%;
-  background: var(--primary-light);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 30px;
-}
-.an-h2 { font-family: Georgia, serif; font-size: 23px; font-weight: normal; margin-bottom: 6px; }
-.an-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
-.step-list { list-style: none; width: 100%; max-width: 256px; text-align: left; }
-.step-li {
-  display: flex; align-items: center; gap: 11px;
-  padding: 8px 0; font-size: 14px; color: var(--text-muted);
-  border-bottom: 1px solid var(--border); transition: color .25s;
-}
-.step-li:last-child { border-bottom: none; }
-.step-li.act { color: var(--text); font-weight: 500; }
-.step-li.done { color: var(--primary); }
-.st-dot {
-  width: 19px; height: 19px; border-radius: 50%;
-  border: 2px solid var(--border); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; transition: all .25s;
-}
-.step-li.act  .st-dot { border-color: var(--primary); animation: step-pulse 1.1s ease infinite; }
-.step-li.done .st-dot { background: var(--primary); border-color: var(--primary); color: #fff; }
-@keyframes step-pulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(27,107,94,.4); }
-  50%      { box-shadow: 0 0 0 5px rgba(27,107,94,0); }
+.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted);}
+.auth-switch a{color:var(--primary);font-weight:600;cursor:pointer;text-decoration:none;}
+.pw-toggle{position:relative;}
+.pw-toggle .f-input{padding-right:44px;}
+.pw-eye{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;
 }
 
-/* ═══════════════════════════════════════════
-   SCREEN 6 — SCORE
-   ═══════════════════════════════════════════ */
-#s-score { overflow-y: auto; }
-.score-top {
-  background: var(--surface);
-  padding: 20px 24px 28px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
+/* ════════════════════════════════════════════════════════
+   WELCOME (home screen post-auth) ════════════════════════ */
+#s-welcome{background:var(--surface);}
+.w-top{padding:16px 20px 0;display:flex;align-items:center;}
+.w-body{flex:1;padding:12px 28px 32px;display:flex;flex-direction:column;}
+.orb-wrap{width:100%;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.orb{
+  width:136px;height:136px;border-radius:50%;
+  background:linear-gradient(145deg,#1B6B5E 0%,#2E9B89 55%,#C9973A 100%);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 20px rgba(27,107,94,.07),0 0 0 40px rgba(27,107,94,.04);
+  animation:orb-float 5s ease-in-out infinite;
 }
-.sc-ey {
-  font-size: 10.5px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 18px;
+.orb svg{width:64px;height:64px;}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:9px;}
+.eyebrow::before{content:'';width:22px;height:2px;background:var(--primary);border-radius:1px;}
+.w-h1{font-family:Georgia,serif;font-size:clamp(28px,7vw,36px);font-weight:normal;line-height:1.15;margin-bottom:12px;text-wrap:balance;}
+.w-h1 em{font-style:italic;color:var(--primary);}
+.w-sub{font-size:14.5px;color:var(--muted);line-height:1.65;margin-bottom:22px;}
+.trust-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
+.pill{display:flex;align-items:center;gap:5px;background:var(--primary-lt);color:var(--primary);padding:5px 11px;border-radius:100px;font-size:12px;font-weight:600;}
+.btn-stack{display:flex;flex-direction:column;gap:10px;margin-top:auto;}
+.guest-banner{
+  background:rgba(201,151,58,.1);border:1px solid rgba(201,151,58,.2);
+  border-radius:10px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;font-size:13px;
 }
-.gauge-area {
-  position: relative; width: 220px; height: 122px;
-  margin: 0 auto 6px;
-}
-#g-canvas { display: block; width: 220px; height: 122px; }
-.gauge-num-wrap {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  display: flex; flex-direction: column; align-items: center;
-}
-.g-num {
-  font-family: Georgia, serif; font-size: 54px; font-weight: bold;
-  line-height: 1; display: block;
-}
-.g-denom { font-family: Georgia, serif; font-size: 16px; color: var(--text-muted); }
-.sc-tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 14px; border-radius: 100px;
-  font-size: 12px; font-weight: 700; margin: 12px 0 11px;
-}
-.sc-summary {
-  font-size: 14px; color: var(--text-muted); line-height: 1.65;
-  max-width: 300px; margin: 0 auto;
-}
-.sc-sec-label {
-  font-size: 11px; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--text-muted); padding: 18px 20px 10px;
-}
-.cat-list { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-.cat-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 20px; border-bottom: 1px solid var(--border);
-}
-.cat-row:last-child { border-bottom: none; }
-.cat-name { font-size: 13px; font-weight: 500; min-width: 128px; }
-.cat-track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.cat-bar { height: 100%; border-radius: 3px; width: 0; transition: width 1.1s cubic-bezier(.22,1,.36,1); }
-.cat-score { font-size: 12px; font-weight: 700; min-width: 22px; text-align: right; font-variant-numeric: tabular-nums; }
-.areas-wrap { padding: 16px 20px; }
-.area-item {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 13px; color: var(--text-muted); padding: 4px 0;
-}
-.area-dot { font-size: 13px; }
-.sc-btns { padding: 4px 20px 8px; display: flex; flex-direction: column; gap: 10px; }
+.guest-banner svg{flex-shrink:0;}
 
-/* ═══════════════════════════════════════════
-   SCREEN 7 — IMPROVEMENTS
-   ═══════════════════════════════════════════ */
-#s-impr { overflow-y: auto; }
-.impr-head {
-  background: linear-gradient(155deg, var(--primary) 0%, var(--primary-mid) 100%);
-  padding: 30px 24px 52px; color: #fff; text-align: center;
-}
-.impr-head h2 { font-family: Georgia, serif; font-size: 25px; font-weight: normal; margin-bottom: 7px; }
-.impr-head p { font-size: 14px; opacity: .82; line-height: 1.65; }
-.impr-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); margin: -26px 20px 20px;
-  overflow: hidden; box-shadow: var(--shadow-md);
-}
-.impr-item {
-  display: flex; align-items: flex-start; gap: 13px;
-  padding: 15px 18px; border-bottom: 1px solid var(--border);
-}
-.impr-item:last-child { border-bottom: none; }
-.impr-ico {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--accent-light); color: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-size: 13px;
-}
-.impr-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-.impr-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-.impr-cta-box {
-  background: var(--accent-light);
-  border: 1px solid rgba(201,151,58,.2);
-  border-radius: var(--r);
-  padding: 14px 16px;
-  margin: 0 20px 16px;
-  font-size: 13px; line-height: 1.6;
-}
-.impr-cta-box strong { display: block; margin-bottom: 4px; color: var(--accent); font-size: 13px; }
-.impr-btns { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+/* ════════════════════════════════════════════════════════
+   GUIDE ══════════════════════════════════════════════════ */
+.guide-intro{padding:16px 20px 4px;}
+.guide-intro h2{font-family:Georgia,serif;font-size:22px;font-weight:normal;margin-bottom:5px;}
+.guide-intro p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px;}
+.g-cards{display:flex;flex-direction:column;gap:10px;padding:0 20px;}
+.g-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--sh);}
+.g-num{min-width:30px;height:30px;background:linear-gradient(135deg,var(--primary),var(--primary-mid));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.g-body h3{font-size:14px;font-weight:700;margin-bottom:6px;}
+.g-body ul{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.g-body li{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.g-body li::before{content:'·';color:var(--accent);font-size:18px;line-height:1;}
 
-/* ═══════════════════════════════════════════
-   SCREEN 8 — BOOKING
-   ═══════════════════════════════════════════ */
-#s-book { overflow-y: auto; }
-.book-head {
-  background: var(--primary);
-  padding: 14px 20px 52px; color: #fff;
+/* ════════════════════════════════════════════════════════
+   UPLOAD / CAMERA SCREENS ════════════════════════════════ */
+.upload-body{flex:1;padding:0 20px 20px;display:flex;flex-direction:column;}
+.upload-body h2{font-family:Georgia,serif;font-size:21px;font-weight:normal;margin-bottom:5px;}
+.upload-body .sub{font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.tip{background:var(--accent-lt);border:1px solid rgba(201,151,58,.18);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--text);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;line-height:1.55;}
+.capture-opts{display:flex;gap:10px;margin-bottom:12px;}
+.capture-opt{
+  flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:16px 12px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s,transform .1s;
+  font-family:inherit;
 }
-.book-head h2 { font-family: Georgia, serif; font-size: 21px; font-weight: normal; margin-bottom: 6px; }
-.book-head p { font-size: 13px; opacity: .82; line-height: 1.65; }
-.book-form {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); margin: -26px 20px 20px;
-  padding: 22px 20px; box-shadow: var(--shadow-md);
+.capture-opt:active{transform:scale(.97);}
+.capture-opt:hover{border-color:var(--primary);background:var(--primary-lt);}
+.capture-opt.active{border-color:var(--primary);background:var(--primary-lt);}
+.capture-opt-icon{font-size:28px;display:block;margin-bottom:6px;}
+.capture-opt-label{font-size:12.5px;font-weight:600;color:var(--text);display:block;}
+.capture-opt-sub{font-size:11px;color:var(--muted);}
+.drop-zone{
+  flex:1;min-height:180px;border:2px dashed var(--border);border-radius:var(--r);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:32px 20px;cursor:pointer;
+  transition:border-color .2s,background .2s;position:relative;background:var(--surface);
 }
-.f-row { margin-bottom: 14px; }
-.f-label {
-  display: block; font-size: 11px; font-weight: 700;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 5px;
-}
-.f-input {
-  width: 100%; padding: 11px 13px;
-  border: 1.5px solid var(--border); border-radius: 10px;
-  font-size: 15px; background: var(--bg); color: var(--text);
-  font-family: inherit; -webkit-appearance: none;
-  transition: border-color .2s, box-shadow .2s;
-}
-.f-input:focus {
-  outline: none; border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(27,107,94,.11);
-}
-.f-input.err { border-color: var(--danger); }
-.f-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+.drop-zone:hover,.drop-zone.over{border-color:var(--primary);background:var(--primary-lt);}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:0;}
+.drop-icon{font-size:38px;margin-bottom:10px;display:block;}
+.drop-zone h3{font-size:15px;font-weight:600;margin-bottom:5px;}
+.drop-zone p{font-size:12px;color:var(--muted);}
+.prev-wrap{display:none;border-radius:var(--r);overflow:hidden;position:relative;flex:1;min-height:180px;}
+.prev-wrap img{width:100%;height:100%;object-fit:cover;}
+.prev-bar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);padding:14px 14px 12px;display:flex;align-items:center;gap:8px;}
+.prev-ok{background:var(--success);color:#fff;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:700;}
+.prev-retake{margin-left:auto;cursor:pointer;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:600;}
+.upload-cta{margin-top:14px;}
 
-/* ═══════════════════════════════════════════
-   SCREEN 9 — THANK YOU
-   ═══════════════════════════════════════════ */
-#s-ty { background: var(--surface); }
-.ty-body {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px 28px; text-align: center;
+/* ════════════════════════════════════════════════════════
+   CAMERA MODAL ═══════════════════════════════════════════ */
+#cam-modal{
+  display:none;position:fixed;inset:0;z-index:9999;background:#000;
+  flex-direction:column;align-items:center;justify-content:center;
 }
-.check-ring {
-  width: 78px; height: 78px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-mid));
-  border-radius: 50%; color: #fff; font-size: 32px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 22px;
-  animation: pop .45s cubic-bezier(.34,1.56,.64,1) both;
-  box-shadow: 0 8px 28px rgba(27,107,94,.3);
+.cam-inner{position:relative;width:100%;max-width:420px;height:100dvh;overflow:hidden;margin:0 auto;}
+#cam-video{width:100%;height:100%;object-fit:cover;}
+#cam-video.mirror{transform:scaleX(-1);}
+/* Dimmed face-cutout overlay */
+.cam-guide-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.cam-close{
+  position:absolute;top:20px;left:20px;z-index:10;
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
 }
-@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.ty-h2 { font-family: Georgia, serif; font-size: 26px; font-weight: normal; margin-bottom: 8px; }
-.ty-sub { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; max-width: 272px; }
-.next-steps { list-style: none; width: 100%; max-width: 296px; margin-bottom: 28px; text-align: left; }
-.ns-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.ns-item:last-child { border-bottom: none; }
-.ns-n {
-  min-width: 22px; height: 22px;
-  background: var(--primary-light); color: var(--primary);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+.cam-tip{
+  position:absolute;top:76px;left:0;right:0;z-index:10;
+  text-align:center;color:#fff;font-size:13.5px;font-weight:600;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);padding:0 40px;line-height:1.6;
 }
-.ns-item strong { display: block; font-size: 13px; margin-bottom: 2px; }
-.ns-item p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.cam-bottom{
+  position:absolute;bottom:44px;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;gap:28px;
+}
+.cam-shutter{
+  width:76px;height:76px;border-radius:50%;background:#fff;
+  border:5px solid rgba(255,255,255,.35);cursor:pointer;
+  box-shadow:0 4px 28px rgba(0,0,0,.6);
+}
+.cam-switch{
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.25);
+  color:#fff;font-size:20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+#cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:15;transition:opacity .12s;}
+#cam-canvas{display:none;}
 
-/* ─── PWA INSTALL BANNER ─── */
-#install-bar {
-  display: none;
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 440px;
-  background: var(--surface); border-top: 1px solid var(--border);
-  padding: 13px 16px;
-  box-shadow: 0 -4px 20px rgba(0,0,0,.1);
-  z-index: 200; align-items: center; gap: 12px;
+/* ════════════════════════════════════════════════════════
+   ANALYSING ══════════════════════════════════════════════ */
+#s-an{background:var(--surface);}
+.an-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;}
+.spin-wrap{position:relative;width:116px;height:116px;margin-bottom:32px;}
+.spin-r1{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--primary);border-right-color:var(--accent);animation:spin 1.1s linear infinite;}
+.spin-r2{position:absolute;inset:9px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--primary-mid);animation:spin 2.2s linear infinite reverse;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-core{position:absolute;inset:18px;border-radius:50%;background:var(--primary-lt);display:flex;align-items:center;justify-content:center;font-size:30px;}
+.an-h2{font-family:Georgia,serif;font-size:23px;font-weight:normal;margin-bottom:6px;}
+.an-sub{font-size:14px;color:var(--muted);margin-bottom:32px;}
+.step-list{list-style:none;width:100%;max-width:256px;text-align:left;}
+.step-li{display:flex;align-items:center;gap:11px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border);transition:color .25s;}
+.step-li:last-child{border-bottom:none;}
+.step-li.act{color:var(--text);font-weight:500;}
+.step-li.done{color:var(--primary);}
+.st-dot{width:19px;height:19px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all .25s;}
+.step-li.act  .st-dot{border-color:var(--primary);animation:sp 1.1s ease infinite;}
+.step-li.done .st-dot{background:var(--primary);border-color:var(--primary);color:#fff;}
+@keyframes sp{0%,100%{box-shadow:0 0 0 0 rgba(27,107,94,.4)}50%{box-shadow:0 0 0 5px rgba(27,107,94,0)}}
+
+/* ════════════════════════════════════════════════════════
+   SCORE ═══════════════════════════════════════════════════ */
+#s-score{overflow-y:auto;}
+.score-top{background:var(--surface);padding:20px 24px 28px;text-align:center;border-bottom:1px solid var(--border);}
+.sc-ey{font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.gauge-area{position:relative;width:220px;height:122px;margin:0 auto 6px;}
+#g-canvas{display:block;width:220px;height:122px;}
+.gauge-num{position:absolute;bottom:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;}
+.g-num{font-family:Georgia,serif;font-size:54px;font-weight:bold;line-height:1;display:block;}
+.g-den{font-family:Georgia,serif;font-size:16px;color:var(--muted);}
+.sc-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;margin:12px 0 11px;}
+.sc-sum{font-size:14px;color:var(--muted);line-height:1.65;max-width:300px;margin:0 auto;}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:18px 20px 10px;}
+.cat-list{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.cat-row{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border);}
+.cat-row:last-child{border-bottom:none;}
+.cat-name{font-size:13px;font-weight:500;min-width:128px;}
+.cat-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.cat-bar{height:100%;border-radius:3px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1);}
+.cat-score{font-size:12px;font-weight:700;min-width:22px;text-align:right;font-variant-numeric:tabular-nums;}
+.locked-block{
+  padding:14px 20px;display:flex;align-items:center;gap:12px;
+  background:rgba(201,151,58,.07);border-top:1px solid var(--border);
+  font-size:13px;color:var(--muted);
 }
-.ib-text { flex: 1; font-size: 13px; }
-.ib-text strong { display: block; font-size: 14px; margin-bottom: 1px; }
-.ib-text span { color: var(--text-muted); }
-.ib-install {
-  background: var(--primary); color: #fff;
-  border: none; border-radius: 8px;
-  padding: 8px 15px; font-size: 13px; font-weight: 600;
-  cursor: pointer; white-space: nowrap; font-family: inherit;
+.locked-block strong{display:block;color:var(--text);margin-bottom:2px;}
+.lock-icon{font-size:20px;flex-shrink:0;}
+.areas-wrap{padding:14px 20px;}
+.area-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:4px 0;}
+.sc-btns{padding:4px 20px 8px;display:flex;flex-direction:column;gap:10px;}
+
+/* ════════════════════════════════════════════════════════
+   IMPROVEMENTS ════════════════════════════════════════════ */
+#s-impr{overflow-y:auto;}
+.impr-head{background:linear-gradient(155deg,var(--primary),var(--primary-mid));padding:30px 24px 52px;color:#fff;text-align:center;}
+.impr-head h2{font-family:Georgia,serif;font-size:24px;font-weight:normal;margin-bottom:7px;}
+.impr-head p{font-size:14px;opacity:.82;line-height:1.65;}
+.impr-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);margin:-26px 20px 20px;overflow:hidden;box-shadow:var(--sh-md);}
+.impr-item{display:flex;align-items:flex-start;gap:13px;padding:15px 18px;border-bottom:1px solid var(--border);}
+.impr-item:last-child{border-bottom:none;}
+.impr-ico{width:30px;height:30px;border-radius:50%;background:var(--accent-lt);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+.impr-title{font-size:14px;font-weight:600;margin-bottom:3px;}
+.impr-desc{font-size:13px;color:var(--muted);line-height:1.5;}
+.cta-box{background:var(--accent-lt);border:1px solid rgba(201,151,58,.2);border-radius:var(--r);padding:14px 16px;margin:0 20px 16px;font-size:13px;line-height:1.6;}
+.cta-box strong{display:block;margin-bottom:4px;color:var(--accent);font-size:13px;}
+.impr-btns{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
+
+/* ════════════════════════════════════════════════════════
+   BOOKING ════════════════════════════════════════════════ */
+#s-book{overflow-y:auto;}
+.book-head{background:var(--primary);padding:14px 20px 52px;color:#fff;}
+.book-head h2{font-family:Georgia,serif;font-size:21px;font-weight:normal;margin-bottom:6px;}
+.book-head p{font-size:13px;opacity:.82;line-height:1.65;}
+.book-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);margin:-26px 20px 20px;padding:22px 20px;box-shadow:var(--sh-md);}
+.f-note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.send-status{
+  display:none;text-align:center;padding:12px;
+  border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;
 }
-.ib-close {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-muted); font-size: 20px; padding: 2px 4px; line-height: 1;
+.send-status.ok{background:#D1FAE5;color:#166534;display:block;}
+.send-status.fail{background:#FEE2E2;color:#991B1B;display:block;}
+
+/* ════════════════════════════════════════════════════════
+   THANK YOU ══════════════════════════════════════════════ */
+#s-ty{background:var(--surface);}
+.ty-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;}
+.check-ring{width:78px;height:78px;background:linear-gradient(135deg,var(--primary),var(--primary-mid));border-radius:50%;color:#fff;font-size:32px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;animation:pop .45s cubic-bezier(.34,1.56,.64,1) both;box-shadow:0 8px 28px rgba(27,107,94,.3);}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.ty-h2{font-family:Georgia,serif;font-size:26px;font-weight:normal;margin-bottom:8px;}
+.ty-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px;max-width:272px;}
+.ns-list{list-style:none;width:100%;max-width:296px;margin-bottom:28px;text-align:left;}
+.ns-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.ns-item:last-child{border-bottom:none;}
+.ns-n{min-width:22px;height:22px;background:var(--primary-lt);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.ns-item strong{display:block;font-size:13px;margin-bottom:2px;}
+.ns-item p{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* ════════════════════════════════════════════════════════
+   PWA INSTALL BANNER ═════════════════════════════════════ */
+#install-bar{
+  display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:420px;background:var(--surface);border-top:1px solid var(--border);
+  padding:13px 16px;box-shadow:0 -4px 20px rgba(0,0,0,.1);z-index:200;align-items:center;gap:12px;
 }
+.ib-text{flex:1;font-size:13px;}
+.ib-text strong{display:block;font-size:14px;margin-bottom:1px;}
+.ib-text span{color:var(--muted);}
+.ib-install{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.ib-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;padding:2px 4px;line-height:1;}
 </style>
 
+<!-- ══════════════════════════════════════════════════════
+     APP ════════════════════════════════════════════════ -->
 <div id="app">
 
-<!-- ══ S1: WELCOME ══════════════════════════════════════ -->
-<div class="screen active" id="s-welcome">
-  <div class="w-top">
-    <span class="logo">Perfect Smile<sup>™</sup></span>
-  </div>
-  <div class="w-body">
-    <div class="orb-wrap">
-      <div class="orb">
-        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 16c-4 7-4 18-2 28 1 6 3 12 5 16 1.5 3 3 5 5 5s3.5-2.5 4.5-6l1.5-7h8l1.5 7c1 3.5 2.5 6 4.5 6s3.5-2 5-5c2-4 4-10 5-16 2-10 2-21-2-28-4-7-10-10-18-10S22 9 18 16Z" fill="white" opacity=".93"/>
-          <path d="M24 22 Q36 17 48 22" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linecap="round" fill="none"/>
-        </svg>
+<!-- ══ AUTH SPLASH ══════════════════════════════════════ -->
+<div class="screen active" id="s-auth">
+  <div class="auth-inner">
+    <div class="auth-orb">
+      <svg viewBox="0 0 50 50" fill="none">
+        <path d="M12 11c-3 5-3 13-1 20 1 4 3 8 4 11 1 2.5 2 4 4 4s2.5-1.5 3-4.5l1-5h4l1 5c.5 3 1.5 4.5 3 4.5s3-1.5 4-4c1-3 3-7 4-11 2-7 2-15-1-20-3-5-7-7-13-7S15 6 12 11Z" fill="white" opacity=".93"/>
+      </svg>
+    </div>
+    <div class="auth-logo">Perfect Smile<sup>™</sup></div>
+    <div class="auth-sub">AI Smile Assessment Platform</div>
+    <div class="auth-cards">
+      <div class="auth-card primary-card" onclick="go('s-reg')">
+        <div class="auth-card-icon">👤</div>
+        <div class="auth-card-body">
+          <div class="auth-card-title">Create Account</div>
+          <div class="auth-card-desc">Full access — save results, book consultations, view history</div>
+        </div>
       </div>
-    </div>
-    <div class="eyebrow">AI Smile Assessment</div>
-    <h1 class="w-h1">How <em>Perfect</em><br>Is Your Smile?</h1>
-    <p class="w-sub">Upload two quick photos and receive your personalised AI Smile Score in under 60 seconds — completely free.</p>
-    <div class="trust-row">
-      <div class="pill"><span>🔒</span> Private</div>
-      <div class="pill"><span>⚡</span> 60 Seconds</div>
-      <div class="pill"><span>🎯</span> AI-Powered</div>
-    </div>
-    <div class="btn-stack">
-      <button class="btn btn-gold" onclick="go('s-guide')">Start Free Assessment →</button>
-      <button class="btn btn-ghost" onclick="go('s-guide')">Learn how it works</button>
+      <div class="auth-card primary-card" onclick="go('s-login')">
+        <div class="auth-card-icon">🔑</div>
+        <div class="auth-card-body">
+          <div class="auth-card-title">Sign In</div>
+          <div class="auth-card-desc">Continue with your existing account</div>
+        </div>
+      </div>
+      <div class="auth-card ghost-card" onclick="enterAsGuest()">
+        <div class="auth-card-icon">👁</div>
+        <div class="auth-card-body">
+          <div class="auth-card-title">Continue as Guest</div>
+          <div class="auth-card-desc">Take an assessment — limited features</div>
+          <div class="guest-badge">⚠ Can't book · No history</div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="disc">Perfect Smile™ is an educational AI screening tool and does not replace a professional orthodontic examination.</div>
 </div>
 
-<!-- ══ S2: GUIDE ════════════════════════════════════════ -->
+<!-- ══ REGISTER ════════════════════════════════════════ -->
+<div class="screen" id="s-reg">
+  <div class="auth-form-header">
+    <div class="nav" style="padding:0 0 14px;background:transparent;">
+      <button class="back-btn" style="color:rgba(255,255,255,.8);" onclick="go('s-auth',true)">
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 1 1 6 6 11"/></svg> Back
+      </button>
+    </div>
+    <h2>Create Your Account</h2>
+    <p>Join Perfect Smile™ for full access to your smile assessment history and consultation booking.</p>
+  </div>
+  <div class="auth-form-card">
+    <div class="f-row">
+      <label class="f-label" for="reg-name">Full Name</label>
+      <input class="f-input" type="text" id="reg-name" placeholder="Your full name" autocomplete="name">
+    </div>
+    <div class="f-row">
+      <label class="f-label" for="reg-email">Email Address</label>
+      <input class="f-input" type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
+      <div class="f-err" id="reg-email-err">An account with this email already exists.</div>
+    </div>
+    <div class="f-row">
+      <label class="f-label" for="reg-pw">Password</label>
+      <div class="pw-toggle">
+        <input class="f-input" type="password" id="reg-pw" placeholder="At least 6 characters" autocomplete="new-password">
+        <button class="pw-eye" onclick="togglePw('reg-pw',this)" type="button">👁</button>
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="register()" style="margin-bottom:12px;">Create Account →</button>
+    <div class="auth-switch">Already have an account? <a onclick="go('s-login')">Sign in</a></div>
+  </div>
+  <div class="disc">Your data is stored locally on this device and never shared.</div>
+</div>
+
+<!-- ══ LOGIN ═══════════════════════════════════════════ -->
+<div class="screen" id="s-login">
+  <div class="auth-form-header">
+    <div class="nav" style="padding:0 0 14px;background:transparent;">
+      <button class="back-btn" style="color:rgba(255,255,255,.8);" onclick="go('s-auth',true)">
+        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 1 1 6 6 11"/></svg> Back
+      </button>
+    </div>
+    <h2>Welcome Back</h2>
+    <p>Sign in to access your smile history and book consultations.</p>
+  </div>
+  <div class="auth-form-card">
+    <div class="f-row">
+      <label class="f-label" for="log-email">Email Address</label>
+      <input class="f-input" type="email" id="log-email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="f-row">
+      <label class="f-label" for="log-pw">Password</label>
+      <div class="pw-toggle">
+        <input class="f-input" type="password" id="log-pw" placeholder="Your password" autocomplete="current-password">
+        <button class="pw-eye" onclick="togglePw('log-pw',this)" type="button">👁</button>
+      </div>
+      <div class="f-err show" id="log-err" style="display:none;">Incorrect email or password.</div>
+    </div>
+    <button class="btn btn-primary" onclick="login()" style="margin-bottom:12px;">Sign In →</button>
+    <div class="auth-switch">No account yet? <a onclick="go('s-reg')">Create one</a></div>
+  </div>
+  <div class="disc">Your data is stored locally on this device and never shared.</div>
+</div>
+
+<!-- ══ WELCOME (home) ══════════════════════════════════ -->
+<div class="screen" id="s-welcome">
+  <div class="w-top">
+    <span class="logo">Perfect Smile<sup>™</sup></span>
+    <div class="nav-user" style="margin-left:auto;">
+      <div class="avatar" id="user-avatar">?</div>
+      <span id="user-name-nav" style="font-size:13px;"></span>
+    </div>
+  </div>
+  <div class="w-body">
+    <div class="orb-wrap">
+      <div class="orb">
+        <svg viewBox="0 0 64 64" fill="none">
+          <path d="M16 14c-3 6-3 16-1 25 1 5 3 10 4 14 1 2.5 2 4 4 4s2.5-2 3-5.5l1-6h6l1 6c.5 3.5 1.5 5.5 3 5.5s3-1.5 4-4c1-4 3-9 4-14 2-9 2-19-1-25-3-6-8-9-14-9S19 8 16 14Z" fill="white" opacity=".93"/>
+          <path d="M22 19Q32 15 42 19" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+    </div>
+    <div id="guest-banner" class="guest-banner" style="display:none;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L1 14h14L8 1Z" stroke="#C9973A" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6v4M8 11v1" stroke="#C9973A" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span>Guest mode — <strong style="color:var(--accent);">booking and full report locked.</strong> <a href="#" onclick="go('s-reg')" style="color:var(--primary);font-weight:600;">Create free account →</a></span>
+    </div>
+    <div class="eyebrow">AI Smile Assessment</div>
+    <h1 class="w-h1">How <em>Perfect</em><br>Is Your Smile?</h1>
+    <p class="w-sub">Upload or capture two photos and receive your personalised AI Smile Score in under 60 seconds.</p>
+    <div class="trust-row">
+      <div class="pill"><span>📷</span> Live Camera</div>
+      <div class="pill"><span>⚡</span> 60 Seconds</div>
+      <div class="pill"><span>🎯</span> AI-Powered</div>
+    </div>
+    <div class="btn-stack">
+      <button class="btn btn-gold" onclick="go('s-guide')">Start Assessment →</button>
+      <button class="btn btn-ghost" onclick="logout()" style="font-size:13px;">Sign Out</button>
+    </div>
+  </div>
+  <div class="disc">Perfect Smile™ is an educational AI screening tool and does not replace a professional orthodontic examination.</div>
+</div>
+
+<!-- ══ GUIDE ═══════════════════════════════════════════ -->
 <div class="screen" id="s-guide">
   <div class="nav">
     <button class="back-btn" onclick="go('s-welcome',true)">
@@ -626,20 +611,20 @@ body {
     <span style="width:52px;"></span>
   </div>
   <div class="guide-intro">
-    <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Photo Guide</div>
-    <h2>Two photos.<br>Your instant result.</h2>
-    <p>Follow these guidelines for the most accurate assessment.</p>
+    <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Photo Guide</div>
+    <h2>Two photos. Instant result.</h2>
+    <p>Follow these guidelines closely for the most accurate AI assessment.</p>
   </div>
-  <div class="guide-cards">
+  <div class="g-cards">
     <div class="g-card">
       <div class="g-num">1</div>
       <div class="g-body">
         <h3>Front Smile Photo</h3>
         <ul>
           <li>Face forward, teeth together</li>
-          <li>Lips slightly parted to show teeth</li>
+          <li>Lips slightly parted — teeth visible</li>
           <li>Good even lighting, avoid shadows</li>
-          <li>Phone or portrait orientation</li>
+          <li>Portrait orientation</li>
         </ul>
       </div>
     </div>
@@ -656,13 +641,13 @@ body {
       </div>
     </div>
   </div>
-  <div class="guide-cta">
+  <div style="padding:20px 20px 0;margin-top:auto;">
     <button class="btn btn-primary" onclick="go('s-up1')">Ready — Begin →</button>
   </div>
-  <div class="disc">Photos are processed securely and never permanently stored.</div>
+  <div class="disc">Photos are processed on-device and never permanently stored.</div>
 </div>
 
-<!-- ══ S3: UPLOAD 1 ═════════════════════════════════════ -->
+<!-- ══ UPLOAD 1 (front) ════════════════════════════════ -->
 <div class="screen" id="s-up1">
   <div class="nav">
     <button class="back-btn" onclick="go('s-guide',true)">
@@ -674,21 +659,25 @@ body {
   <div class="upload-body">
     <h2>Front Smile Photo</h2>
     <p class="sub">Face forward, teeth together, even lighting.</p>
-    <div class="tip">
-      <span class="tip-icon">💡</span>
-      <span>Stand near a window for natural light. A rear camera gives sharper detail than a selfie.</span>
-    </div>
-    <div id="dz1" class="drop-zone" ondragover="dragOn(event,'dz1')" ondragleave="dragOff('dz1')">
-      <input type="file" accept="image/*" id="fi1" onchange="setPhoto(this,'p1','dz1','pw1','cb1')">
-      <span class="drop-icon">🦷</span>
-      <h3>Tap to upload or take photo</h3>
-      <p>JPG · PNG · HEIC · up to 20 MB</p>
+    <div class="tip"><span>💡</span><span>Natural window light works best. A rear camera gives sharper detail than a selfie camera.</span></div>
+    <div class="capture-opts">
+      <button class="capture-opt active" id="opt-cam1" onclick="openCamera(1)">
+        <span class="capture-opt-icon">📷</span>
+        <span class="capture-opt-label">Use Camera</span>
+        <span class="capture-opt-sub">Live capture</span>
+      </button>
+      <label class="capture-opt" id="opt-file1" style="cursor:pointer;">
+        <span class="capture-opt-icon">📁</span>
+        <span class="capture-opt-label">Upload File</span>
+        <span class="capture-opt-sub">JPG · PNG · HEIC</span>
+        <input type="file" accept="image/*" id="fi1" onchange="setPhoto(this,'p1','pw1','cb1')" style="display:none;">
+      </label>
     </div>
     <div id="pw1" class="prev-wrap">
       <img id="p1" src="" alt="Front photo">
       <div class="prev-bar">
         <div class="prev-ok">✓ Photo ready</div>
-        <button class="prev-retake" onclick="clear1()">Retake</button>
+        <button class="prev-retake" onclick="clearPhoto('p1','pw1','cb1')">Retake</button>
       </div>
     </div>
     <div class="upload-cta">
@@ -697,7 +686,7 @@ body {
   </div>
 </div>
 
-<!-- ══ S4: UPLOAD 2 ═════════════════════════════════════ -->
+<!-- ══ UPLOAD 2 (side) ════════════════════════════════ -->
 <div class="screen" id="s-up2">
   <div class="nav">
     <button class="back-btn" onclick="go('s-up1',true)">
@@ -709,21 +698,25 @@ body {
   <div class="upload-body">
     <h2>Side Bite Photo</h2>
     <p class="sub">Side profile showing your bite. Teeth together, natural position.</p>
-    <div class="tip">
-      <span class="tip-icon">📸</span>
-      <span>Ask someone to take this photo of you, or use a mirror. Either side works.</span>
-    </div>
-    <div id="dz2" class="drop-zone" ondragover="dragOn(event,'dz2')" ondragleave="dragOff('dz2')">
-      <input type="file" accept="image/*" id="fi2" onchange="setPhoto(this,'p2','dz2','pw2','cb2')">
-      <span class="drop-icon">📐</span>
-      <h3>Tap to upload or take photo</h3>
-      <p>JPG · PNG · HEIC · up to 20 MB</p>
+    <div class="tip"><span>📸</span><span>Ask someone to take this for you, or use a mirror. Either side works.</span></div>
+    <div class="capture-opts">
+      <button class="capture-opt active" id="opt-cam2" onclick="openCamera(2)">
+        <span class="capture-opt-icon">📷</span>
+        <span class="capture-opt-label">Use Camera</span>
+        <span class="capture-opt-sub">Live capture</span>
+      </button>
+      <label class="capture-opt" id="opt-file2" style="cursor:pointer;">
+        <span class="capture-opt-icon">📁</span>
+        <span class="capture-opt-label">Upload File</span>
+        <span class="capture-opt-sub">JPG · PNG · HEIC</span>
+        <input type="file" accept="image/*" id="fi2" onchange="setPhoto(this,'p2','pw2','cb2')" style="display:none;">
+      </label>
     </div>
     <div id="pw2" class="prev-wrap">
       <img id="p2" src="" alt="Side photo">
       <div class="prev-bar">
         <div class="prev-ok">✓ Photo ready</div>
-        <button class="prev-retake" onclick="clear2()">Retake</button>
+        <button class="prev-retake" onclick="clearPhoto('p2','pw2','cb2')">Retake</button>
       </div>
     </div>
     <div class="upload-cta">
@@ -732,60 +725,61 @@ body {
   </div>
 </div>
 
-<!-- ══ S5: ANALYZING ════════════════════════════════════ -->
-<div class="screen" id="s-analyzing">
+<!-- ══ ANALYSING ═══════════════════════════════════════ -->
+<div class="screen" id="s-an">
   <div class="nav" style="justify-content:center;">
     <span class="logo">Perfect Smile<sup>™</sup></span>
   </div>
-  <div class="analyzing-body">
+  <div class="an-body">
     <div class="spin-wrap">
-      <div class="spin-ring"></div>
-      <div class="spin-ring2"></div>
+      <div class="spin-r1"></div><div class="spin-r2"></div>
       <div class="spin-core">🦷</div>
     </div>
     <h2 class="an-h2">Analysing Your Smile</h2>
     <p class="an-sub">Please wait while our AI evaluates your photos…</p>
     <ul class="step-list">
       <li class="step-li act" id="st0"><div class="st-dot"></div>Detecting smile features</li>
-      <li class="step-li" id="st1"><div class="st-dot"></div>Analysing alignment &amp; spacing</li>
-      <li class="step-li" id="st2"><div class="st-dot"></div>Evaluating symmetry</li>
-      <li class="step-li" id="st3"><div class="st-dot"></div>Checking bite indicators</li>
-      <li class="step-li" id="st4"><div class="st-dot"></div>Calculating your score</li>
+      <li class="step-li"     id="st1"><div class="st-dot"></div>Analysing alignment &amp; spacing</li>
+      <li class="step-li"     id="st2"><div class="st-dot"></div>Evaluating symmetry</li>
+      <li class="step-li"     id="st3"><div class="st-dot"></div>Checking bite indicators</li>
+      <li class="step-li"     id="st4"><div class="st-dot"></div>Calculating your score</li>
     </ul>
   </div>
-  <div class="disc">Your photos are analysed securely. No data is permanently stored.</div>
+  <div class="disc">Photos are analysed securely. No data is permanently stored.</div>
 </div>
 
-<!-- ══ S6: SCORE ═════════════════════════════════════════ -->
+<!-- ══ SCORE ═══════════════════════════════════════════ -->
 <div class="screen" id="s-score">
   <div class="nav">
     <span class="logo">Perfect Smile<sup>™</sup></span>
-    <button class="back-btn" style="margin-left:auto;padding:0;" onclick="resetApp()">New Assessment</button>
+    <button style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:12px;color:var(--primary);font-weight:600;" onclick="resetAssessment()">New Assessment</button>
   </div>
   <div class="prog-wrap"><div class="prog-track"><div class="prog-fill" style="width:85%"></div></div></div>
   <div class="score-top">
     <div class="sc-ey">Your Result</div>
     <div class="gauge-area">
       <canvas id="g-canvas" width="440" height="244"></canvas>
-      <div class="gauge-num-wrap">
-        <span class="g-num" id="g-num">—</span><span class="g-denom">/ 100</span>
-      </div>
+      <div class="gauge-num"><span class="g-num" id="g-num">—</span><span class="g-den">/ 100</span></div>
     </div>
     <div class="sc-tag" id="sc-tag"></div>
-    <p class="sc-summary" id="sc-sum"></p>
+    <p class="sc-sum" id="sc-sum"></p>
   </div>
-  <div class="sc-sec-label">Category Breakdown</div>
+  <div class="sec-label">Category Breakdown</div>
   <div class="cat-list" id="cat-list"></div>
-  <div class="sc-sec-label">Areas Identified</div>
+  <div id="locked-block" class="locked-block" style="display:none;">
+    <span class="lock-icon">🔒</span>
+    <div><strong>Full breakdown locked</strong>Create a free account to see your detailed category scores and improvement roadmap.</div>
+  </div>
+  <div class="sec-label">Areas Identified</div>
   <div class="areas-wrap" id="areas-wrap"></div>
   <div class="sc-btns">
     <button class="btn btn-primary" onclick="go('s-impr')">See Your Improvements →</button>
-    <button class="btn btn-ghost" onclick="go('s-book')">Book a Consultation</button>
+    <button class="btn btn-ghost" id="book-from-score" onclick="bookOrPrompt()">Book a Consultation</button>
   </div>
   <div class="disc">Scores are based solely on visible features in submitted photographs and do not constitute a clinical diagnosis.</div>
 </div>
 
-<!-- ══ S7: IMPROVEMENTS ═════════════════════════════════ -->
+<!-- ══ IMPROVEMENTS ════════════════════════════════════ -->
 <div class="screen" id="s-impr">
   <div class="nav" style="background:var(--primary);">
     <button class="back-btn" style="color:rgba(255,255,255,.8);" onclick="go('s-score',true)">
@@ -798,18 +792,18 @@ body {
     <p>Orthodontic treatment could meaningfully enhance your smile in these key areas.</p>
   </div>
   <div class="impr-card" id="impr-list"></div>
-  <div class="impr-cta-box">
+  <div class="cta-box">
     <strong>Ready to take the next step?</strong>
-    Our AI screening suggests you may benefit from a professional orthodontic consultation. A specialist can perform a full examination and discuss the most suitable treatment options for your individual case.
+    Our AI screening suggests you may benefit from a professional orthodontic consultation. A specialist can perform a full examination and discuss the most suitable treatment options for you.
   </div>
   <div class="impr-btns">
-    <button class="btn btn-gold" onclick="go('s-book')">Book Your Consultation →</button>
+    <button class="btn btn-gold" onclick="bookOrPrompt()">Book Your Consultation →</button>
     <button class="btn btn-ghost" onclick="go('s-score',true)">View My Score</button>
   </div>
   <div class="disc">Treatment outcomes vary. Improvement potential shown is indicative only.</div>
 </div>
 
-<!-- ══ S8: BOOKING ═══════════════════════════════════════ -->
+<!-- ══ BOOKING ═════════════════════════════════════════ -->
 <div class="screen" id="s-book">
   <div class="book-head">
     <div class="nav" style="padding:0 0 14px;background:transparent;">
@@ -819,370 +813,606 @@ body {
     </div>
     <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:9px;">Book Now</div>
     <h2>Professional Smile Assessment</h2>
-    <p>A specialist will review your AI report and contact you to confirm a suitable appointment time.</p>
+    <p>A specialist will review your AI report and contact you to confirm an appointment.</p>
   </div>
   <div class="book-form">
+    <div id="send-status" class="send-status"></div>
     <div class="f-row">
-      <label class="f-label" for="fn">Full Name</label>
-      <input class="f-input" type="text" id="fn" placeholder="Your full name" autocomplete="name">
+      <label class="f-label" for="bn">Full Name</label>
+      <input class="f-input" type="text" id="bn" placeholder="Your full name" autocomplete="name">
     </div>
     <div class="f-row">
-      <label class="f-label" for="fe">Email Address</label>
-      <input class="f-input" type="email" id="fe" placeholder="your@email.com" autocomplete="email">
+      <label class="f-label" for="be">Email Address</label>
+      <input class="f-input" type="email" id="be" placeholder="your@email.com" autocomplete="email">
     </div>
     <div class="f-row">
-      <label class="f-label" for="fp">Phone Number</label>
-      <input class="f-input" type="tel" id="fp" placeholder="+44 7700 000 000" autocomplete="tel">
+      <label class="f-label" for="bp">Phone Number</label>
+      <input class="f-input" type="tel" id="bp" placeholder="+48 000 000 000" autocomplete="tel">
     </div>
     <div class="f-row">
-      <label class="f-label" for="fd">Preferred Date</label>
-      <input class="f-input" type="date" id="fd">
+      <label class="f-label" for="bd">Preferred Date</label>
+      <input class="f-input" type="date" id="bd">
     </div>
     <div class="f-row">
-      <label class="f-label" for="fq">Any Questions or Concerns?</label>
-      <textarea class="f-input" id="fq" rows="3" placeholder="Optional — anything you'd like the team to know" style="resize:vertical;"></textarea>
+      <label class="f-label" for="bq">Any Questions or Concerns?</label>
+      <textarea class="f-input" id="bq" rows="3" placeholder="Optional — anything you'd like the team to know" style="resize:vertical;"></textarea>
     </div>
     <p class="f-note">By submitting this form you agree to be contacted by the clinic regarding your consultation. Your information is handled in accordance with our privacy policy.</p>
-    <button class="btn btn-gold" id="sub-btn" onclick="submitForm()">Request Consultation →</button>
+    <button class="btn btn-gold" id="sub-btn" onclick="submitBooking()">Request Consultation →</button>
   </div>
-  <div class="disc">Submitting this form does not create a confirmed booking. The clinic will contact you to arrange a time.</div>
+  <div class="disc">Submitting does not create a confirmed booking. The clinic will contact you to arrange a time.</div>
 </div>
 
-<!-- ══ S9: THANK YOU ════════════════════════════════════ -->
+<!-- ══ THANK YOU ════════════════════════════════════════ -->
 <div class="screen" id="s-ty">
-  <div class="nav" style="justify-content:center;">
-    <span class="logo">Perfect Smile<sup>™</sup></span>
-  </div>
+  <div class="nav" style="justify-content:center;"><span class="logo">Perfect Smile<sup>™</sup></span></div>
   <div class="ty-body">
     <div class="check-ring">✓</div>
     <h2 class="ty-h2">Consultation Requested!</h2>
-    <p class="ty-sub">Thank you for completing your Perfect Smile™ assessment. Our team will be in touch shortly to confirm your appointment.</p>
-    <ul class="next-steps">
-      <li class="ns-item">
-        <div class="ns-n">1</div>
-        <p><strong>Confirmation Email</strong>You'll receive a summary of your request within a few minutes.</p>
-      </li>
-      <li class="ns-item">
-        <div class="ns-n">2</div>
-        <p><strong>We'll Be in Touch</strong>Our team will contact you within 24 hours to confirm your appointment.</p>
-      </li>
-      <li class="ns-item">
-        <div class="ns-n">3</div>
-        <p><strong>Your Consultation</strong>A specialist will perform a full clinical examination and discuss the best treatment options for you.</p>
-      </li>
+    <p class="ty-sub">Thank you for completing your assessment. Our team will be in touch shortly to confirm your appointment.</p>
+    <ul class="ns-list">
+      <li class="ns-item"><div class="ns-n">1</div><p><strong>Confirmation Email</strong>You'll receive a summary of your request within a few minutes.</p></li>
+      <li class="ns-item"><div class="ns-n">2</div><p><strong>We'll Be in Touch</strong>Our team will contact you within 24 hours to confirm your appointment.</p></li>
+      <li class="ns-item"><div class="ns-n">3</div><p><strong>Your Consultation</strong>A specialist will perform a full clinical examination and discuss the best treatment options for you.</p></li>
     </ul>
-    <button class="btn btn-outline" style="max-width:280px;width:100%;" onclick="resetApp()">Start a New Assessment</button>
+    <button class="btn btn-outline" style="max-width:280px;width:100%;" onclick="resetAssessment()">Start a New Assessment</button>
   </div>
   <div class="disc">Perfect Smile™ · AI-powered. Professional-verified.</div>
 </div>
 
 </div><!-- #app -->
 
-<!-- ── PWA INSTALL BANNER ── -->
-<div id="install-bar">
-  <div class="ib-text">
-    <strong>Add to Home Screen</strong>
-    <span>Install Perfect Smile™ for quick access</span>
+<!-- ══ CAMERA MODAL (outside #app — full viewport) ════ -->
+<div id="cam-modal">
+  <div class="cam-inner">
+    <video id="cam-video" playsinline muted autoplay></video>
+    <!-- Dimmed overlay with face-shaped cutout -->
+    <svg class="cam-guide-svg" viewBox="0 0 420 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <mask id="face-cut">
+          <rect width="420" height="900" fill="white"/>
+          <ellipse id="face-oval" cx="210" cy="380" rx="130" ry="168" fill="black"/>
+        </mask>
+      </defs>
+      <rect width="420" height="900" fill="rgba(0,0,0,.55)" mask="url(#face-cut)"/>
+      <ellipse cx="210" cy="380" rx="130" ry="168" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="2.5" stroke-dasharray="14 7"/>
+    </svg>
+    <button class="cam-close" onclick="closeCamera()">✕</button>
+    <div class="cam-tip" id="cam-tip"></div>
+    <div class="cam-bottom">
+      <button class="cam-switch" onclick="switchCamera()" title="Switch camera">🔄</button>
+      <button class="cam-shutter" onclick="captureFrame()" aria-label="Capture photo"></button>
+      <div style="width:46px;"></div>
+    </div>
+    <div id="cam-flash"></div>
   </div>
+</div>
+<canvas id="cam-canvas" style="display:none;"></canvas>
+
+<!-- ══ PWA INSTALL BANNER ══════════════════════════════ -->
+<div id="install-bar">
+  <div class="ib-text"><strong>Add to Home Screen</strong><span>Install Perfect Smile™ for quick access</span></div>
   <button class="ib-install" id="ib-btn">Install</button>
   <button class="ib-close" onclick="document.getElementById('install-bar').style.display='none'" aria-label="Dismiss">×</button>
 </div>
 
 <script>
-/* ═══ NAVIGATION ═════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   EMAIL CONFIG
+   ──────────────────────────────────────────────────────
+   1. Sign up free at https://www.emailjs.com
+   2. Add your email service (Gmail / SMTP / Outlook)
+   3. Create a template — it can include:
+        {{patient_name}}, {{patient_email}}, {{patient_phone}},
+        {{preferred_date}}, {{smile_score}}, {{score_tag}},
+        {{areas}}, {{notes}}
+      Set "To email" = magda@michalkowska.pl
+   4. Replace the three values below:
+   ══════════════════════════════════════════════════════ */
+const EMAIL_CFG = {
+  publicKey:  'YOUR_EMAILJS_PUBLIC_KEY',
+  serviceId:  'YOUR_SERVICE_ID',
+  templateId: 'YOUR_TEMPLATE_ID',
+  toEmail:    'magda@michalkowska.pl',
+};
+
+/* ══ APP STATE ══════════════════════════════════════════ */
+let state = {
+  user: null,      // { name, email, pw } or { guest: true }
+  score: 0,
+  cats: [],
+  areas: [],
+};
+
+/* ══ AUTH HELPERS ════════════════════════════════════════ */
+function getUsers()    { return JSON.parse(localStorage.getItem('ps_users') || '[]'); }
+function saveUsers(us) { localStorage.setItem('ps_users', JSON.stringify(us)); }
+function persistSession(u) {
+  localStorage.setItem('ps_session', JSON.stringify(u));
+  state.user = u;
+}
+function clearSession() {
+  localStorage.removeItem('ps_session');
+  state.user = null;
+}
+
+function register() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('reg-pw').value;
+  const errEl = document.getElementById('reg-email-err');
+  errEl.style.display = 'none';
+
+  if (!name || !email || pw.length < 6) {
+    ['reg-name','reg-email','reg-pw'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim() || (id === 'reg-pw' && pw.length < 6)) el.classList.add('err');
+    });
+    return;
+  }
+
+  const users = getUsers();
+  if (users.find(u => u.email === email)) {
+    errEl.style.display = 'block'; return;
+  }
+  const user = { name, email, pw };
+  users.push(user);
+  saveUsers(users);
+  persistSession(user);
+  enterApp();
+}
+
+function login() {
+  const email = document.getElementById('log-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('log-pw').value;
+  const errEl = document.getElementById('log-err');
+  errEl.style.display = 'none';
+
+  const users = getUsers();
+  const user  = users.find(u => u.email === email && u.pw === pw);
+  if (!user) { errEl.style.display = 'block'; return; }
+
+  persistSession(user);
+  enterApp();
+}
+
+function enterAsGuest() {
+  state.user = { guest: true };
+  enterApp();
+}
+
+function logout() {
+  clearSession();
+  go('s-auth', true);
+}
+
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
+function enterApp() {
+  const u = state.user;
+  const isGuest = u && u.guest;
+  // Update header avatar
+  if (!isGuest) {
+    document.getElementById('user-avatar').textContent = u.name.charAt(0).toUpperCase();
+    document.getElementById('user-name-nav').textContent = u.name.split(' ')[0];
+    document.getElementById('guest-banner').style.display = 'none';
+  } else {
+    document.getElementById('user-avatar').textContent = '👤';
+    document.getElementById('user-name-nav').textContent = 'Guest';
+    document.getElementById('guest-banner').style.display = 'flex';
+  }
+  // Pre-fill booking form if logged in
+  if (!isGuest) {
+    document.getElementById('bn').value = u.name;
+    document.getElementById('be').value = u.email;
+  }
+  go('s-welcome');
+}
+
+/* ══ NAVIGATION ══════════════════════════════════════════ */
 function go(id, back) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active','back'));
   const t = document.getElementById(id);
   if (!t) return;
-  if (back) t.classList.add('back');
-  t.classList.add('active');
+  t.classList.add(back ? 'back' : 'active');
+  if (!back) t.classList.add('active');
+  else { void t.offsetWidth; t.classList.remove('back'); t.classList.add('back','active'); }
   t.scrollTop = 0;
 }
 
-/* ═══ PHOTO UPLOAD ══════════════════════════════════════ */
-function setPhoto(inp, imgId, zoneId, prevId, btnId) {
+/* ══ PHOTO UPLOAD ════════════════════════════════════════ */
+function setPhoto(inp, imgId, prevId, btnId) {
   const f = inp.files[0];
   if (!f) return;
   const r = new FileReader();
   r.onload = e => {
     document.getElementById(imgId).src = e.target.result;
-    document.getElementById(zoneId).style.display = 'none';
     const pw = document.getElementById(prevId);
-    pw.style.display = 'block';
-    pw.style.flex = '1';
+    pw.style.display = 'block'; pw.style.flex = '1';
     document.getElementById(btnId).disabled = false;
   };
   r.readAsDataURL(f);
 }
-function clear1() {
-  document.getElementById('dz1').style.display = 'flex';
-  document.getElementById('pw1').style.display = 'none';
-  document.getElementById('fi1').value = '';
-  document.getElementById('cb1').disabled = true;
-}
-function clear2() {
-  document.getElementById('dz2').style.display = 'flex';
-  document.getElementById('pw2').style.display = 'none';
-  document.getElementById('fi2').value = '';
-  document.getElementById('cb2').disabled = true;
-}
-function dragOn(e, id) { e.preventDefault(); document.getElementById(id).classList.add('over'); }
-function dragOff(id) { document.getElementById(id).classList.remove('over'); }
 
-/* ═══ ANALYSIS SIMULATION ════════════════════════════════ */
-let state = { score: 0, cats: [], areas: [] };
+function clearPhoto(imgId, prevId, btnId) {
+  document.getElementById(imgId).src = '';
+  document.getElementById(prevId).style.display = 'none';
+  document.getElementById(btnId).disabled = true;
+  // Also clear any file input
+  const fi = imgId === 'p1' ? document.getElementById('fi1') : document.getElementById('fi2');
+  if (fi) fi.value = '';
+}
 
+/* ══ CAMERA ══════════════════════════════════════════════ */
+let camTarget   = 1;    // 1 = front photo, 2 = side photo
+let camStream   = null;
+let facingMode  = 'user'; // 'user' | 'environment'
+
+async function openCamera(target) {
+  camTarget  = target;
+  facingMode = target === 1 ? 'user' : 'environment';
+
+  document.getElementById('cam-tip').textContent =
+    target === 1
+      ? 'Position your face in the oval · Teeth together · Natural smile'
+      : 'Side profile · Teeth together · Natural bite';
+
+  // Update guide oval: taller for front face, wider for side bite
+  const oval = document.getElementById('face-oval');
+  if (target === 1) {
+    oval.setAttribute('rx','130'); oval.setAttribute('ry','168');
+    oval.setAttribute('cy','380');
+  } else {
+    oval.setAttribute('rx','155'); oval.setAttribute('ry','110');
+    oval.setAttribute('cy','420');
+  }
+
+  try {
+    await startCamStream();
+    document.getElementById('cam-modal').style.display = 'flex';
+  } catch(e) {
+    alert('Camera not available. Please use "Upload File" instead.');
+  }
+}
+
+async function startCamStream() {
+  if (camStream) camStream.getTracks().forEach(t => t.stop());
+  camStream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode, width:{ ideal:1280 }, height:{ ideal:720 } },
+    audio: false
+  });
+  const vid = document.getElementById('cam-video');
+  vid.srcObject = camStream;
+  // Mirror only front-facing
+  vid.className = facingMode === 'user' ? 'mirror' : '';
+}
+
+async function switchCamera() {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  const vid = document.getElementById('cam-video');
+  vid.className = facingMode === 'user' ? 'mirror' : '';
+  try { await startCamStream(); } catch(e) {}
+}
+
+function captureFrame() {
+  const vid    = document.getElementById('cam-video');
+  const canvas = document.getElementById('cam-canvas');
+  const flash  = document.getElementById('cam-flash');
+
+  // Flash animation
+  flash.style.opacity = '1';
+  setTimeout(() => { flash.style.opacity = '0'; }, 180);
+
+  // Draw frame to canvas
+  canvas.width  = vid.videoWidth;
+  canvas.height = vid.videoHeight;
+  const ctx = canvas.getContext('2d');
+
+  // Un-mirror for front camera so the captured image is correct orientation
+  if (facingMode === 'user') {
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage(vid, 0, 0);
+
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  closeCamera();
+
+  const imgId  = camTarget === 1 ? 'p1'  : 'p2';
+  const prevId = camTarget === 1 ? 'pw1' : 'pw2';
+  const btnId  = camTarget === 1 ? 'cb1' : 'cb2';
+
+  document.getElementById(imgId).src = dataUrl;
+  const pw = document.getElementById(prevId);
+  pw.style.display = 'block'; pw.style.flex = '1';
+  document.getElementById(btnId).disabled = false;
+}
+
+function closeCamera() {
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  document.getElementById('cam-modal').style.display = 'none';
+}
+
+/* ══ ANALYSIS ════════════════════════════════════════════ */
 function startAnalysis() {
   resetSteps();
-  go('s-analyzing');
+  go('s-an');
   buildScores();
   tickSteps(0);
 }
 
 function buildScores() {
   const s = Date.now();
-  const rng = (min, max, i) => {
-    const v = Math.abs(Math.sin(s * 0.001 + i * 9.7 + 3.1) * 10000);
-    return Math.round(min + (v % 1) * (max - min));
+  const rng = (mn, mx, i) => {
+    const v = Math.abs(Math.sin(s*.001 + i*9.7 + 3.1) * 10000);
+    return Math.round(mn + (v%1)*(mx-mn));
   };
   const defs = [
-    ['Overall Alignment', 52, 94],
-    ['Crowding',          48, 100],
-    ['Tooth Spacing',     58, 100],
-    ['Tooth Rotation',    60, 100],
-    ['Smile Symmetry',    64, 100],
-    ['Midline Position',  55, 100],
-    ['Bite Indicators',   58, 100],
-    ['Gum Health',        72, 100],
-    ['Aesthetic Harmony', 58, 98],
+    ['Overall Alignment', 52,94],['Crowding',48,100],
+    ['Tooth Spacing',58,100],['Tooth Rotation',60,100],
+    ['Smile Symmetry',64,100],['Midline Position',55,100],
+    ['Bite Indicators',58,100],['Gum Health',72,100],
+    ['Aesthetic Harmony',58,98],
   ];
-  state.cats = defs.map(([n, mn, mx], i) => ({ name: n, score: rng(mn, mx, i) }));
-  state.score = Math.round(state.cats.reduce((a, c) => a + c.score, 0) / state.cats.length);
+  state.cats  = defs.map(([n,mn,mx],i) => ({ name:n, score:rng(mn,mx,i) }));
+  state.score = Math.round(state.cats.reduce((a,c)=>a+c.score,0) / state.cats.length);
 
-  const neg = state.cats.filter(c => c.score < 80).sort((a,b) => a.score - b.score);
-  const pos = state.cats.filter(c => c.score >= 85).slice(0,2);
-  const negMap = {
-    'Overall Alignment':'Mild tooth misalignment detected',
-    'Crowding':'Some dental crowding present',
-    'Tooth Spacing':'Minor spacing irregularities',
-    'Tooth Rotation':'Slight tooth rotation noted',
-    'Smile Symmetry':'Asymmetry in smile line',
-    'Midline Position':'Slight midline deviation',
-    'Bite Indicators':'Assessment may benefit bite evaluation',
-    'Aesthetic Harmony':'Aesthetic harmony could be improved',
-  };
-  const posMap = {
-    'Gum Health':'Good gum health observed',
-    'Smile Symmetry':'Good smile symmetry',
-    'Tooth Spacing':'Good tooth spacing',
-    'Overall Alignment':'Generally well-aligned teeth',
-    'Bite Indicators':'Healthy bite pattern',
-  };
+  const neg = state.cats.filter(c=>c.score<80).sort((a,b)=>a.score-b.score);
+  const pos = state.cats.filter(c=>c.score>=85).slice(0,2);
+  const nm = {'Overall Alignment':'Mild tooth misalignment detected','Crowding':'Some dental crowding present','Tooth Spacing':'Minor spacing irregularities','Tooth Rotation':'Slight tooth rotation noted','Smile Symmetry':'Asymmetry in smile line','Midline Position':'Slight midline deviation','Bite Indicators':'Assessment may benefit bite evaluation','Aesthetic Harmony':'Aesthetic harmony could be improved'};
+  const pm = {'Gum Health':'Good gum health observed','Smile Symmetry':'Good smile symmetry','Tooth Spacing':'Good tooth spacing','Overall Alignment':'Generally well-aligned teeth','Bite Indicators':'Healthy bite pattern'};
   state.areas = [
-    ...neg.slice(0,4).map(c => ({ text: negMap[c.name] || c.name, good: false })),
-    ...pos.map(c => ({ text: posMap[c.name] || c.name, good: true })),
+    ...neg.slice(0,4).map(c=>({ text:nm[c.name]||c.name, good:false })),
+    ...pos.map(c=>({ text:pm[c.name]||c.name, good:true })),
   ];
 }
 
 function resetSteps() {
-  for (let i = 0; i < 5; i++) {
-    const li = document.getElementById('st'+i);
-    if (!li) continue;
+  for (let i=0;i<5;i++){
+    const li=document.getElementById('st'+i);
+    if(!li) continue;
     li.classList.remove('act','done');
-    li.querySelector('.st-dot').textContent = '';
+    li.querySelector('.st-dot').textContent='';
   }
   document.getElementById('st0').classList.add('act');
 }
 
 function tickSteps(i) {
-  const ids = ['st0','st1','st2','st3','st4'];
-  if (i > 0) {
-    const prev = document.getElementById(ids[i-1]);
-    prev.classList.remove('act');
-    prev.classList.add('done');
-    prev.querySelector('.st-dot').textContent = '✓';
+  const ids=['st0','st1','st2','st3','st4'];
+  if(i>0){
+    const p=document.getElementById(ids[i-1]);
+    p.classList.remove('act'); p.classList.add('done');
+    p.querySelector('.st-dot').textContent='✓';
   }
-  if (i < ids.length) {
-    const cur = document.getElementById(ids[i]);
-    cur.classList.add('act');
-    setTimeout(() => tickSteps(i+1), i === ids.length - 1 ? 1400 : 900);
+  if(i<ids.length){
+    document.getElementById(ids[i]).classList.add('act');
+    setTimeout(()=>tickSteps(i+1), i===ids.length-1?1400:900);
   } else {
-    setTimeout(() => { buildResultUI(); go('s-score'); }, 500);
+    setTimeout(()=>{ buildResultUI(); go('s-score'); }, 500);
   }
 }
 
-/* ═══ RESULTS UI ════════════════════════════════════════ */
+/* ══ RESULTS UI ══════════════════════════════════════════ */
 function buildResultUI() {
-  const sc = state.score;
+  const sc    = state.score;
+  const isGuest = state.user && state.user.guest;
 
-  /* — Gauge — */
+  // ─ Gauge ─
   const canvas = document.getElementById('g-canvas');
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = 220 * dpr; canvas.height = 122 * dpr;
-  canvas.style.width = '220px'; canvas.style.height = '122px';
-  ctx.scale(dpr, dpr);
-  const cx = 110, cy = 115, R = 90;
-  // background arc
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, Math.PI, 0, false);
-  ctx.lineWidth = 16; ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#DDE8E5';
-  ctx.lineCap = 'round'; ctx.stroke();
-  // score arc
-  const color = sc >= 80 ? '#1A8C4E' : sc >= 60 ? '#C97C1A' : '#C0392B';
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, Math.PI, Math.PI + (sc / 100) * Math.PI, false);
-  ctx.strokeStyle = color; ctx.stroke();
+  const ctx    = canvas.getContext('2d');
+  const dpr    = window.devicePixelRatio||1;
+  canvas.width = 220*dpr; canvas.height = 122*dpr;
+  canvas.style.width='220px'; canvas.style.height='122px';
+  ctx.scale(dpr,dpr);
+  const cx=110, cy=115, R=90;
+  ctx.beginPath(); ctx.arc(cx,cy,R,Math.PI,0,false);
+  ctx.lineWidth=16;
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--border').trim()||'#DDE8E5';
+  ctx.lineCap='round'; ctx.stroke();
+  const color = sc>=80?'#1A8C4E':sc>=60?'#C97C1A':'#C0392B';
+  ctx.beginPath(); ctx.arc(cx,cy,R,Math.PI,Math.PI+(sc/100)*Math.PI,false);
+  ctx.strokeStyle=color; ctx.stroke();
 
-  /* — Animate number — */
-  const el = document.getElementById('g-num');
-  el.style.color = color;
-  animNum(el, 0, sc, 1100);
+  const numEl = document.getElementById('g-num');
+  numEl.style.color = color;
+  animNum(numEl,0,sc,1100);
 
-  /* — Tag — */
+  // ─ Tag ─
   const tag = document.getElementById('sc-tag');
-  const [label, bg, fg] =
-    sc >= 80 ? ['⭐ Great Smile', '#D1FAE5', '#166534'] :
-    sc >= 60 ? ['✦ Good with Potential', '#FEF3C7', '#92400E'] :
-               ['→ Assessment Recommended', '#FEE2E2', '#991B1B'];
-  tag.textContent = label;
-  tag.style.background = bg; tag.style.color = fg;
+  const [label,bg,fg] =
+    sc>=80 ? ['⭐ Great Smile','#D1FAE5','#166534'] :
+    sc>=60 ? ['✦ Good with Potential','#FEF3C7','#92400E'] :
+             ['→ Assessment Recommended','#FEE2E2','#991B1B'];
+  tag.textContent=label; tag.style.background=bg; tag.style.color=fg;
 
-  /* — Summary — */
   document.getElementById('sc-sum').textContent =
-    sc >= 80 ? 'Your smile has excellent characteristics. A few minor visible features may still benefit from a professional review.' :
-    sc >= 60 ? 'Your smile appears healthy overall; however, the AI detected several visible characteristics that may benefit from an orthodontic assessment.' :
-               'The AI detected a number of visible characteristics suggesting that an orthodontic consultation could be beneficial for your smile health.';
+    sc>=80 ? 'Your smile has excellent characteristics. A few minor visible features may still benefit from a professional review.' :
+    sc>=60 ? 'Your smile appears healthy overall; however, the AI detected several visible characteristics that may benefit from an orthodontic assessment.' :
+             'The AI detected a number of visible characteristics suggesting that an orthodontic consultation could be beneficial for your smile health.';
 
-  /* — Categories — */
+  // ─ Category breakdown (locked for guests) ─
   const cl = document.getElementById('cat-list');
-  cl.innerHTML = '';
-  state.cats.forEach((c, i) => {
-    const col = c.score >= 80 ? '#1A8C4E' : c.score >= 60 ? '#C97C1A' : '#C0392B';
-    const row = document.createElement('div');
-    row.className = 'cat-row';
-    row.innerHTML = `<div class="cat-name">${c.name}</div><div class="cat-track"><div class="cat-bar" id="cb-${i}" style="background:${col}"></div></div><div class="cat-score" style="color:${col}">${c.score}</div>`;
-    cl.appendChild(row);
-    setTimeout(() => { const b = document.getElementById('cb-'+i); if(b) b.style.width = c.score+'%'; }, 120 + i * 70);
-  });
+  const lb = document.getElementById('locked-block');
+  cl.innerHTML='';
+  if (isGuest) {
+    // Show only first 3 categories
+    state.cats.slice(0,3).forEach((c,i)=>renderCatRow(cl,c,i));
+    lb.style.display='flex';
+  } else {
+    state.cats.forEach((c,i)=>renderCatRow(cl,c,i));
+    lb.style.display='none';
+  }
 
-  /* — Areas — */
+  // ─ Areas ─
   const aw = document.getElementById('areas-wrap');
-  aw.innerHTML = '';
-  state.areas.forEach(a => {
-    const div = document.createElement('div');
-    div.className = 'area-item';
-    div.innerHTML = `<span class="area-dot" style="color:${a.good?'#1A8C4E':'#C97C1A'}">${a.good?'✓':'·'}</span><span>${a.text}</span>`;
-    aw.appendChild(div);
+  aw.innerHTML='';
+  state.areas.forEach(a=>{
+    const d=document.createElement('div');
+    d.className='area-item';
+    d.innerHTML=`<span style="color:${a.good?'#1A8C4E':'#C97C1A'};font-size:13px;">${a.good?'✓':'·'}</span><span>${a.text}</span>`;
+    aw.appendChild(d);
   });
 
-  /* — Improvements — */
-  const imps = [
+  // ─ Book button label ─
+  document.getElementById('book-from-score').textContent =
+    isGuest ? '🔒 Create Account to Book' : 'Book a Consultation';
+
+  // ─ Improvements ─
+  const imps=[
     ['✨','Straighter Alignment','Modern orthodontic treatment can correct misalignment and give you a straighter, more confident smile.'],
     ['⚖️','Improved Symmetry','Achieve a more balanced, symmetrical smile that enhances your overall facial aesthetics.'],
     ['🦷','Enhanced Appearance','A healthier, more aesthetic smile boosts confidence in both professional and social situations.'],
     ['🧼','Easier Oral Hygiene','Straighter teeth are significantly easier to clean, reducing long-term risk of decay and gum disease.'],
-    ['💫','Increased Confidence','Research shows that an improved smile positively impacts self-esteem and how others perceive you.'],
+    ['💫','Increased Confidence','Research shows that an improved smile positively impacts self-esteem and social perception.'],
   ];
-  const il = document.getElementById('impr-list');
-  il.innerHTML = '';
-  imps.forEach(([ico,title,desc]) => {
-    const d = document.createElement('div');
-    d.className = 'impr-item';
-    d.innerHTML = `<div class="impr-ico">${ico}</div><div><div class="impr-title">${title}</div><div class="impr-desc">${desc}</div></div>`;
+  const il=document.getElementById('impr-list');
+  il.innerHTML='';
+  imps.forEach(([ico,title,desc])=>{
+    const d=document.createElement('div');
+    d.className='impr-item';
+    d.innerHTML=`<div class="impr-ico">${ico}</div><div><div class="impr-title">${title}</div><div class="impr-desc">${desc}</div></div>`;
     il.appendChild(d);
   });
 }
 
-function animNum(el, from, to, dur) {
-  const t0 = performance.now();
-  const tick = now => {
-    const t = Math.min((now - t0) / dur, 1);
-    const e = 1 - Math.pow(1 - t, 3);
-    el.textContent = Math.round(from + (to - from) * e);
-    if (t < 1) requestAnimationFrame(tick);
+function renderCatRow(parent, c, i) {
+  const col = c.score>=80?'#1A8C4E':c.score>=60?'#C97C1A':'#C0392B';
+  const row = document.createElement('div');
+  row.className='cat-row';
+  row.innerHTML=`<div class="cat-name">${c.name}</div><div class="cat-track"><div class="cat-bar" id="cb-${i}" style="background:${col}"></div></div><div class="cat-score" style="color:${col}">${c.score}</div>`;
+  parent.appendChild(row);
+  setTimeout(()=>{ const b=document.getElementById('cb-'+i); if(b) b.style.width=c.score+'%'; },120+i*70);
+}
+
+function animNum(el,from,to,dur){
+  const t0=performance.now();
+  const tick=now=>{
+    const t=Math.min((now-t0)/dur,1),e=1-Math.pow(1-t,3);
+    el.textContent=Math.round(from+(to-from)*e);
+    if(t<1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 }
 
-/* ═══ BOOKING FORM ══════════════════════════════════════ */
-function submitForm() {
-  const fields = [
-    document.getElementById('fn'),
-    document.getElementById('fe'),
-    document.getElementById('fp'),
-  ];
-  let valid = true;
-  fields.forEach(f => {
-    f.classList.remove('err');
-    if (!f.value.trim()) { f.classList.add('err'); valid = false; }
-  });
-  if (!valid) { fields.find(f => !f.value.trim())?.focus(); return; }
-  const btn = document.getElementById('sub-btn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
-  setTimeout(() => go('s-ty'), 1200);
+/* ══ BOOKING ════════════════════════════════════════════ */
+function bookOrPrompt() {
+  if (state.user && state.user.guest) {
+    go('s-reg');
+  } else {
+    go('s-book');
+  }
 }
 
-/* ═══ RESET ════════════════════════════════════════════ */
-function resetApp() {
-  clear1(); clear2();
-  resetSteps();
-  ['fn','fe','fp','fd','fq'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.value = ''; el.classList.remove('err'); }
-  });
-  const b = document.getElementById('sub-btn');
-  if (b) { b.disabled = false; b.textContent = 'Request Consultation →'; }
-  go('s-welcome', true);
-}
+async function submitBooking() {
+  const name   = document.getElementById('bn').value.trim();
+  const email  = document.getElementById('be').value.trim();
+  const phone  = document.getElementById('bp').value.trim();
+  const date   = document.getElementById('bd').value;
+  const notes  = document.getElementById('bq').value.trim();
+  const status = document.getElementById('send-status');
+  const btn    = document.getElementById('sub-btn');
 
-/* ═══ PWA ══════════════════════════════════════════════ */
-const manifest = {
-  name: 'Perfect Smile™',
-  short_name: 'Perfect Smile',
-  description: 'AI Smile Assessment & Patient Acquisition Platform',
-  start_url: './',
-  display: 'standalone',
-  background_color: '#F4F7F6',
-  theme_color: '#1B6B5E',
-  icons: [
-    {
-      src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#1B6B5E"/><path d="M52 50c-10 18-10 46-6 72 3 16 7 30 13 40 4 8 8 12 13 12s10-6 12-16l4-18h16l4 18c2 10 7 16 12 16s9-4 13-12c6-10 10-24 13-40 4-26 4-54-6-72-10-18-26-26-44-26S62 32 52 50Z" fill="white" opacity=".93"/></svg>'),
-      sizes: '192x192',
-      type: 'image/svg+xml'
+  // Validation
+  let valid=true;
+  [['bn',name],['be',email],['bp',phone]].forEach(([id,v])=>{
+    const el=document.getElementById(id);
+    el.classList.remove('err');
+    if(!v){el.classList.add('err');valid=false;}
+  });
+  if(!valid){return;}
+
+  btn.disabled=true; btn.textContent='Sending…';
+  status.className='send-status'; status.textContent='';
+
+  const scoreTag = state.score>=80?'Great Smile':state.score>=60?'Good with Potential':'Assessment Recommended';
+  const areasText = state.areas.map(a=>a.text).join(', ');
+
+  const templateParams = {
+    to_email:       EMAIL_CFG.toEmail,
+    patient_name:   name,
+    patient_email:  email,
+    patient_phone:  phone,
+    preferred_date: date||'Not specified',
+    smile_score:    `${state.score}/100`,
+    score_tag:      scoreTag,
+    areas:          areasText,
+    notes:          notes||'None',
+    reply_to:       email,
+  };
+
+  try {
+    if (EMAIL_CFG.publicKey !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+      await emailjs.send(EMAIL_CFG.serviceId, EMAIL_CFG.templateId, templateParams, EMAIL_CFG.publicKey);
+    } else {
+      // EmailJS not yet configured — use mailto fallback
+      const body = [
+        `Patient: ${name}`,
+        `Email: ${email}`,
+        `Phone: ${phone}`,
+        `Preferred Date: ${date||'Not specified'}`,
+        `AI Smile Score: ${state.score}/100 (${scoreTag})`,
+        `Areas: ${areasText}`,
+        `Notes: ${notes||'None'}`,
+      ].join('\n');
+      window.open(`mailto:${EMAIL_CFG.toEmail}?subject=Consultation Request — Perfect Smile™ (Score: ${state.score}/100)&body=${encodeURIComponent(body)}`,'_blank');
     }
-  ]
-};
-
-try {
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = url;
-  document.head.appendChild(link);
-} catch(e) {}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+    go('s-ty');
+  } catch(e) {
+    status.className='send-status fail';
+    status.textContent='Could not send automatically. Please email '+EMAIL_CFG.toEmail+' directly.';
+    btn.disabled=false; btn.textContent='Try Again';
+  }
 }
 
-let dip = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  dip = e;
-  const bar = document.getElementById('install-bar');
-  bar.style.display = 'flex';
-});
-document.getElementById('ib-btn').addEventListener('click', () => {
-  if (!dip) return;
-  dip.prompt();
-  dip.userChoice.then(() => {
-    dip = null;
-    document.getElementById('install-bar').style.display = 'none';
-  });
-});
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-bar').style.display = 'none';
-});
+/* ══ RESET ══════════════════════════════════════════════ */
+function resetAssessment() {
+  clearPhoto('p1','pw1','cb1');
+  clearPhoto('p2','pw2','cb2');
+  resetSteps();
+  document.getElementById('send-status').className='send-status';
+  const btn=document.getElementById('sub-btn');
+  if(btn){btn.disabled=false;btn.textContent='Request Consultation →';}
+  if(!(state.user&&state.user.guest)){
+    document.getElementById('bd').value='';
+    document.getElementById('bp').value='';
+    document.getElementById('bq').value='';
+  }
+  go('s-welcome');
+}
+
+/* ══ BOOT ════════════════════════════════════════════════ */
+(function boot(){
+  // Restore session if exists
+  const saved = localStorage.getItem('ps_session');
+  if (saved) {
+    try { state.user = JSON.parse(saved); enterApp(); return; } catch(e) {}
+  }
+  // Otherwise show auth
+  go('s-auth');
+})();
+
+/* ══ PWA ════════════════════════════════════════════════ */
+const manifest={
+  name:'Perfect Smile™',short_name:'Perfect Smile',
+  description:'AI Smile Assessment & Patient Acquisition Platform',
+  start_url:'./',display:'standalone',
+  background_color:'#F4F7F6',theme_color:'#1B6B5E',
+  icons:[{src:'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#1B6B5E"/><path d="M52 50c-10 18-10 46-6 72 3 16 7 30 13 40 4 8 8 12 13 12s10-6 12-16l4-18h16l4 18c2 10 7 16 12 16s9-4 13-12c6-10 10-24 13-40 4-26 4-54-6-72-10-18-26-26-44-26S62 32 52 50Z" fill="white" opacity=".93"/></svg>'),sizes:'192x192',type:'image/svg+xml'}]
+};
+try {
+  const ml=document.createElement('link');
+  ml.rel='manifest';
+  ml.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));
+  document.head.appendChild(ml);
+} catch(e){}
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+let dip=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;document.getElementById('install-bar').style.display='flex';});
+document.getElementById('ib-btn').addEventListener('click',()=>{if(!dip)return;dip.prompt();dip.userChoice.then(()=>{dip=null;document.getElementById('install-bar').style.display='none';});});
+window.addEventListener('appinstalled',()=>{document.getElementById('install-bar').style.display='none';});
 </script>
