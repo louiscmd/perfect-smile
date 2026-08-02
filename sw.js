@@ -1,8 +1,7 @@
-const CACHE = 'perfect-smile-v1';
-const ASSETS = ['./'];
+const CACHE = 'perfect-smile-v4';
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./'])));
   self.skipWaiting();
 });
 
@@ -15,8 +14,15 @@ self.addEventListener('activate', e => {
   clients.claim();
 });
 
+// Network-first: always fetch the latest, fall back to cache only when offline
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    fetch(e.request)
+      .then(r => {
+        const clone = r.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return r;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
