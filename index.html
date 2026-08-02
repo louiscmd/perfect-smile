@@ -878,25 +878,37 @@ textarea.form-input { resize: vertical; min-height: 80px; padding-top: 12px; }
 .alert-err { background: #fdf0f0; border: 1px solid #f0d0d0; color: #c00; }
 .alert-ok  { background: #f0f5f0; border: 1px solid #c0d8c0; color: #2a6a2a; }
 
+/* ── Mobile nav (replaces sidebar on small screens) ─────── */
+.mob-nav {
+  display: none;
+  background: #111;
+  color: #fff;
+  padding: 0 24px;
+  height: 56px;
+  align-items: center;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.mob-nav-brand {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+.mob-nav-brand span { font-style: italic; font-weight: 300; }
+
 /* ── Mobile ─────────────────────────────────────────────── */
 @media (max-width: 767px) {
   .shell { flex-direction: column; }
+  .lp { display: none; }
+  .mob-nav { display: flex; }
 
-  .lp {
-    width: 100%;
-    height: auto;
-    position: static;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 24px;
-  }
-  .lp-mid, .lp-bot { display: none; }
-  .lp-tagline { display: none; }
-  .lp-brand { font-size: 18px; margin-bottom: 0; }
-
-  .screen { padding: 32px 24px 32px; min-height: calc(100dvh - 62px); }
-  h1 { font-size: 38px; }
+  .rp { flex: 1; overflow-y: auto; }
+  .screen { padding: 32px 24px 40px; min-height: calc(100dvh - 56px); }
+  h1 { font-size: 36px; }
   h2 { font-size: 28px; }
 
   .guide-grid { grid-template-columns: 1fr; }
@@ -905,10 +917,10 @@ textarea.form-input { resize: vertical; min-height: 80px; padding-top: 12px; }
   .cam-video-wrap { max-width: 100%; aspect-ratio: auto; flex: 1; width: 100%; }
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-  .lp { width: 260px; padding: 40px 32px; }
-  .lp-h { font-size: 36px; }
-  .screen { padding: 48px 40px 32px; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .lp { width: 240px; padding: 36px 28px; }
+  .lp-h { font-size: 34px; }
+  .screen { padding: 44px 36px 32px; }
 }
 
 /* ── Loader Spinner ─────────────────────────────────────── */
@@ -949,6 +961,11 @@ textarea.form-input { resize: vertical; min-height: 80px; padding-top: 12px; }
       <div class="lp-credit">Michałkowska<br>Lekarz Stomatolog</div>
     </div>
   </aside>
+
+  <!-- ═══════════ MOBILE NAV ═══════════ -->
+  <nav class="mob-nav">
+    <div class="mob-nav-brand">Perfect <span>Smile</span></div>
+  </nav>
 
   <!-- ═══════════ RIGHT PANEL ═══════════ -->
   <main class="rp" id="rp">
