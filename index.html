@@ -1071,50 +1071,75 @@ function drawOverlay(canvas, video, detection) {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
-  if (!detection) {
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath();
-    ctx.ellipse(W / 2, H * 0.42, W * 0.28, H * 0.36, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    return;
-  }
+  // Fixed oval — always centered, independent of detection
+  const cx = W * 0.5;
+  const cy = H * 0.44;
+  const rx = Math.min(W * 0.33, H * 0.23);
+  const ry = rx * 1.38;
 
-  const box = detection.detection.box;
-  const bx = box.x - 12, by = box.y - 12;
-  const bw = box.width + 24, bh = box.height + 24;
-  const bLen = 32;
   const pct = scanProgress / 100;
+  const detected = !!detection;
 
-  // Dim outside face
-  ctx.fillStyle = 'rgba(0,0,0,0.38)';
-  ctx.fillRect(0, 0, W, H);
-  ctx.clearRect(bx, by, bw, bh);
+  // Dark overlay outside the oval (evenodd cutout)
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, H);
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.68)';
+  ctx.fill('evenodd');
+  ctx.restore();
 
-  // Teal corner brackets
-  ctx.strokeStyle = `rgba(0,184,169,${0.65 + pct * 0.35})`;
-  ctx.lineWidth = 3; ctx.lineCap = 'round';
-  // TL
+  // Oval border: dashed white waiting → solid teal scanning
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  if (detected) {
+    ctx.strokeStyle = `rgba(0,184,169,${0.7 + pct * 0.3})`;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([]);
+  } else {
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([12, 8]);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Corner brackets around oval bounding box
+  const bx = cx - rx - 10, by = cy - ry - 10;
+  const bw = (rx + 10) * 2, bh = (ry + 10) * 2;
+  const bLen = 22;
+  ctx.strokeStyle = detected ? `rgba(0,184,169,${0.75 + pct * 0.25})` : 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 2.5; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(bx, by + bLen); ctx.lineTo(bx, by); ctx.lineTo(bx + bLen, by); ctx.stroke();
-  // TR
   ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + bLen); ctx.stroke();
-  // BL
   ctx.beginPath(); ctx.moveTo(bx, by + bh - bLen); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + bLen, by + bh); ctx.stroke();
-  // BR
   ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - bLen); ctx.stroke();
 
-  // Mouth region highlight
+  if (!detected) return;
+
+  // Sweep line clipped to oval
+  const sweepY = (cy - ry) + scanLinePct * (ry * 2);
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx - 2, ry - 2, 0, 0, Math.PI * 2);
+  ctx.clip();
+  const grad = ctx.createLinearGradient(0, sweepY - 30, 0, sweepY + 30);
+  grad.addColorStop(0, 'rgba(0,184,169,0)');
+  grad.addColorStop(0.5, `rgba(0,184,169,${0.25 + pct * 0.2})`);
+  grad.addColorStop(1, 'rgba(0,184,169,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(cx - rx, sweepY - 30, rx * 2, 60);
+  ctx.restore();
+
+  // Mouth landmark highlight + tooth dots
   try {
     const mouth = detection.landmarks.getMouth();
     const mxs = mouth.map(p => p.x), mys = mouth.map(p => p.y);
-    const mx = Math.min(...mxs) - 12, my = Math.min(...mys) - 8;
-    const mw = Math.max(...mxs) - mx + 12, mh = Math.max(...mys) - my + 8;
+    const mx = Math.min(...mxs) - 10, my = Math.min(...mys) - 6;
+    const mw = Math.max(...mxs) - mx + 10, mh = Math.max(...mys) - my + 6;
     ctx.strokeStyle = `rgba(0,184,169,${0.4 + pct * 0.5})`;
-    ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+    ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
     ctx.strokeRect(mx, my, mw, mh); ctx.setLineDash([]);
-    // Tooth dots
     if (scanProgress > 20) {
       ctx.fillStyle = `rgba(0,212,200,${pct * 0.7})`;
       for (let i = 0; i < 5; i++) {
@@ -1124,15 +1149,6 @@ function drawOverlay(canvas, video, detection) {
       }
     }
   } catch(e) {}
-
-  // Sweep line
-  const sweepY = by + scanLinePct * bh;
-  const grad = ctx.createLinearGradient(0, sweepY - 24, 0, sweepY + 24);
-  grad.addColorStop(0, 'rgba(0,184,169,0)');
-  grad.addColorStop(0.5, `rgba(0,184,169,${0.28 + pct * 0.22})`);
-  grad.addColorStop(1, 'rgba(0,184,169,0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(bx, sweepY - 24, bw, 48);
 }
 
 function finishScan() {
