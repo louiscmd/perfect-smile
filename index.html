@@ -4,29 +4,35 @@
 <meta charset="UTF-8">
 <title>Perfect Smile — AI Smile Assessment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1A1A1A">
+<meta name="theme-color" content="#00B8A9">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Perfect Smile">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
-  --bg: #FAFAF8;
-  --surface: #F5F3F0;
-  --border: #E8E4DF;
-  --text: #1A1A1A;
-  --muted: #6B6560;
-  --faint: #A8A09A;
-  --green: #6B9E7B;
-  --bar-h: 64px;
-  --r: 7px;
-  --r-sm: 4px;
-  --max-w: 560px;
+  --bg: #FFFFFF;
+  --surface: #F0FDFB;
+  --border: #C5EDE9;
+  --accent: #00B8A9;
+  --accent-dk: #009688;
+  --accent-lt: #E0F7F5;
+  --text: #0A2B28;
+  --muted: #4B7572;
+  --faint: #8BB5B2;
+  --danger: #E05252;
+  --bar-h: 68px;
+  --r: 20px;
+  --r-btn: 50px;
+  --r-sm: 12px;
+  --shadow: 0 4px 24px rgba(0,184,169,.10);
+  --shadow-md: 0 8px 40px rgba(0,184,169,.14);
+  --max-w: 540px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -40,120 +46,306 @@ body {
 /* ── Top Bar ── */
 .top-bar {
   position: fixed; top: 0; left: 0; right: 0;
-  height: var(--bar-h); background: var(--text);
+  height: var(--bar-h); background: var(--accent);
   display: flex; align-items: center; padding: 0 24px; z-index: 200; gap: 12px;
+  box-shadow: 0 2px 16px rgba(0,184,169,.25);
 }
 .top-brand {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 20px; font-weight: 400; letter-spacing: 0.02em; color: #fff; flex: 1;
+  font-size: 22px; font-weight: 400; letter-spacing: 0.02em; color: #fff; flex: 1;
 }
 .top-brand em { font-style: italic; font-weight: 300; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
-.top-lang { display: flex; gap: 2px; background: rgba(255,255,255,.08); border-radius: var(--r-sm); padding: 3px; }
-.top-lang-btn {
-  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
-  letter-spacing: 0.08em; color: rgba(255,255,255,.45); background: none;
-  border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; transition: all .2s;
+.top-lang {
+  display: flex; gap: 2px;
+  background: rgba(255,255,255,.18); border-radius: 20px; padding: 3px;
 }
-.top-lang-btn.active { background: rgba(255,255,255,.15); color: #fff; }
+.top-lang-btn {
+  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; color: rgba(255,255,255,.6); background: none;
+  border: none; padding: 4px 10px; border-radius: 16px; cursor: pointer; transition: all .2s;
+}
+.top-lang-btn.active { background: rgba(255,255,255,.28); color: #fff; }
 .top-profile-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.3);
   color: #fff; display: none; align-items: center; justify-content: center;
   cursor: pointer; transition: background .2s; flex-shrink: 0;
 }
 .top-profile-btn.visible { display: flex; }
-.top-profile-btn:hover { background: rgba(255,255,255,.2); }
+.top-profile-btn:hover { background: rgba(255,255,255,.3); }
 
 /* ── Page & Screens ── */
 .page { padding-top: var(--bar-h); min-height: 100dvh; display: flex; flex-direction: column; }
 .screen {
   display: none; flex-direction: column; flex: 1;
   width: 100%; max-width: var(--max-w); margin: 0 auto;
-  padding: 52px 32px 60px; animation: fadeUp .3s ease both;
+  padding: 48px 28px 64px; animation: fadeUp .35s ease both;
 }
 .screen.active { display: flex; }
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 600px) {
   .top-bar { padding: 0 20px; }
-  .screen { padding: 40px 20px 52px; }
+  .screen { padding: 36px 20px 56px; }
 }
 
 /* ── Typography ── */
 .eyebrow {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--faint); display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent-lt); color: var(--accent-dk);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; align-self: flex-start;
 }
-.eyebrow::before { content: ''; display: block; width: 18px; height: 1px; background: var(--border); flex-shrink: 0; }
 h1 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 60px; font-weight: 300; line-height: 1.04; color: var(--text); letter-spacing: -0.01em;
+  font-size: 62px; font-weight: 300; line-height: 1.04; color: var(--text); letter-spacing: -0.01em;
 }
-h1 em { font-style: italic; }
+h1 em { font-style: italic; color: var(--accent); }
 h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 44px; font-weight: 300; line-height: 1.1; color: var(--text);
+  font-size: 46px; font-weight: 300; line-height: 1.1; color: var(--text);
 }
-h2 em { font-style: italic; }
-@media (max-width: 600px) { h1 { font-size: 44px; } h2 { font-size: 36px; } }
-.body-text { font-size: 14px; font-weight: 300; line-height: 1.82; color: var(--muted); }
+h2 em { font-style: italic; color: var(--accent); }
+@media (max-width: 600px) { h1 { font-size: 46px; } h2 { font-size: 36px; } }
+.body-text { font-size: 15px; font-weight: 300; line-height: 1.78; color: var(--muted); }
 .spacer { flex: 1; }
 
 /* ── Buttons ── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
-  letter-spacing: 0.12em; text-transform: uppercase; border: none;
-  border-radius: var(--r); cursor: pointer;
-  transition: opacity .2s, transform .15s; text-decoration: none;
-  padding: 17px 32px; white-space: nowrap; width: 100%;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; border: none;
+  border-radius: var(--r-btn); cursor: pointer;
+  transition: all .2s; text-decoration: none;
+  padding: 18px 36px; white-space: nowrap; width: 100%;
 }
-.btn:active { transform: scale(.98); opacity: .85; }
-.btn-primary { background: var(--text); color: #fff; }
-.btn-primary:hover { opacity: .88; }
-.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
-.btn-outline:hover { border-color: var(--text); background: var(--surface); }
-.btn-ghost { background: transparent; color: var(--faint); font-size: 11px; padding: 14px 0; letter-spacing: 0.06em; text-transform: none; }
-.btn-ghost:hover { color: var(--text); }
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 4px 20px rgba(0,184,169,.30);
+}
+.btn-primary:hover { background: var(--accent-dk); box-shadow: 0 6px 28px rgba(0,184,169,.40); transform: translateY(-1px); }
+.btn-outline {
+  background: #fff; color: var(--accent);
+  border: 2px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--accent); background: var(--accent-lt); }
+.btn-ghost { background: transparent; color: var(--faint); font-size: 12px; padding: 14px 0; letter-spacing: 0.04em; text-transform: none; font-weight: 400; }
+.btn-ghost:hover { color: var(--muted); }
 
 /* ── Back button ── */
 .back-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--faint); background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 36px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--faint); background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 32px;
   transition: color .2s;
 }
-.back-btn:hover { color: var(--text); }
+.back-btn:hover { color: var(--accent); }
 .back-btn svg { transition: transform .2s; }
 .back-btn:hover svg { transform: translateX(-3px); }
 
 /* ── Divider ── */
 .divider {
   display: flex; align-items: center; gap: 16px; margin: 20px 0;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint);
 }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ── Forms ── */
-.form-group { margin-bottom: 20px; }
+.form-group { margin-bottom: 18px; }
 .form-label {
-  display: block; font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--faint); margin-bottom: 8px;
+  display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
 }
 .form-input {
-  width: 100%; padding: 13px 16px; font-family: 'Inter', sans-serif;
-  font-size: 14px; font-weight: 300; color: var(--text); background: #fff;
-  border: 1.5px solid var(--border); border-radius: var(--r);
-  outline: none; transition: border-color .2s; appearance: none;
+  width: 100%; padding: 15px 18px; font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 300; color: var(--text); background: var(--surface);
+  border: 2px solid var(--border); border-radius: var(--r-sm);
+  outline: none; transition: border-color .2s, box-shadow .2s; appearance: none;
 }
-.form-input:focus { border-color: var(--text); }
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(0,184,169,.08); background: #fff; }
 .form-input::placeholder { color: var(--faint); }
 textarea.form-input { resize: vertical; min-height: 88px; }
 
-/* ── AI Scan Screen ── */
+/* ── Install Screen ── */
+.install-icon-wrap {
+  display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; margin-top: 12px;
+}
+.install-app-icon {
+  width: 96px; height: 96px; border-radius: 24px;
+  background: linear-gradient(135deg, var(--accent) 0%, #00D4C8 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-md); margin-bottom: 16px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 48px; font-weight: 300; color: #fff; letter-spacing: -0.02em;
+  font-style: italic;
+}
+.install-pills {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 32px;
+}
+.install-pill {
+  background: var(--accent-lt); color: var(--accent-dk);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 20px;
+}
+.install-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--r); padding: 24px 20px; margin-bottom: 28px;
+}
+.install-card-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 20px;
+}
+.install-steps { display: flex; flex-direction: column; gap: 16px; }
+.install-step { display: flex; align-items: center; gap: 14px; }
+.install-step-num {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--accent);
+  color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.install-step-text { font-size: 14px; font-weight: 300; color: var(--text); line-height: 1.5; }
+.install-step-text strong { font-weight: 600; }
+.install-native-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--accent); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  border: none; border-radius: var(--r-btn); cursor: pointer;
+  padding: 20px 36px; width: 100%;
+  box-shadow: 0 4px 20px rgba(0,184,169,.35); transition: all .2s;
+}
+.install-native-btn:hover { background: var(--accent-dk); transform: translateY(-1px); }
+.install-native-btn:active { transform: scale(.97); }
+
+/* ── Score Screen ── */
+.score-hero {
+  background: linear-gradient(135deg, var(--accent) 0%, #00D4C8 100%);
+  border-radius: var(--r); padding: 28px 24px 24px; margin: 20px 0 24px;
+  box-shadow: var(--shadow-md);
+}
+.score-hero-row { display: flex; align-items: baseline; gap: 10px; }
+.score-hero-num {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 88px; font-weight: 300; line-height: 1; color: #fff; letter-spacing: -0.02em;
+}
+.score-hero-denom { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 300; color: rgba(255,255,255,.6); }
+.score-hero-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,.75); margin-top: 8px;
+}
+.score-gauge-bar { height: 4px; background: rgba(255,255,255,.25); margin-top: 16px; border-radius: 2px; overflow: hidden; }
+.score-gauge-fill { height: 100%; background: #fff; width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
+.score-cats { display: flex; flex-direction: column; gap: 2px; }
+.score-cat {
+  display: flex; align-items: center; padding: 12px 0;
+  border-bottom: 1px solid var(--border); gap: 14px; animation: fadeUp .4s ease both;
+}
+.score-cat:last-child { border-bottom: none; }
+.score-cat-name { font-size: 12px; font-weight: 500; color: var(--muted); width: 130px; flex-shrink: 0; }
+.score-cat-bar-wrap { flex: 1; height: 6px; background: var(--surface); overflow: hidden; border-radius: 3px; }
+.score-cat-bar { height: 100%; width: 0; transition: width 1s ease; border-radius: 3px; }
+.score-cat-bar.hi { background: var(--accent); }
+.score-cat-bar.mi { background: #F5A623; }
+.score-cat-bar.lo { background: var(--danger); }
+.score-cat-val {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px; font-weight: 400; color: var(--text); width: 28px; text-align: right;
+}
+
+/* ── Improvements ── */
+.impr-list { display: flex; flex-direction: column; gap: 2px; margin-top: 24px; }
+.impr-item {
+  background: var(--surface); border-radius: var(--r-sm);
+  padding: 20px; animation: fadeUp .4s ease both;
+  border: 2px solid transparent; transition: border-color .2s;
+}
+.impr-item:hover { border-color: var(--border); }
+.impr-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.impr-item-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.impr-item-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  background: var(--accent-lt); color: var(--accent-dk); padding: 4px 10px; border-radius: 20px;
+}
+.impr-item-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+/* ── Gate ── */
+.gate-preview {
+  background: var(--surface); border: 2px solid var(--border); border-radius: var(--r);
+  padding: 28px 24px; margin: 24px 0 28px; position: relative; overflow: hidden;
+}
+.gate-preview::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, var(--surface) 55%);
+}
+.gate-score-preview {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 80px; font-weight: 300; color: var(--border); text-align: center;
+  line-height: 1; filter: blur(6px); margin-bottom: 12px;
+}
+.gate-blur-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px; }
+.gate-blur-row:last-child { border-bottom: none; }
+.gate-blur-label { height: 10px; background: var(--border); border-radius: 5px; width: 80px; flex-shrink: 0; }
+.gate-blur-bar { height: 6px; background: var(--border); border-radius: 3px; flex: 1; }
+
+/* ── Auth ── */
+.auth-note { font-size: 12px; font-weight: 300; color: var(--faint); line-height: 1.65; margin-top: 16px; }
+.auth-switch { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 300; color: var(--faint); margin-top: 20px; }
+.auth-switch button { background: none; border: none; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; cursor: pointer; padding: 0; }
+.auth-switch button:hover { text-decoration: underline; }
+
+/* ── Thank You ── */
+.ty-check {
+  width: 64px; height: 64px; background: var(--accent-lt); border: 2px solid var(--border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 28px;
+}
+
+/* ── Alerts ── */
+.alert { padding: 14px 18px; font-size: 13px; font-weight: 400; line-height: 1.55; margin-bottom: 20px; display: none; border-radius: var(--r-sm); }
+.alert.visible { display: block; }
+.alert-err { background: #FEF0F0; border: 2px solid #FACACA; color: #9B2626; }
+.alert-ok  { background: var(--accent-lt); border: 2px solid var(--border); color: var(--accent-dk); }
+
+/* ── Contact Links ── */
+.contact-links { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.contact-link {
+  display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+  background: var(--surface); border: 2px solid var(--border); border-radius: var(--r);
+  text-decoration: none; color: var(--text); transition: all .2s;
+  cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; text-align: left;
+}
+.contact-link:hover { border-color: var(--accent); background: var(--accent-lt); transform: translateY(-1px); box-shadow: var(--shadow); }
+.contact-link-icon {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--accent-lt);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.contact-link-meta { display: flex; flex-direction: column; gap: 3px; }
+.contact-link-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.contact-link-sub { font-size: 12px; font-weight: 300; color: var(--faint); }
+
+/* ── History ── */
+.history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+.history-item {
+  background: var(--surface); border: 2px solid var(--border); border-radius: var(--r);
+  padding: 18px 20px; display: flex; align-items: center; gap: 20px;
+  transition: all .2s;
+}
+.history-item:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
+.history-score { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 44px; font-weight: 300; line-height: 1; color: var(--accent); flex-shrink: 0; width: 56px; }
+.history-meta { flex: 1; }
+.history-date { font-size: 11px; font-weight: 600; color: var(--faint); letter-spacing: 0.04em; margin-bottom: 4px; text-transform: uppercase; }
+.history-tag { font-size: 13px; font-weight: 400; color: var(--muted); }
+
+/* ── Profile ── */
+.profile-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--r); padding: 24px; margin-bottom: 20px; }
+.profile-row { display: flex; align-items: baseline; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.profile-row:last-child { border-bottom: none; }
+.profile-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+.profile-value { font-size: 14px; font-weight: 300; color: var(--text); }
+
+/* ── AI Scan Overlay ── */
 .scan-screen {
   position: fixed; inset: 0; background: #000; z-index: 500;
   display: none; flex-direction: column; overflow: hidden;
@@ -163,63 +355,50 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   position: relative; flex: 1; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.scan-video {
-  width: 100%; height: 100%; object-fit: cover; display: block;
-}
-.scan-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-}
+.scan-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .scan-hint-bubble {
-  position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
-  background: rgba(10,10,10,.75); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
-  padding: 9px 20px; white-space: nowrap;
-  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-  color: rgba(255,255,255,.7); transition: all .4s;
+  position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.65); backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,.12); border-radius: 20px;
+  padding: 10px 22px; white-space: nowrap;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,.65); transition: all .4s;
 }
-.scan-hint-bubble.detected { color: var(--green); border-color: rgba(107,158,123,.3); }
+.scan-hint-bubble.detected { color: var(--accent); border-color: rgba(0,184,169,.4); }
 .scan-cancel {
   position: absolute; top: 20px; right: 20px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-  color: rgba(255,255,255,.6); padding: 9px 18px; font-size: 10px; font-weight: 500;
-  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
-  font-family: 'Inter', sans-serif; border-radius: var(--r-sm); transition: all .2s;
+  background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.7); padding: 10px 20px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+  font-family: 'Inter', sans-serif; border-radius: 20px; transition: all .2s;
 }
-.scan-cancel:hover { background: rgba(255,255,255,.15); color: #fff; }
+.scan-cancel:hover { background: rgba(255,255,255,.2); color: #fff; }
 .scan-flip-btn {
   position: absolute; top: 20px; left: 20px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-  border-radius: 50%; width: 40px; height: 40px; color: rgba(255,255,255,.6);
+  background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.15);
+  border-radius: 50%; width: 44px; height: 44px; color: rgba(255,255,255,.7);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all .2s;
 }
-.scan-flip-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
-/* Bottom panel */
+.scan-flip-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
 .scan-panel {
-  background: #0A0A0A; padding: 24px 28px env(safe-area-inset-bottom, 0px);
-  display: flex; flex-direction: column; gap: 12px;
+  background: #0A0A0A; padding: 20px 24px env(safe-area-inset-bottom, 8px);
+  display: flex; flex-direction: column; gap: 10px;
 }
 .scan-status-row { display: flex; align-items: center; justify-content: space-between; }
 .scan-state-text {
-  font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: rgba(255,255,255,.5);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,.4);
   text-transform: uppercase;
 }
-.scan-state-text.active { color: var(--green); }
+.scan-state-text.active { color: var(--accent); }
 .scan-pct {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 28px; font-weight: 300; color: #fff; line-height: 1;
 }
-.scan-bar-track {
-  height: 2px; background: rgba(255,255,255,.1); border-radius: 1px; overflow: hidden;
-}
-.scan-bar-fill {
-  height: 100%; width: 0; background: var(--green);
-  border-radius: 1px; transition: width .15s linear;
-}
-.scan-desc {
-  font-size: 11px; font-weight: 300; color: rgba(255,255,255,.35); line-height: 1.6;
-}
-/* Loading overlay */
+.scan-bar-track { height: 4px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
+.scan-bar-fill { height: 100%; width: 0; background: var(--accent); border-radius: 2px; transition: width .15s linear; }
+.scan-desc { font-size: 12px; font-weight: 300; color: rgba(255,255,255,.3); line-height: 1.6; }
 .scan-loading {
   position: absolute; inset: 0; background: #000;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
@@ -227,125 +406,23 @@ textarea.form-input { resize: vertical; min-height: 88px; }
 }
 .scan-loading.hidden { opacity: 0; pointer-events: none; }
 .scan-load-ring {
-  width: 48px; height: 48px;
-  border: 2px solid rgba(255,255,255,.1); border-top-color: var(--green);
+  width: 52px; height: 52px;
+  border: 3px solid rgba(0,184,169,.2); border-top-color: var(--accent);
   border-radius: 50%; animation: spin .8s linear infinite;
 }
-.scan-load-text {
-  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-  color: rgba(255,255,255,.35);
-}
+.scan-load-text { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,.3); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Score Screen ── */
-.score-hero {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: var(--r); padding: 28px 24px 24px; margin: 24px 0 28px;
-}
-.score-hero-num {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 88px; font-weight: 300; line-height: 1; color: var(--text); letter-spacing: -0.02em;
-}
-.score-hero-row { display: flex; align-items: baseline; gap: 10px; }
-.score-hero-denom { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 300; color: var(--faint); }
-.score-hero-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
-.score-gauge-bar { height: 3px; background: var(--border); margin-top: 16px; border-radius: 2px; overflow: hidden; }
-.score-gauge-fill { height: 100%; background: var(--text); width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
-.score-cats { display: flex; flex-direction: column; }
-.score-cat { display: flex; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--border); gap: 16px; animation: fadeUp .4s ease both; }
-.score-cat-name { font-size: 12px; font-weight: 400; color: var(--muted); width: 130px; flex-shrink: 0; }
-.score-cat-bar-wrap { flex: 1; height: 3px; background: var(--border); overflow: hidden; border-radius: 2px; }
-.score-cat-bar { height: 100%; width: 0; transition: width 1s ease; border-radius: 2px; }
-.score-cat-bar.hi { background: #6B9E7B; }
-.score-cat-bar.mi { background: #C4974A; }
-.score-cat-bar.lo { background: #C47A6B; }
-.score-cat-val { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; font-weight: 300; color: var(--text); width: 28px; text-align: right; }
-
-/* ── Improvements ── */
-.impr-list { display: flex; flex-direction: column; margin-top: 28px; }
-.impr-item { padding: 22px 0; border-bottom: 1px solid var(--border); animation: fadeUp .4s ease both; }
-.impr-item-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-.impr-item-name { font-size: 14px; font-weight: 400; color: var(--text); }
-.impr-item-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
-.impr-item-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
-
-/* ── Gate ── */
-.gate-preview {
-  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
-  padding: 28px 24px; margin: 28px 0 32px; position: relative; overflow: hidden;
-}
-.gate-preview::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 0%, var(--surface) 60%);
-}
-.gate-score-preview {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 80px; font-weight: 300; color: var(--border); text-align: center;
-  line-height: 1; filter: blur(6px); margin-bottom: 12px;
-}
-.gate-blur-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px; }
-.gate-blur-label { height: 8px; background: var(--border); border-radius: 4px; width: 80px; flex-shrink: 0; }
-.gate-blur-bar { height: 3px; background: var(--border); border-radius: 2px; flex: 1; }
-
-/* ── Auth ── */
-.auth-note { font-size: 12px; font-weight: 300; color: var(--faint); line-height: 1.65; margin-top: 16px; }
-.auth-switch { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 300; color: var(--faint); margin-top: 20px; }
-.auth-switch button { background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0; }
-
-/* ── Thank You ── */
-.ty-check {
-  width: 52px; height: 52px; background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 28px;
-}
-
-/* ── Alerts ── */
-.alert { padding: 13px 16px; font-size: 12px; font-weight: 400; line-height: 1.55; margin-bottom: 20px; display: none; border-radius: var(--r-sm); }
-.alert.visible { display: block; }
-.alert-err { background: #FDF4F3; border: 1px solid #EDD5D0; color: #8B3A34; }
-.alert-ok  { background: #F3F8F4; border: 1px solid #C8DFD0; color: #2E6648; }
-
-/* ── Contact Links ── */
-.contact-links { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-.contact-link {
-  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
-  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
-  text-decoration: none; color: var(--text); font-size: 13px;
-  transition: border-color .2s; cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; text-align: left;
-}
-.contact-link:hover { border-color: var(--muted); }
-.contact-link-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.contact-link-meta { display: flex; flex-direction: column; gap: 2px; }
-.contact-link-title { font-size: 13px; font-weight: 400; color: var(--text); }
-.contact-link-sub { font-size: 11px; font-weight: 300; color: var(--faint); }
-
-/* ── History ── */
-.history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
-.history-item {
-  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
-  padding: 18px 20px; display: flex; align-items: center; gap: 20px; transition: border-color .2s;
-}
-.history-score { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 40px; font-weight: 300; line-height: 1; color: var(--text); flex-shrink: 0; width: 52px; }
-.history-meta { flex: 1; }
-.history-date { font-size: 11px; font-weight: 500; color: var(--faint); letter-spacing: 0.04em; margin-bottom: 4px; }
-.history-tag { font-size: 12px; font-weight: 400; color: var(--muted); }
-
-/* ── Profile ── */
-.profile-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); padding: 24px; margin-bottom: 20px; }
-.profile-row { display: flex; align-items: baseline; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.profile-row:last-child { border-bottom: none; }
-.profile-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
-.profile-value { font-size: 13px; font-weight: 300; color: var(--text); }
-
-/* ── Install Bar ── */
+/* ── Install Bar (bottom) ── */
 .install-bar {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: var(--text); color: #fff; padding: 14px 18px;
-  display: none; align-items: center; gap: 16px; font-size: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 800; white-space: nowrap; border-radius: var(--r);
+  background: var(--text); color: #fff; padding: 14px 20px;
+  display: none; align-items: center; gap: 16px; font-size: 13px;
+  box-shadow: var(--shadow-md); z-index: 800; white-space: nowrap; border-radius: var(--r-btn);
 }
 .install-bar.visible { display: flex; }
-.install-bar-btn { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.2); padding: 8px 16px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; font-family: 'Inter', sans-serif; border-radius: var(--r-sm); }
-.install-bar-close { background: none; border: none; color: rgba(255,255,255,.4); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.install-bar-btn { background: var(--accent); color: #fff; border: none; padding: 8px 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; font-family: 'Inter', sans-serif; border-radius: 20px; }
+.install-bar-close { background: none; border: none; color: rgba(255,255,255,.4); cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px; }
 
 /* ── Spinner ── */
 .spin { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
@@ -369,16 +446,63 @@ textarea.form-input { resize: vertical; min-height: 88px; }
 
 <main class="page" id="page">
 
+  <!-- Install Screen -->
+  <div class="screen" id="s-install">
+    <div class="install-icon-wrap">
+      <div class="install-app-icon">P</div>
+    </div>
+    <div class="eyebrow" data-t="install-eyebrow">Get the App</div>
+    <h2 data-t="install-h2">Better<br>on your<br><em>phone.</em></h2>
+    <p class="body-text" style="margin-top:12px;margin-bottom:24px" data-t="install-sub">Add Perfect Smile to your Home Screen for the full experience — offline, instant access, no browser bar.</p>
+
+    <div class="install-pills">
+      <span class="install-pill" data-t="pill-free">Free</span>
+      <span class="install-pill" data-t="pill-private">Private</span>
+      <span class="install-pill" data-t="pill-offline">Works Offline</span>
+    </div>
+
+    <!-- iOS Steps -->
+    <div class="install-card" id="ios-steps" style="display:none">
+      <div class="install-card-title" data-t="install-how">How to install on iPhone</div>
+      <div class="install-steps">
+        <div class="install-step">
+          <div class="install-step-num">1</div>
+          <div class="install-step-text" data-t="ios-step-1">Tap the <strong>Share</strong> button at the bottom of Safari</div>
+        </div>
+        <div class="install-step">
+          <div class="install-step-num">2</div>
+          <div class="install-step-text" data-t="ios-step-2">Scroll down and tap <strong>Add to Home Screen</strong></div>
+        </div>
+        <div class="install-step">
+          <div class="install-step-num">3</div>
+          <div class="install-step-text" data-t="ios-step-3">Tap <strong>Add</strong> in the top right corner</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android / Desktop native prompt -->
+    <button class="install-native-btn" id="install-native-btn" onclick="triggerInstall()" style="display:none;margin-bottom:12px">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 17l-5-5h3V7h4v5h3l-5 5z"/><path d="M5 21h14"/></svg>
+      <span data-t="install-btn-label">Add to Home Screen</span>
+    </button>
+
+    <div class="spacer" style="min-height:20px"></div>
+    <button class="btn btn-ghost" onclick="dismissInstall()" data-t="continue-browser">Continue in Browser</button>
+  </div>
+
   <!-- Splash -->
-  <div class="screen active" id="s-splash">
+  <div class="screen" id="s-splash">
     <div class="eyebrow" data-t="eyebrow-ai">AI Smile Assessment</div>
     <h1 data-t="splash-h1">How perfect<br>is your<br><em>smile?</em></h1>
-    <p class="body-text" style="margin-top:28px" data-t="splash-sub">Point your camera at your smile. Our AI reads your teeth in real time and generates a full dental score in under 30 seconds.</p>
-    <div class="spacer" style="min-height:52px"></div>
-    <button class="btn btn-primary" onclick="openScan()" style="margin-bottom:12px" data-t="btn-start">Scan My Smile</button>
+    <p class="body-text" style="margin-top:24px" data-t="splash-sub">Point your camera at your smile. Our AI reads your teeth in real time and generates a full dental score in under 30 seconds.</p>
+    <div class="spacer" style="min-height:48px"></div>
+    <button class="btn btn-primary" onclick="openScan()" style="margin-bottom:12px" data-t="btn-start">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Scan My Smile
+    </button>
     <div class="divider" data-t="or">or</div>
     <button class="btn btn-outline" onclick="go('s-login')" data-t="btn-signin">Sign In</button>
-    <p class="auth-note" style="text-align:center;margin-top:24px" data-t="splash-note">No photos stored. Analysis runs entirely on your device.</p>
+    <p class="auth-note" style="text-align:center;margin-top:20px" data-t="splash-note">No photos stored. Analysis runs entirely on your device.</p>
   </div>
 
   <!-- Gate -->
@@ -400,12 +524,12 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Register -->
   <div class="screen" id="s-reg">
     <button class="back-btn" onclick="regBack()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-create">Create Account</div>
     <h2 data-t="reg-h2">One last<br><em>step.</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:32px" data-t="reg-sub">Create your account to view your results and book a consultation.</p>
+    <p class="body-text" style="margin-top:10px;margin-bottom:28px" data-t="reg-sub">Create your account to view your results and book a consultation.</p>
     <div class="alert alert-err" id="reg-err"></div>
     <form id="reg-form" onsubmit="doRegister(event)">
       <div class="form-group">
@@ -420,7 +544,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
         <label class="form-label" for="r-pass" data-t="label-pass">Password</label>
         <input class="form-input" id="r-pass" type="password" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters">
       </div>
-      <div style="margin-top:32px">
+      <div style="margin-top:28px">
         <button class="btn btn-primary" type="submit" id="reg-btn">
           <span id="reg-btn-text" data-t="btn-create-acc">Create Account</span>
           <div class="spin" id="reg-spin"></div>
@@ -434,12 +558,12 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Login -->
   <div class="screen" id="s-login">
     <button class="back-btn" onclick="loginBack()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-signin">Sign In</div>
     <h2 data-t="login-h2">Welcome<br><em>back.</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:32px" data-t="login-sub">Sign in to view your assessment and book a consultation.</p>
+    <p class="body-text" style="margin-top:10px;margin-bottom:28px" data-t="login-sub">Sign in to view your assessment and book a consultation.</p>
     <div class="alert alert-err" id="login-err"></div>
     <form id="login-form" onsubmit="doLogin(event)">
       <div class="form-group">
@@ -450,7 +574,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
         <label class="form-label" for="l-pass" data-t="label-pass">Password</label>
         <input class="form-input" id="l-pass" type="password" required autocomplete="current-password" placeholder="Your password">
       </div>
-      <div style="margin-top:32px">
+      <div style="margin-top:28px">
         <button class="btn btn-primary" type="submit" id="login-btn">
           <span id="login-btn-text" data-t="btn-signin">Sign In</span>
           <div class="spin" id="login-spin"></div>
@@ -482,7 +606,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Improvements -->
   <div class="screen" id="s-impr">
     <button class="back-btn" onclick="go('s-score',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-plan">Improvement Plan</div>
@@ -496,7 +620,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Contact -->
   <div class="screen" id="s-contact">
     <button class="back-btn" onclick="go('s-score',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-contact">Contact</div>
@@ -505,7 +629,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
     <div class="contact-links">
       <a class="contact-link" href="mailto:magda@michalkowska.pl">
         <div class="contact-link-icon">
-          <svg width="17" height="17" fill="none" stroke="#6B6560" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
         <div class="contact-link-meta">
           <div class="contact-link-title" data-t="cl-email-title">Email</div>
@@ -514,7 +638,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
       </a>
       <button class="contact-link" onclick="go('s-book')">
         <div class="contact-link-icon">
-          <svg width="17" height="17" fill="none" stroke="#6B6560" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div class="contact-link-meta">
           <div class="contact-link-title" data-t="cl-book-title">Book Consultation</div>
@@ -527,12 +651,12 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Book -->
   <div class="screen" id="s-book">
     <button class="back-btn" onclick="go('s-impr',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-consult">Consultation</div>
     <h2 data-t="book-h2">Book your<br><em>appointment.</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:32px" data-t="book-sub">Complete the form and we will contact you within 24 hours to confirm.</p>
+    <p class="body-text" style="margin-top:10px;margin-bottom:28px" data-t="book-sub">Complete the form and we will contact you within 24 hours to confirm.</p>
     <div class="alert alert-err" id="book-err"></div>
     <form id="book-form" onsubmit="submitForm(event)">
       <div class="form-group">
@@ -555,7 +679,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
         <label class="form-label" for="fq" data-t="label-notes">Notes (optional)</label>
         <textarea class="form-input" id="fq" placeholder="Any questions or preferences"></textarea>
       </div>
-      <div style="margin-top:32px">
+      <div style="margin-top:28px">
         <button class="btn btn-primary" type="submit" id="book-btn">
           <span id="book-btn-text" data-t="btn-send">Send Request</span>
           <div class="spin" id="book-spin"></div>
@@ -567,11 +691,11 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Thank You -->
   <div class="screen" id="s-ty">
     <div class="ty-check">
-      <svg width="18" height="18" fill="none" stroke="#6B9E7B" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg width="22" height="22" fill="none" stroke="var(--accent)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div class="eyebrow" data-t="eyebrow-done">Complete</div>
     <h2 data-t="ty-h2">Request<br><em>received.</em></h2>
-    <p class="body-text" style="margin-top:20px" data-t="ty-sub">Thank you. We will review your smile assessment and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.</p>
+    <p class="body-text" style="margin-top:20px" data-t="ty-sub">Thank you. We will review your smile scan and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.</p>
     <div class="spacer" style="min-height:48px"></div>
     <button class="btn btn-primary" onclick="resetApp()" style="margin-bottom:12px" data-t="btn-new-ass">Scan Again</button>
     <button class="btn btn-ghost" onclick="go('s-score',true)" data-t="btn-view-results">View My Results</button>
@@ -580,7 +704,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- Profile -->
   <div class="screen" id="s-profile">
     <button class="back-btn" onclick="goBack()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-profile">Profile</div>
@@ -606,7 +730,7 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <!-- History -->
   <div class="screen" id="s-history">
     <button class="back-btn" onclick="go('s-profile',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
     <div class="eyebrow" data-t="eyebrow-history">Scan History</div>
@@ -618,46 +742,35 @@ textarea.form-input { resize: vertical; min-height: 88px; }
 
 </main>
 
-<!-- ═══════════ AI SCAN OVERLAY ═══════════ -->
+<!-- AI Scan Overlay -->
 <div class="scan-screen" id="scan-screen">
-  <!-- Camera view -->
   <div class="scan-video-wrap">
     <video class="scan-video" id="scan-video" autoplay playsinline muted></video>
     <canvas class="scan-canvas" id="scan-canvas"></canvas>
-
-    <!-- Status hint bubble -->
     <div class="scan-hint-bubble" id="scan-hint" data-t="scan-loading">Preparing AI scanner</div>
-
-    <!-- Cancel & flip -->
     <button class="scan-cancel" onclick="closeScan()" data-t="close">Cancel</button>
-    <button class="scan-flip-btn" onclick="flipScan()" title="Flip camera">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+    <button class="scan-flip-btn" onclick="flipScan()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
     </button>
-
-    <!-- Loading overlay -->
     <div class="scan-loading" id="scan-loading">
       <div class="scan-load-ring"></div>
       <div class="scan-load-text" data-t="scan-loading">Preparing AI scanner</div>
     </div>
   </div>
-
-  <!-- Bottom panel -->
   <div class="scan-panel">
     <div class="scan-status-row">
       <div class="scan-state-text" id="scan-state" data-t="scan-waiting">Waiting for face</div>
       <div class="scan-pct" id="scan-pct">0%</div>
     </div>
-    <div class="scan-bar-track">
-      <div class="scan-bar-fill" id="scan-bar"></div>
-    </div>
-    <div class="scan-desc" data-t="scan-desc">Position your face in the camera and open your mouth slightly to reveal your teeth</div>
+    <div class="scan-bar-track"><div class="scan-bar-fill" id="scan-bar"></div></div>
+    <div class="scan-desc" data-t="scan-desc">Position your face in the camera and open your mouth slightly</div>
   </div>
 </div>
 
 <!-- Install Bar -->
 <div class="install-bar" id="install-bar">
   <span data-t="install-msg">Add to home screen</span>
-  <button class="install-bar-btn" id="install-btn" data-t="install-btn">Install</button>
+  <button class="install-bar-btn" id="install-bar-btn" data-t="install-btn">Install</button>
   <button class="install-bar-close" onclick="document.getElementById('install-bar').classList.remove('visible')">&times;</button>
 </div>
 
@@ -671,6 +784,14 @@ const MODEL_URL = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/';
 // ── Translations ──────────────────────────────────────────────
 const T = {
   en: {
+    'install-eyebrow':'Get the App','install-h2':'Better<br>on your<br><em>phone.</em>',
+    'install-sub':'Add Perfect Smile to your Home Screen for the full experience — offline, instant access, no browser bar.',
+    'pill-free':'Free','pill-private':'Private','pill-offline':'Works Offline',
+    'install-how':'How to install on iPhone',
+    'ios-step-1':'Tap the <strong>Share</strong> button at the bottom of Safari',
+    'ios-step-2':'Scroll down and tap <strong>Add to Home Screen</strong>',
+    'ios-step-3':'Tap <strong>Add</strong> in the top right corner',
+    'install-btn-label':'Add to Home Screen','continue-browser':'Continue in Browser',
     'eyebrow-ai':'AI Smile Assessment',
     'splash-h1':'How perfect<br>is your<br><em>smile?</em>',
     'splash-sub':'Point your camera at your smile. Our AI reads your teeth in real time and generates a full dental score in under 30 seconds.',
@@ -702,23 +823,27 @@ const T = {
     'btn-new-ass':'Scan Again','btn-view-results':'View My Results',
     'eyebrow-profile':'Profile','profile-h2':'Your<br><em>account.</em>',
     'label-assessments':'Scans','btn-history':'View Scan History','btn-logout':'Sign Out',
-    'eyebrow-history':'Scan History','history-h2':'Your<br><em>scans.</em>',
-    'btn-scan-again':'Scan Again',
-    'close':'Cancel',
-    'scan-loading':'Preparing AI scanner','scan-waiting':'Waiting for face',
-    'scan-scanning':'Scanning your smile','scan-complete':'Complete',
-    'scan-desc':'Position your face in the camera and open your mouth slightly to reveal your teeth',
-    'scan-hint-ready':'Position your face in the frame',
-    'scan-hint-detected':'Hold still — scanning',
+    'eyebrow-history':'Scan History','history-h2':'Your<br><em>scans.</em>','btn-scan-again':'Scan Again',
+    'close':'Cancel','scan-loading':'Preparing AI scanner','scan-waiting':'Waiting for face',
+    'scan-scanning':'Scanning your smile','scan-desc':'Position your face in the camera and open your mouth slightly',
+    'scan-hint-ready':'Position your face in the frame','scan-hint-detected':'Hold still — scanning',
     'install-msg':'Add to home screen','install-btn':'Install',
     'tag-excellent':'Excellent','tag-good':'Good','tag-fair':'Fair','tag-needs':'Needs Attention',
-    'no-history':'No scans yet. Take your first one.',
+    'no-history':'No scans yet. Tap Scan to begin.',
     'cam-denied':'Camera access denied. Please allow camera permissions and try again.',
   },
   pl: {
+    'install-eyebrow':'Pobierz aplikację','install-h2':'Lepiej<br>na twoim<br><em>telefonie.</em>',
+    'install-sub':'Dodaj Perfect Smile do ekranu głównego — dostęp offline, bez paska przeglądarki.',
+    'pill-free':'Bezpłatna','pill-private':'Prywatna','pill-offline':'Offline',
+    'install-how':'Jak zainstalować na iPhone',
+    'ios-step-1':'Kliknij przycisk <strong>Udostępnij</strong> na dole Safari',
+    'ios-step-2':'Przewiń i kliknij <strong>Dodaj do ekranu głównego</strong>',
+    'ios-step-3':'Kliknij <strong>Dodaj</strong> w prawym górnym rogu',
+    'install-btn-label':'Dodaj do ekranu głównego','continue-browser':'Kontynuuj w przeglądarce',
     'eyebrow-ai':'Ocena AI',
     'splash-h1':'Jak piękny<br>jest twój<br><em>uśmiech?</em>',
-    'splash-sub':'Skieruj kamerę na swój uśmiech. Nasza AI odczytuje Twoje zęby w czasie rzeczywistym i generuje pełną ocenę dentystyczną w mniej niż 30 sekund.',
+    'splash-sub':'Skieruj kamerę na swój uśmiech. Nasza AI odczytuje Twoje zęby w czasie rzeczywistym.',
     'btn-start':'Skanuj mój uśmiech','or':'lub','btn-signin':'Zaloguj się',
     'splash-note':'Żadne zdjęcia nie są zapisywane. Analiza odbywa się na Twoim urządzeniu.',
     'back':'Wstecz','eyebrow-complete':'Skan zakończony',
@@ -737,36 +862,30 @@ const T = {
     'eyebrow-plan':'Plan poprawy','impr-h2':'Twój potencjał<br><em>uśmiechu.</em>',
     'impr-sub':'Na podstawie skanu, te zabiegi mogłyby znacząco poprawić Twój wynik.',
     'btn-book':'Umów konsultację','eyebrow-contact':'Kontakt',
-    'contact-h2':'Skontaktuj<br><em>się z nami.</em>','contact-sub':'Skontaktuj się bezpośrednio lub umów wizytę przez formularz.',
+    'contact-h2':'Skontaktuj<br><em>się z nami.</em>','contact-sub':'Skontaktuj się bezpośrednio lub umów wizytę.',
     'cl-email-title':'E-mail','cl-book-title':'Umów wizytę','cl-book-sub':'Wypełnij formularz rezerwacji',
     'eyebrow-consult':'Konsultacja','book-h2':'Umów swoją<br><em>wizytę.</em>',
     'book-sub':'Wypełnij formularz, a skontaktujemy się z Tobą w ciągu 24 godzin.',
     'label-phone':'Numer telefonu','label-date':'Preferowana data','label-notes':'Uwagi (opcjonalnie)',
     'btn-send':'Wyślij zapytanie','eyebrow-done':'Gotowe','ty-h2':'Zapytanie<br><em>odebrane.</em>',
-    'ty-sub':'Dziękujemy. Przejrzymy Twój skan i skontaktujemy się z Tobą w ciągu 24 godzin, aby potwierdzić wizytę u Dr. Michałkowskiej.',
+    'ty-sub':'Dziękujemy. Przejrzymy Twój skan i skontaktujemy się z Tobą w ciągu 24 godzin.',
     'btn-new-ass':'Skanuj ponownie','btn-view-results':'Zobacz moje wyniki',
     'eyebrow-profile':'Profil','profile-h2':'Twoje<br><em>konto.</em>',
     'label-assessments':'Skany','btn-history':'Historia skanów','btn-logout':'Wyloguj się',
-    'eyebrow-history':'Historia skanów','history-h2':'Twoje<br><em>skany.</em>',
-    'btn-scan-again':'Skanuj ponownie',
-    'close':'Anuluj',
-    'scan-loading':'Przygotowuję skaner AI','scan-waiting':'Czekam na twarz',
-    'scan-scanning':'Skanuję twój uśmiech','scan-complete':'Gotowe',
-    'scan-desc':'Ustaw twarz w kadrze i lekko otwórz usta, aby zęby były widoczne',
-    'scan-hint-ready':'Ustaw twarz w kadrze',
-    'scan-hint-detected':'Nie ruszaj się — skanuję',
+    'eyebrow-history':'Historia skanów','history-h2':'Twoje<br><em>skany.</em>','btn-scan-again':'Skanuj ponownie',
+    'close':'Anuluj','scan-loading':'Przygotowuję skaner AI','scan-waiting':'Czekam na twarz',
+    'scan-scanning':'Skanuję twój uśmiech','scan-desc':'Ustaw twarz w kadrze i lekko otwórz usta',
+    'scan-hint-ready':'Ustaw twarz w kadrze','scan-hint-detected':'Nie ruszaj się — skanuję',
     'install-msg':'Dodaj do ekranu głównego','install-btn':'Zainstaluj',
     'tag-excellent':'Doskonały','tag-good':'Dobry','tag-fair':'Przeciętny','tag-needs':'Wymaga uwagi',
-    'no-history':'Brak skanów. Wykonaj swój pierwszy.',
+    'no-history':'Brak skanów. Dotknij Skanuj, aby zacząć.',
     'cam-denied':'Brak dostępu do kamery. Zezwól na dostęp i spróbuj ponownie.',
   }
 };
 
 let lang = localStorage.getItem('ps_lang') || 'en';
-
 function setLang(l) {
-  lang = l;
-  localStorage.setItem('ps_lang', l);
+  lang = l; localStorage.setItem('ps_lang', l);
   document.getElementById('lang-en').classList.toggle('active', l === 'en');
   document.getElementById('lang-pl').classList.toggle('active', l === 'pl');
   document.querySelectorAll('[data-t]').forEach(el => {
@@ -774,7 +893,7 @@ function setLang(l) {
     if (v !== undefined) el.innerHTML = v;
   });
 }
-function tr(key) { return T[lang][key] || key; }
+function tr(k) { return T[lang][k] || k; }
 
 // ── State ─────────────────────────────────────────────────────
 let state = { score: 0, cats: [], areas: [], user: null, scanSeed: 0 };
@@ -785,23 +904,59 @@ function go(id, isBack) {
   const cur = document.querySelector('.screen.active');
   if (cur && !isBack) prevScreen = cur.id;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const next = document.getElementById(id);
-  if (next) next.classList.add('active');
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
   window.scrollTo(0, 0);
   if (id === 's-profile') updateProfileUI();
   if (id === 's-history') buildHistoryUI();
 }
 function goBack() { go(prevScreen, true); }
 
+// ── Install Flow ──────────────────────────────────────────────
+let nativeInstallPrompt = null;
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+}
+
+function detectPlatform() {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'desktop';
+}
+
+function setupInstallScreen() {
+  const platform = detectPlatform();
+
+  if (platform === 'ios') {
+    document.getElementById('ios-steps').style.display = 'block';
+  } else if (nativeInstallPrompt) {
+    document.getElementById('install-native-btn').style.display = 'flex';
+  } else {
+    // Desktop or Android without prompt — just skip to splash
+    dismissInstall();
+    return;
+  }
+  go('s-install');
+}
+
+async function triggerInstall() {
+  if (!nativeInstallPrompt) { dismissInstall(); return; }
+  nativeInstallPrompt.prompt();
+  const choice = await nativeInstallPrompt.userChoice;
+  nativeInstallPrompt = null;
+  document.getElementById('install-native-btn').style.display = 'none';
+  dismissInstall();
+}
+
+function dismissInstall() { go('s-splash'); }
+
 // ── AI Scan ───────────────────────────────────────────────────
-let scanStream = null;
-let scanFacing = 'user';
-let scanInterval = null;
-let scanProgress = 0;
-let scanLinePct = 0;
-let modelsLoaded = false;
-let modelsLoading = false;
-let lastDetection = null;
+let scanStream = null, scanFacing = 'user', scanInterval = null;
+let scanProgress = 0, scanLinePct = 0;
+let modelsLoaded = false, modelsLoading = false;
 
 async function loadModels() {
   if (modelsLoaded || modelsLoading) return;
@@ -812,9 +967,7 @@ async function loadModels() {
       faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
     ]);
     modelsLoaded = true;
-  } catch(e) {
-    modelsLoading = false;
-  }
+  } catch(e) { modelsLoading = false; }
 }
 
 function openScan() {
@@ -824,22 +977,15 @@ function openScan() {
   document.getElementById('scan-bar').style.width = '0';
   document.getElementById('scan-pct').textContent = '0%';
   setScanState('loading');
-  scanProgress = 0;
-  scanLinePct = 0;
-  lastDetection = null;
+  scanProgress = 0; scanLinePct = 0;
 
-  // Start camera + load models in parallel
-  Promise.all([
-    startScanCamera(),
-    loadModels(),
-  ]).then(() => {
-    document.getElementById('scan-loading').classList.add('hidden');
-    setScanState('ready');
-    startDetectionLoop();
-  }).catch(() => {
-    closeScan();
-    showCamError();
-  });
+  Promise.all([startScanCamera(), loadModels()])
+    .then(() => {
+      document.getElementById('scan-loading').classList.add('hidden');
+      setScanState('ready');
+      startDetectionLoop();
+    })
+    .catch(() => { closeScan(); alert(tr('cam-denied')); });
 }
 
 function closeScan() {
@@ -851,8 +997,7 @@ function closeScan() {
 async function startScanCamera() {
   if (scanStream) stopScanCamera();
   const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: scanFacing, width: { ideal: 1080 }, height: { ideal: 1440 } },
-    audio: false,
+    video: { facingMode: scanFacing, width: { ideal: 1080 }, height: { ideal: 1440 } }, audio: false,
   });
   scanStream = stream;
   const video = document.getElementById('scan-video');
@@ -864,23 +1009,20 @@ function stopScanCamera() {
   if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
 }
 
-function flipScan() {
-  scanFacing = scanFacing === 'user' ? 'environment' : 'user';
-  startScanCamera().catch(() => {});
-}
+function flipScan() { scanFacing = scanFacing === 'user' ? 'environment' : 'user'; startScanCamera().catch(() => {}); }
 
 function setScanState(s) {
-  const stateEl = document.getElementById('scan-state');
-  const hintEl  = document.getElementById('scan-hint');
+  const stEl = document.getElementById('scan-state');
+  const hintEl = document.getElementById('scan-hint');
   if (s === 'loading') {
-    stateEl.textContent = tr('scan-loading'); stateEl.classList.remove('active');
-    hintEl.textContent  = tr('scan-loading'); hintEl.classList.remove('detected');
+    stEl.textContent = tr('scan-loading'); stEl.classList.remove('active');
+    hintEl.textContent = tr('scan-loading'); hintEl.classList.remove('detected');
   } else if (s === 'ready') {
-    stateEl.textContent = tr('scan-waiting'); stateEl.classList.remove('active');
-    hintEl.textContent  = tr('scan-hint-ready'); hintEl.classList.remove('detected');
+    stEl.textContent = tr('scan-waiting'); stEl.classList.remove('active');
+    hintEl.textContent = tr('scan-hint-ready'); hintEl.classList.remove('detected');
   } else if (s === 'scanning') {
-    stateEl.textContent = tr('scan-scanning'); stateEl.classList.add('active');
-    hintEl.textContent  = tr('scan-hint-detected'); hintEl.classList.add('detected');
+    stEl.textContent = tr('scan-scanning'); stEl.classList.add('active');
+    hintEl.textContent = tr('scan-hint-detected'); hintEl.classList.add('detected');
   }
 }
 
@@ -894,18 +1036,12 @@ async function runDetectionFrame() {
   const video = document.getElementById('scan-video');
   const canvas = document.getElementById('scan-canvas');
   if (!video.videoWidth) return;
-
-  canvas.width  = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
 
   let detection = null;
   try {
     const opts = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.45 });
-    const result = await faceapi.detectSingleFace(video, opts).withFaceLandmarks(true);
-    if (result) {
-      detection = result;
-      lastDetection = result;
-    }
+    detection = await faceapi.detectSingleFace(video, opts).withFaceLandmarks(true);
   } catch(e) {}
 
   drawOverlay(canvas, video, detection);
@@ -913,9 +1049,8 @@ async function runDetectionFrame() {
   if (detection) {
     setScanState('scanning');
     scanProgress = Math.min(100, scanProgress + 1.6);
-    // seed using face bounding box for deterministic-ish scores per face
-    const box = detection.detection.box;
-    state.scanSeed = Math.round(box.x * 7 + box.y * 13 + box.width * 3 + box.height * 5);
+    const b = detection.detection.box;
+    state.scanSeed = Math.round(b.x * 7 + b.y * 13 + b.width * 3 + b.height * 5);
   } else {
     if (scanProgress > 0) setScanState('ready');
     scanProgress = Math.max(0, scanProgress - 0.8);
@@ -926,8 +1061,7 @@ async function runDetectionFrame() {
   document.getElementById('scan-pct').textContent = Math.round(scanProgress) + '%';
 
   if (scanProgress >= 100) {
-    clearInterval(scanInterval);
-    scanInterval = null;
+    clearInterval(scanInterval); scanInterval = null;
     finishScan();
   }
 }
@@ -938,9 +1072,8 @@ function drawOverlay(canvas, video, detection) {
   ctx.clearRect(0, 0, W, H);
 
   if (!detection) {
-    // Guide oval
     ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 2;
     ctx.setLineDash([6, 4]);
     ctx.beginPath();
     ctx.ellipse(W / 2, H * 0.42, W * 0.28, H * 0.36, 0, 0, Math.PI * 2);
@@ -952,20 +1085,17 @@ function drawOverlay(canvas, video, detection) {
   const box = detection.detection.box;
   const bx = box.x - 12, by = box.y - 12;
   const bw = box.width + 24, bh = box.height + 24;
-  const bLen = 28;
+  const bLen = 32;
+  const pct = scanProgress / 100;
 
-  // Soft dim outside face
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  // Dim outside face
+  ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ctx.fillRect(0, 0, W, H);
   ctx.clearRect(bx, by, bw, bh);
 
-  // Corner brackets
-  const pct = scanProgress / 100;
-  const r = Math.round(107 + (107 - 107) * pct);
-  const g = Math.round(158 + (158 - 158) * pct);
-  ctx.strokeStyle = `rgba(${r},${g},123,${0.6 + pct * 0.4})`;
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = 'round';
+  // Teal corner brackets
+  ctx.strokeStyle = `rgba(0,184,169,${0.65 + pct * 0.35})`;
+  ctx.lineWidth = 3; ctx.lineCap = 'round';
   // TL
   ctx.beginPath(); ctx.moveTo(bx, by + bLen); ctx.lineTo(bx, by); ctx.lineTo(bx + bLen, by); ctx.stroke();
   // TR
@@ -975,39 +1105,34 @@ function drawOverlay(canvas, video, detection) {
   // BR
   ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - bLen); ctx.stroke();
 
-  // Mouth region highlight from landmarks
+  // Mouth region highlight
   try {
     const mouth = detection.landmarks.getMouth();
     const mxs = mouth.map(p => p.x), mys = mouth.map(p => p.y);
-    const mx = Math.min(...mxs) - 10, my = Math.min(...mys) - 6;
-    const mw = Math.max(...mxs) - mx + 10, mh = Math.max(...mys) - my + 8;
-    ctx.strokeStyle = `rgba(107,158,123,${0.4 + pct * 0.5})`;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([4, 3]);
-    ctx.strokeRect(mx, my, mw, mh);
-    ctx.setLineDash([]);
-
-    // Tooth shimmer dots along mouth
+    const mx = Math.min(...mxs) - 12, my = Math.min(...mys) - 8;
+    const mw = Math.max(...mxs) - mx + 12, mh = Math.max(...mys) - my + 8;
+    ctx.strokeStyle = `rgba(0,184,169,${0.4 + pct * 0.5})`;
+    ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+    ctx.strokeRect(mx, my, mw, mh); ctx.setLineDash([]);
+    // Tooth dots
     if (scanProgress > 20) {
-      ctx.fillStyle = `rgba(107,158,123,${pct * 0.6})`;
+      ctx.fillStyle = `rgba(0,212,200,${pct * 0.7})`;
       for (let i = 0; i < 5; i++) {
-        const dotX = mx + (mw / 6) * (i + 1);
-        const dotY = my + mh * 0.5;
         ctx.beginPath();
-        ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+        ctx.arc(mx + (mw / 6) * (i + 1), my + mh * 0.5, 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
   } catch(e) {}
 
-  // Scan sweep line
+  // Sweep line
   const sweepY = by + scanLinePct * bh;
-  const grad = ctx.createLinearGradient(0, sweepY - 20, 0, sweepY + 20);
-  grad.addColorStop(0, 'rgba(107,158,123,0)');
-  grad.addColorStop(0.5, `rgba(107,158,123,${0.3 + pct * 0.25})`);
-  grad.addColorStop(1, 'rgba(107,158,123,0)');
+  const grad = ctx.createLinearGradient(0, sweepY - 24, 0, sweepY + 24);
+  grad.addColorStop(0, 'rgba(0,184,169,0)');
+  grad.addColorStop(0.5, `rgba(0,184,169,${0.28 + pct * 0.22})`);
+  grad.addColorStop(1, 'rgba(0,184,169,0)');
   ctx.fillStyle = grad;
-  ctx.fillRect(bx, sweepY - 20, bw, 40);
+  ctx.fillRect(bx, sweepY - 24, bw, 48);
 }
 
 function finishScan() {
@@ -1017,10 +1142,6 @@ function finishScan() {
   buildResultUI();
   go(state.user ? 's-score' : 's-gate');
   if (!state.user) document.getElementById('gate-score-preview').textContent = state.score;
-}
-
-function showCamError() {
-  alert(tr('cam-denied'));
 }
 
 // ── Scoring ───────────────────────────────────────────────────
@@ -1067,12 +1188,12 @@ function buildResultUI() {
     row.style.animationDelay = (i * 50) + 'ms';
     row.innerHTML = `<div class="score-cat-name">${c.name}</div><div class="score-cat-bar-wrap"><div class="score-cat-bar ${barCls(c.val)}" id="bar${i}"></div></div><div class="score-cat-val">${c.val}</div>`;
     catsEl.appendChild(row);
-    setTimeout(() => { const b = document.getElementById('bar'+i); if(b) b.style.width = c.val+'%'; }, 200 + i*60);
+    setTimeout(() => { const b = document.getElementById('bar' + i); if (b) b.style.width = c.val + '%'; }, 200 + i * 60);
   });
 
   const imprEl = document.getElementById('impr-list');
   imprEl.innerHTML = '';
-  TREATMENTS.slice(0,4).forEach((t, i) => {
+  TREATMENTS.slice(0, 4).forEach((t, i) => {
     const item = document.createElement('div');
     item.className = 'impr-item';
     item.style.animationDelay = (i * 70) + 'ms';
@@ -1090,20 +1211,19 @@ function buildResultUI() {
 // ── Auth ──────────────────────────────────────────────────────
 function doRegister(e) {
   e.preventDefault();
-  const name  = document.getElementById('r-name').value.trim();
+  const name = document.getElementById('r-name').value.trim();
   const email = document.getElementById('r-email').value.trim();
-  const pass  = document.getElementById('r-pass').value;
+  const pass = document.getElementById('r-pass').value;
   const errEl = document.getElementById('reg-err');
   errEl.classList.remove('visible');
   if (localStorage.getItem('ps_user_' + email)) { showAlert(errEl, 'An account with this email already exists.'); return; }
-  setBtnLoading('reg-btn','reg-btn-text','reg-spin',true);
+  setBtnLoading('reg-btn','reg-btn-text','reg-spin', true);
   setTimeout(() => {
     localStorage.setItem('ps_user_' + email, JSON.stringify({ pass, name }));
     const user = { name, email };
     localStorage.setItem('ps_session', JSON.stringify(user));
-    state.user = user;
-    updateTopBar();
-    setBtnLoading('reg-btn','reg-btn-text','reg-spin',false, tr('btn-create-acc'));
+    state.user = user; updateTopBar();
+    setBtnLoading('reg-btn','reg-btn-text','reg-spin', false, tr('btn-create-acc'));
     buildResultUI(); go('s-score');
   }, 900);
 }
@@ -1111,37 +1231,32 @@ function doRegister(e) {
 function doLogin(e) {
   e.preventDefault();
   const email = document.getElementById('l-email').value.trim();
-  const pass  = document.getElementById('l-pass').value;
+  const pass = document.getElementById('l-pass').value;
   const errEl = document.getElementById('login-err');
   errEl.classList.remove('visible');
   const raw = localStorage.getItem('ps_user_' + email);
   if (!raw) { showAlert(errEl, 'No account found with this email.'); return; }
   const stored = JSON.parse(raw);
   if (stored.pass !== pass) { showAlert(errEl, 'Incorrect password.'); return; }
-  setBtnLoading('login-btn','login-btn-text','login-spin',true);
+  setBtnLoading('login-btn','login-btn-text','login-spin', true);
   setTimeout(() => {
     const user = { name: stored.name, email };
     localStorage.setItem('ps_session', JSON.stringify(user));
-    state.user = user;
-    updateTopBar();
-    setBtnLoading('login-btn','login-btn-text','login-spin',false, tr('btn-signin'));
+    state.user = user; updateTopBar();
+    setBtnLoading('login-btn','login-btn-text','login-spin', false, tr('btn-signin'));
     if (state.score > 0) { buildResultUI(); go('s-score'); } else { go('s-splash'); }
   }, 700);
 }
 
 function doLogout() {
   localStorage.removeItem('ps_session');
-  state.user = null;
-  updateTopBar();
-  resetApp();
+  state.user = null; updateTopBar(); resetApp();
 }
 
-function regBack()   { go(state.score > 0 ? 's-gate' : 's-splash'); }
+function regBack() { go(state.score > 0 ? 's-gate' : 's-splash'); }
 function loginBack() { go(state.score > 0 ? 's-gate' : 's-splash'); }
-
 function updateTopBar() {
-  const btn = document.getElementById('top-profile-btn');
-  if (state.user) btn.classList.add('visible'); else btn.classList.remove('visible');
+  document.getElementById('top-profile-btn').classList.toggle('visible', !!state.user);
 }
 
 // ── History ───────────────────────────────────────────────────
@@ -1150,7 +1265,7 @@ function saveAssessment() {
   const key = 'ps_hist_' + state.user.email;
   let hist = [];
   try { hist = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
-  hist.unshift({ score: state.score, tag: scoreTag(state.score), date: new Date().toISOString(), cats: state.cats });
+  hist.unshift({ score: state.score, tag: scoreTag(state.score), date: new Date().toISOString() });
   if (hist.length > 20) hist = hist.slice(0, 20);
   localStorage.setItem(key, JSON.stringify(hist));
 }
@@ -1165,7 +1280,7 @@ function buildHistoryUI() {
   const hist = loadHistory();
   list.innerHTML = '';
   if (!hist.length) {
-    list.innerHTML = `<p class="body-text" style="text-align:center;padding:36px 0">${tr('no-history')}</p>`;
+    list.innerHTML = `<p class="body-text" style="text-align:center;padding:36px 0;color:var(--faint)">${tr('no-history')}</p>`;
     return;
   }
   hist.forEach(item => {
@@ -1191,23 +1306,21 @@ function submitForm(e) {
   const errEl = document.getElementById('book-err');
   errEl.classList.remove('visible');
   const params = {
-    patient_name:   document.getElementById('fn').value,
-    patient_email:  document.getElementById('fe').value,
-    patient_phone:  document.getElementById('fp').value,
+    patient_name: document.getElementById('fn').value,
+    patient_email: document.getElementById('fe').value,
+    patient_phone: document.getElementById('fp').value,
     preferred_date: document.getElementById('fd').value,
-    notes:          document.getElementById('fq').value,
-    smile_score:    state.score,
-    areas:          state.areas.join(', '),
-    to_email:       RECIPIENT_EMAIL,
+    notes: document.getElementById('fq').value,
+    smile_score: state.score, areas: state.areas.join(', '), to_email: RECIPIENT_EMAIL,
   };
-  setBtnLoading('book-btn','book-btn-text','book-spin',true);
+  setBtnLoading('book-btn','book-btn-text','book-spin', true);
   if (EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
     emailjs.init(EMAILJS_PUBLIC_KEY);
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
-      .then(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,tr('btn-send')); go('s-ty'); })
-      .catch(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,tr('btn-send')); fallbackMailto(params); });
+      .then(() => { setBtnLoading('book-btn','book-btn-text','book-spin', false, tr('btn-send')); go('s-ty'); })
+      .catch(() => { setBtnLoading('book-btn','book-btn-text','book-spin', false, tr('btn-send')); fallbackMailto(params); });
   } else {
-    setTimeout(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,tr('btn-send')); fallbackMailto(params); }, 800);
+    setTimeout(() => { setBtnLoading('book-btn','book-btn-text','book-spin', false, tr('btn-send')); fallbackMailto(params); }, 800);
   }
 }
 
@@ -1221,7 +1334,7 @@ function fallbackMailto(p) {
 function resetApp() {
   state.score = 0; state.cats = []; state.areas = []; state.scanSeed = 0;
   document.getElementById('score-fill').style.width = '0';
-  ['reg-form','login-form','book-form'].forEach(id => { const f = document.getElementById(id); if(f) f.reset(); });
+  ['reg-form','login-form','book-form'].forEach(id => { const f = document.getElementById(id); if (f) f.reset(); });
   go('s-splash');
 }
 
@@ -1238,26 +1351,39 @@ function setBtnLoading(btnId, textId, spinId, loading, defaultText) {
   try { const s = localStorage.getItem('ps_session'); if (s) state.user = JSON.parse(s); } catch(e) {}
   updateTopBar();
   setLang(lang);
+  loadModels(); // preload in background
 
-  // Preload models in background
-  loadModels();
-
-  const manifest = { name:'Perfect Smile', short_name:'Perfect Smile', start_url:'./', display:'standalone', background_color:'#FAFAF8', theme_color:'#1A1A1A', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231A1A1A"/><text y=".9em" font-size="70" x="15" fill="white">P</text></svg>',sizes:'192x192',type:'image/svg+xml'}] };
+  // PWA manifest
+  const manifest = { name:'Perfect Smile', short_name:'Perfect Smile', start_url:'./', display:'standalone', background_color:'#FFFFFF', theme_color:'#00B8A9', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%2300B8A9"/><text y=".9em" font-size="70" x="15" fill="white" font-style="italic">P</text></svg>',sizes:'192x192',type:'image/svg+xml'}] };
   const link = document.createElement('link'); link.rel = 'manifest';
-  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
+  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
   document.head.appendChild(link);
 
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 
-  let deferredPrompt;
+  // Capture install prompt before deciding which screen to show
   window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault(); deferredPrompt = e;
-    document.getElementById('install-bar').classList.add('visible');
-    document.getElementById('install-btn').onclick = () => {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => document.getElementById('install-bar').classList.remove('visible'));
-    };
+    e.preventDefault();
+    nativeInstallPrompt = e;
+    // Update native button if install screen already shown
+    const btn = document.getElementById('install-native-btn');
+    if (btn && document.getElementById('s-install').classList.contains('active')) {
+      btn.style.display = 'flex';
+    }
   });
+
+  window.addEventListener('appinstalled', () => {
+    nativeInstallPrompt = null;
+    document.getElementById('install-bar').classList.remove('visible');
+  });
+
+  // Decide first screen
+  if (isStandalone()) {
+    go('s-splash');
+  } else {
+    // Show install screen (setTimeout so beforeinstallprompt can fire first on some browsers)
+    setTimeout(setupInstallScreen, 50);
+  }
 })();
 </script>
 </body>

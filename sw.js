@@ -1,4 +1,4 @@
-const CACHE = 'perfect-smile-v6';
+const CACHE = 'perfect-smile-v7';
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./'])));
