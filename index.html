@@ -413,6 +413,42 @@ textarea.form-input { resize: vertical; min-height: 88px; }
 .scan-load-text { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,.3); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Scan Frame ── */
+.scan-frame-wrap {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -54%);
+  width: min(260px, 68vw); height: min(340px, 58vh);
+  pointer-events: none; z-index: 3;
+}
+.scan-oval {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2px dashed rgba(255,255,255,0.5);
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.7);
+  overflow: hidden;
+  transition: border .3s, box-shadow .3s;
+}
+.scan-frame-wrap.detected .scan-oval {
+  border: 2.5px solid #00B8A9;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.7), 0 0 32px rgba(0,184,169,0.3);
+}
+.scan-line {
+  position: absolute; left: 0; right: 0; height: 3px;
+  background: linear-gradient(to right, transparent, rgba(0,184,169,0.9), transparent);
+  opacity: 0; top: 0; transition: opacity .3s;
+}
+.scan-frame-wrap.detected .scan-line { opacity: 1; animation: scanSweep 1.8s ease-in-out infinite; }
+@keyframes scanSweep { 0%,100% { top: 8%; } 50% { top: 88%; } }
+.scan-crn {
+  position: absolute; width: 26px; height: 26px;
+  border-style: solid; border-color: rgba(255,255,255,0.6);
+  transition: border-color .3s;
+}
+.scan-frame-wrap.detected .scan-crn { border-color: #00B8A9; }
+.scan-crn.tl { top: -10px; left: -10px; border-width: 3px 0 0 3px; border-radius: 6px 0 0 0; }
+.scan-crn.tr { top: -10px; right: -10px; border-width: 3px 3px 0 0; border-radius: 0 6px 0 0; }
+.scan-crn.bl { bottom: -10px; left: -10px; border-width: 0 0 3px 3px; border-radius: 0 0 0 6px; }
+.scan-crn.br { bottom: -10px; right: -10px; border-width: 0 3px 3px 0; border-radius: 0 0 6px 0; }
+
 /* ── Install Bar (bottom) ── */
 .install-bar {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -747,6 +783,15 @@ textarea.form-input { resize: vertical; min-height: 88px; }
   <div class="scan-video-wrap">
     <video class="scan-video" id="scan-video" autoplay playsinline muted></video>
     <canvas class="scan-canvas" id="scan-canvas"></canvas>
+    <div class="scan-frame-wrap" id="scan-frame">
+      <div class="scan-oval">
+        <div class="scan-line"></div>
+      </div>
+      <div class="scan-crn tl"></div>
+      <div class="scan-crn tr"></div>
+      <div class="scan-crn bl"></div>
+      <div class="scan-crn br"></div>
+    </div>
     <div class="scan-hint-bubble" id="scan-hint" data-t="scan-loading">Preparing AI scanner</div>
     <button class="scan-cancel" onclick="closeScan()" data-t="close">Cancel</button>
     <button class="scan-flip-btn" onclick="flipScan()">
@@ -1071,73 +1116,19 @@ function drawOverlay(canvas, video, detection) {
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
-  // Fixed oval — always centered, independent of detection
-  const cx = W * 0.5;
-  const cy = H * 0.44;
-  const rx = Math.min(W * 0.33, H * 0.23);
-  const ry = rx * 1.38;
+  // CSS frame handles dark overlay + oval border + scan line
+  document.getElementById('scan-frame').classList.toggle('detected', !!detection);
 
+  if (!detection) return;
+
+  // Mouth landmark highlight + tooth dots on canvas
   const pct = scanProgress / 100;
-  const detected = !!detection;
-
-  // Dark overlay outside the oval (evenodd cutout)
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.68)';
-  ctx.fill('evenodd');
-  ctx.restore();
-
-  // Oval border: dashed white waiting → solid teal scanning
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-  if (detected) {
-    ctx.strokeStyle = `rgba(0,184,169,${0.7 + pct * 0.3})`;
-    ctx.lineWidth = 3;
-    ctx.setLineDash([]);
-  } else {
-    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([12, 8]);
-  }
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Corner brackets around oval bounding box
-  const bx = cx - rx - 10, by = cy - ry - 10;
-  const bw = (rx + 10) * 2, bh = (ry + 10) * 2;
-  const bLen = 22;
-  ctx.strokeStyle = detected ? `rgba(0,184,169,${0.75 + pct * 0.25})` : 'rgba(255,255,255,0.35)';
-  ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(bx, by + bLen); ctx.lineTo(bx, by); ctx.lineTo(bx + bLen, by); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + bLen); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(bx, by + bh - bLen); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + bLen, by + bh); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - bLen); ctx.stroke();
-
-  if (!detected) return;
-
-  // Sweep line clipped to oval
-  const sweepY = (cy - ry) + scanLinePct * (ry * 2);
-  ctx.save();
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx - 2, ry - 2, 0, 0, Math.PI * 2);
-  ctx.clip();
-  const grad = ctx.createLinearGradient(0, sweepY - 30, 0, sweepY + 30);
-  grad.addColorStop(0, 'rgba(0,184,169,0)');
-  grad.addColorStop(0.5, `rgba(0,184,169,${0.25 + pct * 0.2})`);
-  grad.addColorStop(1, 'rgba(0,184,169,0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(cx - rx, sweepY - 30, rx * 2, 60);
-  ctx.restore();
-
-  // Mouth landmark highlight + tooth dots
   try {
     const mouth = detection.landmarks.getMouth();
     const mxs = mouth.map(p => p.x), mys = mouth.map(p => p.y);
     const mx = Math.min(...mxs) - 10, my = Math.min(...mys) - 6;
     const mw = Math.max(...mxs) - mx + 10, mh = Math.max(...mys) - my + 6;
-    ctx.strokeStyle = `rgba(0,184,169,${0.4 + pct * 0.5})`;
+    ctx.strokeStyle = `rgba(0,184,169,${0.5 + pct * 0.5})`;
     ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
     ctx.strokeRect(mx, my, mw, mh); ctx.setLineDash([]);
     if (scanProgress > 20) {
