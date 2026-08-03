@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
@@ -21,6 +22,7 @@
   --text: #1A1A1A;
   --muted: #6B6560;
   --faint: #A8A09A;
+  --green: #6B9E7B;
   --bar-h: 64px;
   --r: 7px;
   --r-sm: 4px;
@@ -31,11 +33,8 @@
 html, body { height: 100%; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100dvh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+  background: var(--bg); color: var(--text);
+  min-height: 100dvh; overflow-x: hidden; -webkit-font-smoothing: antialiased;
 }
 
 /* ── Top Bar ── */
@@ -50,10 +49,7 @@ body {
 }
 .top-brand em { font-style: italic; font-weight: 300; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
-.top-lang {
-  display: flex; gap: 2px;
-  background: rgba(255,255,255,.08); border-radius: var(--r-sm); padding: 3px;
-}
+.top-lang { display: flex; gap: 2px; background: rgba(255,255,255,.08); border-radius: var(--r-sm); padding: 3px; }
 .top-lang-btn {
   font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
   letter-spacing: 0.08em; color: rgba(255,255,255,.45); background: none;
@@ -74,8 +70,7 @@ body {
 .screen {
   display: none; flex-direction: column; flex: 1;
   width: 100%; max-width: var(--max-w); margin: 0 auto;
-  padding: 52px 32px 60px;
-  animation: fadeUp .3s ease both;
+  padding: 52px 32px 60px; animation: fadeUp .3s ease both;
 }
 .screen.active { display: flex; }
 @keyframes fadeUp {
@@ -103,10 +98,7 @@ h2 {
   font-size: 44px; font-weight: 300; line-height: 1.1; color: var(--text);
 }
 h2 em { font-style: italic; }
-@media (max-width: 600px) {
-  h1 { font-size: 44px; }
-  h2 { font-size: 36px; }
-}
+@media (max-width: 600px) { h1 { font-size: 44px; } h2 { font-size: 36px; } }
 .body-text { font-size: 14px; font-weight: 300; line-height: 1.82; color: var(--muted); }
 .spacer { flex: 1; }
 
@@ -116,8 +108,8 @@ h2 em { font-style: italic; }
   font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase; border: none;
   border-radius: var(--r); cursor: pointer;
-  transition: opacity .2s, transform .15s, background .2s;
-  text-decoration: none; padding: 17px 32px; white-space: nowrap; width: 100%;
+  transition: opacity .2s, transform .15s; text-decoration: none;
+  padding: 17px 32px; white-space: nowrap; width: 100%;
 }
 .btn:active { transform: scale(.98); opacity: .85; }
 .btn-primary { background: var(--text); color: #fff; }
@@ -152,89 +144,130 @@ h2 em { font-style: italic; }
   text-transform: uppercase; color: var(--faint); margin-bottom: 8px;
 }
 .form-input {
-  width: 100%; padding: 13px 16px;
-  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 300; color: var(--text);
-  background: #fff; border: 1.5px solid var(--border); border-radius: var(--r);
+  width: 100%; padding: 13px 16px; font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 300; color: var(--text); background: #fff;
+  border: 1.5px solid var(--border); border-radius: var(--r);
   outline: none; transition: border-color .2s; appearance: none;
 }
 .form-input:focus { border-color: var(--text); }
 .form-input::placeholder { color: var(--faint); }
 textarea.form-input { resize: vertical; min-height: 88px; }
 
-/* ── Camera Zone (primary upload) ── */
-.cam-zone { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
-.cam-preview-wrap {
-  position: relative; border-radius: var(--r); overflow: hidden;
-  background: var(--surface); border: 1.5px solid var(--border);
-  aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+/* ── AI Scan Screen ── */
+.scan-screen {
+  position: fixed; inset: 0; background: #000; z-index: 500;
+  display: none; flex-direction: column; overflow: hidden;
 }
-.cam-preview-wrap.has-photo { border-color: transparent; }
-.cam-preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
-.cam-preview-img.visible { display: block; }
-.cam-preview-placeholder {
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: 32px; pointer-events: none;
-}
-.cam-preview-icon {
-  width: 56px; height: 56px; border-radius: 50%; background: var(--border);
+.scan-screen.open { display: flex; }
+.scan-video-wrap {
+  position: relative; flex: 1; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.cam-preview-label { font-size: 12px; font-weight: 400; color: var(--muted); }
-.cam-preview-sub { font-size: 11px; font-weight: 300; color: var(--faint); text-align: center; line-height: 1.65; }
-.cam-remove {
-  position: absolute; top: 10px; right: 10px;
-  background: rgba(250,250,248,.92); border: 1px solid var(--border);
-  border-radius: var(--r-sm); padding: 6px 12px;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text); cursor: pointer; display: none; backdrop-filter: blur(4px);
+.scan-video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
-.cam-remove.visible { display: block; }
-.cam-file-link {
-  text-align: center; font-size: 12px; font-weight: 400; color: var(--faint);
-  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
-  padding: 4px 0; transition: color .2s; background: none; border: none;
-  font-family: 'Inter', sans-serif; width: 100%;
+.scan-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
 }
-.cam-file-link:hover { color: var(--text); }
-input[type="file"].hf { display: none; }
+.scan-hint-bubble {
+  position: absolute; top: 24px; left: 50%; transform: translateX(-50%);
+  background: rgba(10,10,10,.75); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
+  padding: 9px 20px; white-space: nowrap;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,.7); transition: all .4s;
+}
+.scan-hint-bubble.detected { color: var(--green); border-color: rgba(107,158,123,.3); }
+.scan-cancel {
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.6); padding: 9px 18px; font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  font-family: 'Inter', sans-serif; border-radius: var(--r-sm); transition: all .2s;
+}
+.scan-cancel:hover { background: rgba(255,255,255,.15); color: #fff; }
+.scan-flip-btn {
+  position: absolute; top: 20px; left: 20px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%; width: 40px; height: 40px; color: rgba(255,255,255,.6);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s;
+}
+.scan-flip-btn:hover { background: rgba(255,255,255,.15); color: #fff; }
+/* Bottom panel */
+.scan-panel {
+  background: #0A0A0A; padding: 24px 28px env(safe-area-inset-bottom, 0px);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.scan-status-row { display: flex; align-items: center; justify-content: space-between; }
+.scan-state-text {
+  font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+}
+.scan-state-text.active { color: var(--green); }
+.scan-pct {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 28px; font-weight: 300; color: #fff; line-height: 1;
+}
+.scan-bar-track {
+  height: 2px; background: rgba(255,255,255,.1); border-radius: 1px; overflow: hidden;
+}
+.scan-bar-fill {
+  height: 100%; width: 0; background: var(--green);
+  border-radius: 1px; transition: width .15s linear;
+}
+.scan-desc {
+  font-size: 11px; font-weight: 300; color: rgba(255,255,255,.35); line-height: 1.6;
+}
+/* Loading overlay */
+.scan-loading {
+  position: absolute; inset: 0; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  transition: opacity .4s;
+}
+.scan-loading.hidden { opacity: 0; pointer-events: none; }
+.scan-load-ring {
+  width: 48px; height: 48px;
+  border: 2px solid rgba(255,255,255,.1); border-top-color: var(--green);
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+.scan-load-text {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Guide Cards ── */
-.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 32px; }
-@media (max-width: 480px) { .guide-grid { grid-template-columns: 1fr; } }
-.guide-card {
+/* ── Score Screen ── */
+.score-hero {
   background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: var(--r); padding: 24px 20px;
+  border-radius: var(--r); padding: 28px 24px 24px; margin: 24px 0 28px;
 }
-.guide-num {
+.score-hero-num {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 40px; font-weight: 300; color: var(--border); line-height: 1; margin-bottom: 12px;
+  font-size: 88px; font-weight: 300; line-height: 1; color: var(--text); letter-spacing: -0.02em;
 }
-.guide-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
-.guide-card-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-.guide-card-list li {
-  font-size: 12px; font-weight: 300; color: var(--muted);
-  padding-left: 14px; position: relative; line-height: 1.55;
-}
-.guide-card-list li::before {
-  content: ''; position: absolute; left: 0; top: 8px; width: 4px; height: 1px; background: var(--faint);
-}
+.score-hero-row { display: flex; align-items: baseline; gap: 10px; }
+.score-hero-denom { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 300; color: var(--faint); }
+.score-hero-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.score-gauge-bar { height: 3px; background: var(--border); margin-top: 16px; border-radius: 2px; overflow: hidden; }
+.score-gauge-fill { height: 100%; background: var(--text); width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
+.score-cats { display: flex; flex-direction: column; }
+.score-cat { display: flex; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--border); gap: 16px; animation: fadeUp .4s ease both; }
+.score-cat-name { font-size: 12px; font-weight: 400; color: var(--muted); width: 130px; flex-shrink: 0; }
+.score-cat-bar-wrap { flex: 1; height: 3px; background: var(--border); overflow: hidden; border-radius: 2px; }
+.score-cat-bar { height: 100%; width: 0; transition: width 1s ease; border-radius: 2px; }
+.score-cat-bar.hi { background: #6B9E7B; }
+.score-cat-bar.mi { background: #C4974A; }
+.score-cat-bar.lo { background: #C47A6B; }
+.score-cat-val { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; font-weight: 300; color: var(--text); width: 28px; text-align: right; }
 
-/* ── Analysis Steps ── */
-.an-steps { display: flex; flex-direction: column; margin-top: 40px; }
-.an-step {
-  display: flex; align-items: flex-start; gap: 20px;
-  padding: 22px 0; border-bottom: 1px solid var(--border);
-  opacity: .2; transition: opacity .6s;
-}
-.an-step.done { opacity: 1; }
-.an-step-num {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 20px; font-weight: 300; color: var(--border); min-width: 28px; line-height: 1; padding-top: 2px;
-}
-.an-step.done .an-step-num { color: var(--text); }
-.an-step-text { font-size: 13px; font-weight: 300; color: var(--faint); line-height: 1.65; }
-.an-step.done .an-step-text { color: var(--muted); }
-.an-step-label { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+/* ── Improvements ── */
+.impr-list { display: flex; flex-direction: column; margin-top: 28px; }
+.impr-item { padding: 22px 0; border-bottom: 1px solid var(--border); animation: fadeUp .4s ease both; }
+.impr-item-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.impr-item-name { font-size: 14px; font-weight: 400; color: var(--text); }
+.impr-item-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+.impr-item-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
 
 /* ── Gate ── */
 .gate-preview {
@@ -250,64 +283,14 @@ input[type="file"].hf { display: none; }
   font-size: 80px; font-weight: 300; color: var(--border); text-align: center;
   line-height: 1; filter: blur(6px); margin-bottom: 12px;
 }
-.gate-blur-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px;
-}
+.gate-blur-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px; }
 .gate-blur-label { height: 8px; background: var(--border); border-radius: 4px; width: 80px; flex-shrink: 0; }
 .gate-blur-bar { height: 3px; background: var(--border); border-radius: 2px; flex: 1; }
-
-/* ── Score ── */
-.score-hero {
-  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
-  padding: 28px 24px 24px; margin: 24px 0 28px;
-}
-.score-hero-num {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 88px; font-weight: 300; line-height: 1; color: var(--text); letter-spacing: -0.02em;
-}
-.score-hero-row { display: flex; align-items: baseline; gap: 10px; }
-.score-hero-denom {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 28px; font-weight: 300; color: var(--faint);
-}
-.score-hero-tag {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--muted); margin-top: 8px;
-}
-.score-gauge-bar { height: 3px; background: var(--border); margin-top: 16px; border-radius: 2px; overflow: hidden; }
-.score-gauge-fill { height: 100%; background: var(--text); width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
-.score-cats { display: flex; flex-direction: column; }
-.score-cat {
-  display: flex; align-items: center; padding: 13px 0;
-  border-bottom: 1px solid var(--border); gap: 16px; animation: fadeUp .4s ease both;
-}
-.score-cat-name { font-size: 12px; font-weight: 400; color: var(--muted); width: 130px; flex-shrink: 0; }
-.score-cat-bar-wrap { flex: 1; height: 3px; background: var(--border); overflow: hidden; border-radius: 2px; }
-.score-cat-bar { height: 100%; width: 0; transition: width 1s ease; border-radius: 2px; }
-.score-cat-bar.hi { background: #6B9E7B; }
-.score-cat-bar.mi { background: #C4974A; }
-.score-cat-bar.lo { background: #C47A6B; }
-.score-cat-val {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 17px; font-weight: 300; color: var(--text); width: 28px; text-align: right;
-}
-
-/* ── Improvements ── */
-.impr-list { display: flex; flex-direction: column; margin-top: 28px; }
-.impr-item { padding: 22px 0; border-bottom: 1px solid var(--border); animation: fadeUp .4s ease both; }
-.impr-item-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-.impr-item-name { font-size: 14px; font-weight: 400; color: var(--text); }
-.impr-item-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
-.impr-item-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
 
 /* ── Auth ── */
 .auth-note { font-size: 12px; font-weight: 300; color: var(--faint); line-height: 1.65; margin-top: 16px; }
 .auth-switch { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 300; color: var(--faint); margin-top: 20px; }
-.auth-switch button {
-  background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 500;
-  color: var(--text); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0;
-}
+.auth-switch button { background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0; }
 
 /* ── Thank You ── */
 .ty-check {
@@ -316,10 +299,7 @@ input[type="file"].hf { display: none; }
 }
 
 /* ── Alerts ── */
-.alert {
-  padding: 13px 16px; font-size: 12px; font-weight: 400;
-  line-height: 1.55; margin-bottom: 20px; display: none; border-radius: var(--r-sm);
-}
+.alert { padding: 13px 16px; font-size: 12px; font-weight: 400; line-height: 1.55; margin-bottom: 20px; display: none; border-radius: var(--r-sm); }
 .alert.visible { display: block; }
 .alert-err { background: #FDF4F3; border: 1px solid #EDD5D0; color: #8B3A34; }
 .alert-ok  { background: #F3F8F4; border: 1px solid #C8DFD0; color: #2E6648; }
@@ -329,14 +309,11 @@ input[type="file"].hf { display: none; }
 .contact-link {
   display: flex; align-items: center; gap: 14px; padding: 16px 20px;
   background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
-  text-decoration: none; color: var(--text); font-size: 13px; font-weight: 400;
+  text-decoration: none; color: var(--text); font-size: 13px;
   transition: border-color .2s; cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; text-align: left;
 }
 .contact-link:hover { border-color: var(--muted); }
-.contact-link-icon {
-  width: 36px; height: 36px; border-radius: 50%; background: var(--border);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
+.contact-link-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .contact-link-meta { display: flex; flex-direction: column; gap: 2px; }
 .contact-link-title { font-size: 13px; font-weight: 400; color: var(--text); }
 .contact-link-sub { font-size: 11px; font-weight: 300; color: var(--faint); }
@@ -345,102 +322,34 @@ input[type="file"].hf { display: none; }
 .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
 .history-item {
   background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
-  padding: 18px 20px; display: flex; align-items: center; gap: 20px;
-  cursor: pointer; transition: border-color .2s;
+  padding: 18px 20px; display: flex; align-items: center; gap: 20px; transition: border-color .2s;
 }
-.history-item:hover { border-color: var(--muted); }
-.history-score {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 40px; font-weight: 300; line-height: 1; color: var(--text); flex-shrink: 0; width: 52px;
-}
+.history-score { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 40px; font-weight: 300; line-height: 1; color: var(--text); flex-shrink: 0; width: 52px; }
 .history-meta { flex: 1; }
 .history-date { font-size: 11px; font-weight: 500; color: var(--faint); letter-spacing: 0.04em; margin-bottom: 4px; }
 .history-tag { font-size: 12px; font-weight: 400; color: var(--muted); }
-.history-arrow { color: var(--border); flex-shrink: 0; }
 
 /* ── Profile ── */
-.profile-card {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: var(--r); padding: 24px; margin-bottom: 20px;
-}
-.profile-row {
-  display: flex; align-items: baseline; justify-content: space-between;
-  padding: 10px 0; border-bottom: 1px solid var(--border);
-}
+.profile-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r); padding: 24px; margin-bottom: 20px; }
+.profile-row { display: flex; align-items: baseline; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .profile-row:last-child { border-bottom: none; }
 .profile-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
 .profile-value { font-size: 13px; font-weight: 300; color: var(--text); }
-
-/* ── Camera Modal ── */
-.cam-modal {
-  position: fixed; inset: 0; background: #080808; z-index: 900;
-  display: none; flex-direction: column; align-items: center; justify-content: center;
-}
-.cam-modal.open { display: flex; }
-.cam-video-wrap {
-  width: 100%; max-width: 460px; aspect-ratio: 3/4;
-  position: relative; overflow: hidden; border-radius: var(--r);
-}
-@media (max-width: 600px) {
-  .cam-modal { justify-content: flex-end; }
-  .cam-video-wrap { max-width: 100%; aspect-ratio: auto; flex: 1; border-radius: 0; }
-}
-.cam-video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cam-guide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-.cam-guide svg { opacity: .35; }
-.cam-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .12s; }
-.cam-flash.on { opacity: 1; }
-.cam-controls {
-  display: flex; align-items: center; justify-content: center;
-  gap: 32px; padding: 28px 20px; width: 100%; max-width: 460px;
-}
-.cam-capture {
-  width: 68px; height: 68px; border-radius: 50%; background: #fff;
-  cursor: pointer; box-shadow: 0 0 0 3px rgba(255,255,255,.25); transition: transform .15s; border: none;
-}
-.cam-capture:active { transform: scale(.9); }
-.cam-flip {
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); border-radius: 50%;
-  width: 44px; height: 44px; color: #fff; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; transition: background .2s;
-}
-.cam-flip:hover { background: rgba(255,255,255,.15); }
-.cam-close {
-  position: absolute; top: 20px; right: 20px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
-  color: #fff; padding: 9px 18px; font-size: 10px; font-weight: 500;
-  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
-  font-family: 'Inter', sans-serif; border-radius: var(--r-sm);
-}
-.cam-label {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(255,255,255,.4); position: absolute; bottom: 16px; left: 50%;
-  transform: translateX(-50%); white-space: nowrap;
-}
 
 /* ── Install Bar ── */
 .install-bar {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
   background: var(--text); color: #fff; padding: 14px 18px;
-  display: none; align-items: center; gap: 16px;
-  font-size: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 800;
-  white-space: nowrap; border-radius: var(--r);
+  display: none; align-items: center; gap: 16px; font-size: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 800; white-space: nowrap; border-radius: var(--r);
 }
 .install-bar.visible { display: flex; }
-.install-bar-btn {
-  background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.2);
-  padding: 8px 16px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  cursor: pointer; font-family: 'Inter', sans-serif; border-radius: var(--r-sm);
-}
+.install-bar-btn { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.2); padding: 8px 16px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; font-family: 'Inter', sans-serif; border-radius: var(--r-sm); }
 .install-bar-close { background: none; border: none; color: rgba(255,255,255,.4); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
 
 /* ── Spinner ── */
-.spin {
-  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
-  border-radius: 50%; animation: spin .7s linear infinite; display: none;
-}
+.spin { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
 .spin.visible { display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -464,138 +373,17 @@ input[type="file"].hf { display: none; }
   <div class="screen active" id="s-splash">
     <div class="eyebrow" data-t="eyebrow-ai">AI Smile Assessment</div>
     <h1 data-t="splash-h1">How perfect<br>is your<br><em>smile?</em></h1>
-    <p class="body-text" style="margin-top:28px" data-t="splash-sub">Take a free AI-powered assessment of your teeth in under two minutes. No registration required to start.</p>
+    <p class="body-text" style="margin-top:28px" data-t="splash-sub">Point your camera at your smile. Our AI reads your teeth in real time and generates a full dental score in under 30 seconds.</p>
     <div class="spacer" style="min-height:52px"></div>
-    <button class="btn btn-primary" onclick="go('s-guide')" style="margin-bottom:12px" data-t="btn-start">Start Free Assessment</button>
+    <button class="btn btn-primary" onclick="openScan()" style="margin-bottom:12px" data-t="btn-start">Scan My Smile</button>
     <div class="divider" data-t="or">or</div>
     <button class="btn btn-outline" onclick="go('s-login')" data-t="btn-signin">Sign In</button>
-    <p class="auth-note" style="text-align:center;margin-top:24px" data-t="splash-note">Photos are processed on-device and never stored.</p>
-  </div>
-
-  <!-- Guide -->
-  <div class="screen" id="s-guide">
-    <button class="back-btn" onclick="go('s-splash',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      <span data-t="back">Back</span>
-    </button>
-    <div class="eyebrow" data-t="eyebrow-guide">Photo Guide</div>
-    <h2 data-t="guide-h2">Two photos.<br><em>One result.</em></h2>
-    <p class="body-text" style="margin-top:12px" data-t="guide-sub">Follow these guidelines for the most accurate AI assessment.</p>
-    <div class="guide-grid">
-      <div class="guide-card">
-        <div class="guide-num">01</div>
-        <div class="guide-card-title" data-t="g1-title">Front Smile</div>
-        <ul class="guide-card-list">
-          <li data-t="g1-a">Face forward, teeth together</li>
-          <li data-t="g1-b">Lips parted, teeth visible</li>
-          <li data-t="g1-c">Even lighting, no shadows</li>
-          <li data-t="g1-d">Portrait orientation</li>
-        </ul>
-      </div>
-      <div class="guide-card">
-        <div class="guide-num">02</div>
-        <div class="guide-card-title" data-t="g2-title">Side Profile</div>
-        <ul class="guide-card-list">
-          <li data-t="g2-a">Side view, left or right</li>
-          <li data-t="g2-b">Upper and lower teeth visible</li>
-          <li data-t="g2-c">Natural resting bite</li>
-          <li data-t="g2-d">Clear, even lighting</li>
-        </ul>
-      </div>
-    </div>
-    <div class="spacer" style="min-height:40px"></div>
-    <button class="btn btn-primary" onclick="go('s-up1')" data-t="btn-ready">Ready — Begin</button>
-  </div>
-
-  <!-- Upload 1 -->
-  <div class="screen" id="s-up1">
-    <button class="back-btn" onclick="go('s-guide',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      <span data-t="back">Back</span>
-    </button>
-    <div class="eyebrow" data-t="eyebrow-p1">Photo 1 of 2</div>
-    <h2 data-t="up1-h2">Front<br><em>Smile</em></h2>
-    <p class="body-text" style="margin-top:10px" data-t="up1-sub">Face forward, teeth together, lips slightly parted.</p>
-    <div class="cam-zone">
-      <div class="cam-preview-wrap" id="dz1">
-        <img class="cam-preview-img" id="pp1" src="" alt="">
-        <div class="cam-preview-placeholder" id="pu1">
-          <div class="cam-preview-icon">
-            <svg width="22" height="22" fill="none" stroke="#A8A09A" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-          <div class="cam-preview-label" data-t="cam-ready">Ready for your photo</div>
-          <div class="cam-preview-sub" data-t="cam-hint-1">Tap below to use the camera</div>
-        </div>
-        <button class="cam-remove" id="pc1" onclick="clearPhoto(1,event)" data-t="remove">Remove</button>
-      </div>
-      <button class="btn btn-primary" onclick="openCamera(1,event)">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span data-t="btn-camera">Take Photo</span>
-      </button>
-      <button class="cam-file-link" onclick="document.getElementById('fi1').click()" data-t="or-upload">or upload from gallery</button>
-      <input type="file" class="hf" id="fi1" accept="image/*" onchange="setPhoto(1,this)">
-    </div>
-    <button class="btn btn-outline" id="next1" onclick="go('s-up2')" disabled style="opacity:.3" data-t="btn-continue">Continue</button>
-  </div>
-
-  <!-- Upload 2 -->
-  <div class="screen" id="s-up2">
-    <button class="back-btn" onclick="go('s-up1',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      <span data-t="back">Back</span>
-    </button>
-    <div class="eyebrow" data-t="eyebrow-p2">Photo 2 of 2</div>
-    <h2 data-t="up2-h2">Side<br><em>Profile</em></h2>
-    <p class="body-text" style="margin-top:10px" data-t="up2-sub">Side view showing upper and lower teeth at natural bite.</p>
-    <div class="cam-zone">
-      <div class="cam-preview-wrap" id="dz2">
-        <img class="cam-preview-img" id="pp2" src="" alt="">
-        <div class="cam-preview-placeholder" id="pu2">
-          <div class="cam-preview-icon">
-            <svg width="22" height="22" fill="none" stroke="#A8A09A" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-          <div class="cam-preview-label" data-t="cam-ready">Ready for your photo</div>
-          <div class="cam-preview-sub" data-t="cam-hint-2">Side view, teeth visible at natural bite</div>
-        </div>
-        <button class="cam-remove" id="pc2" onclick="clearPhoto(2,event)" data-t="remove">Remove</button>
-      </div>
-      <button class="btn btn-primary" onclick="openCamera(2,event)">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span data-t="btn-camera">Take Photo</span>
-      </button>
-      <button class="cam-file-link" onclick="document.getElementById('fi2').click()" data-t="or-upload">or upload from gallery</button>
-      <input type="file" class="hf" id="fi2" accept="image/*" onchange="setPhoto(2,this)">
-    </div>
-    <button class="btn btn-outline" id="next2" onclick="startAnalysis()" disabled style="opacity:.3" data-t="btn-analyse">Analyse My Smile</button>
-  </div>
-
-  <!-- Analysing -->
-  <div class="screen" id="s-an">
-    <div class="eyebrow" data-t="eyebrow-proc">Processing</div>
-    <h2 data-t="an-h2"><em>Analysing</em><br>your photographs</h2>
-    <div class="an-steps">
-      <div class="an-step" id="an1">
-        <div class="an-step-num">01</div>
-        <div class="an-step-text"><div class="an-step-label" data-t="an1-title">Image Processing</div><span data-t="an1-sub">Detecting teeth, gum tissue, and facial alignment</span></div>
-      </div>
-      <div class="an-step" id="an2">
-        <div class="an-step-num">02</div>
-        <div class="an-step-text"><div class="an-step-label" data-t="an2-title">Whiteness Analysis</div><span data-t="an2-sub">Evaluating shade and discolouration across visible surfaces</span></div>
-      </div>
-      <div class="an-step" id="an3">
-        <div class="an-step-num">03</div>
-        <div class="an-step-text"><div class="an-step-label" data-t="an3-title">Alignment Assessment</div><span data-t="an3-sub">Mapping spacing, crowding, and bite relationship</span></div>
-      </div>
-      <div class="an-step" id="an4">
-        <div class="an-step-num">04</div>
-        <div class="an-step-text"><div class="an-step-label" data-t="an4-title">Scoring</div><span data-t="an4-sub">Generating your personalised AI Smile Score</span></div>
-      </div>
-    </div>
+    <p class="auth-note" style="text-align:center;margin-top:24px" data-t="splash-note">No photos stored. Analysis runs entirely on your device.</p>
   </div>
 
   <!-- Gate -->
   <div class="screen" id="s-gate">
-    <div class="eyebrow" data-t="eyebrow-complete">Assessment Complete</div>
+    <div class="eyebrow" data-t="eyebrow-complete">Scan Complete</div>
     <h2 data-t="gate-h2">Your results<br>are <em>ready.</em></h2>
     <p class="body-text" style="margin-top:12px" data-t="gate-sub">Create a free account to unlock your full AI Smile Score, personalised improvement plan, and direct contact with our dental team.</p>
     <div class="gate-preview">
@@ -688,7 +476,7 @@ input[type="file"].hf { display: none; }
     <div class="spacer" style="min-height:36px"></div>
     <button class="btn btn-primary" onclick="go('s-impr')" style="margin-bottom:10px" data-t="btn-plan">View Improvement Plan</button>
     <button class="btn btn-outline" onclick="go('s-contact')" style="margin-bottom:10px" data-t="btn-contact">Contact the Clinic</button>
-    <button class="btn btn-ghost" onclick="resetApp()" data-t="btn-new">Start New Assessment</button>
+    <button class="btn btn-ghost" onclick="resetApp()" data-t="btn-new">Scan Again</button>
   </div>
 
   <!-- Improvements -->
@@ -699,7 +487,7 @@ input[type="file"].hf { display: none; }
     </button>
     <div class="eyebrow" data-t="eyebrow-plan">Improvement Plan</div>
     <h2 data-t="impr-h2">Your smile<br><em>potential.</em></h2>
-    <p class="body-text" style="margin-top:10px" data-t="impr-sub">Based on your assessment, these treatments could significantly improve your score.</p>
+    <p class="body-text" style="margin-top:10px" data-t="impr-sub">Based on your scan, these treatments could significantly improve your score.</p>
     <div class="impr-list" id="impr-list"></div>
     <div class="spacer" style="min-height:36px"></div>
     <button class="btn btn-primary" onclick="go('s-book')" data-t="btn-book">Book a Consultation</button>
@@ -785,7 +573,7 @@ input[type="file"].hf { display: none; }
     <h2 data-t="ty-h2">Request<br><em>received.</em></h2>
     <p class="body-text" style="margin-top:20px" data-t="ty-sub">Thank you. We will review your smile assessment and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.</p>
     <div class="spacer" style="min-height:48px"></div>
-    <button class="btn btn-primary" onclick="resetApp()" style="margin-bottom:12px" data-t="btn-new-ass">Take New Assessment</button>
+    <button class="btn btn-primary" onclick="resetApp()" style="margin-bottom:12px" data-t="btn-new-ass">Scan Again</button>
     <button class="btn btn-ghost" onclick="go('s-score',true)" data-t="btn-view-results">View My Results</button>
   </div>
 
@@ -807,11 +595,11 @@ input[type="file"].hf { display: none; }
         <div class="profile-value" id="pf-email"></div>
       </div>
       <div class="profile-row">
-        <div class="profile-label" data-t="label-assessments">Assessments</div>
+        <div class="profile-label" data-t="label-assessments">Scans</div>
         <div class="profile-value" id="pf-count"></div>
       </div>
     </div>
-    <button class="btn btn-outline" onclick="go('s-history')" style="margin-bottom:10px" data-t="btn-history">View Assessment History</button>
+    <button class="btn btn-outline" onclick="go('s-history')" style="margin-bottom:10px" data-t="btn-history">View Scan History</button>
     <button class="btn btn-ghost" onclick="doLogout()" data-t="btn-logout">Sign Out</button>
   </div>
 
@@ -821,37 +609,50 @@ input[type="file"].hf { display: none; }
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow" data-t="eyebrow-history">Assessment History</div>
-    <h2 data-t="history-h2">Your<br><em>assessments.</em></h2>
+    <div class="eyebrow" data-t="eyebrow-history">Scan History</div>
+    <h2 data-t="history-h2">Your<br><em>scans.</em></h2>
     <div class="history-list" id="history-list"></div>
     <div class="spacer" style="min-height:36px"></div>
-    <button class="btn btn-primary" onclick="go('s-splash')" data-t="btn-new-ass">Take New Assessment</button>
+    <button class="btn btn-primary" onclick="openScan()" data-t="btn-scan-again">Scan Again</button>
   </div>
 
 </main>
 
-<!-- Camera Modal -->
-<div class="cam-modal" id="cam-modal">
-  <button class="cam-close" onclick="closeCamera()" data-t="close">Close</button>
-  <div class="cam-video-wrap">
-    <video class="cam-video" id="cam-video" autoplay playsinline muted></video>
-    <div class="cam-guide">
-      <svg id="cam-guide-svg" width="200" height="240" viewBox="0 0 200 240">
-        <ellipse cx="100" cy="120" rx="78" ry="98" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="6 4"/>
-      </svg>
-    </div>
-    <div class="cam-flash" id="cam-flash"></div>
-    <div class="cam-label" id="cam-label">Front Smile</div>
-  </div>
-  <div class="cam-controls">
-    <button class="cam-flip" onclick="flipCamera()">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+<!-- ═══════════ AI SCAN OVERLAY ═══════════ -->
+<div class="scan-screen" id="scan-screen">
+  <!-- Camera view -->
+  <div class="scan-video-wrap">
+    <video class="scan-video" id="scan-video" autoplay playsinline muted></video>
+    <canvas class="scan-canvas" id="scan-canvas"></canvas>
+
+    <!-- Status hint bubble -->
+    <div class="scan-hint-bubble" id="scan-hint" data-t="scan-loading">Preparing AI scanner</div>
+
+    <!-- Cancel & flip -->
+    <button class="scan-cancel" onclick="closeScan()" data-t="close">Cancel</button>
+    <button class="scan-flip-btn" onclick="flipScan()" title="Flip camera">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
     </button>
-    <button class="cam-capture" onclick="capturePhoto()"></button>
-    <div style="width:44px"></div>
+
+    <!-- Loading overlay -->
+    <div class="scan-loading" id="scan-loading">
+      <div class="scan-load-ring"></div>
+      <div class="scan-load-text" data-t="scan-loading">Preparing AI scanner</div>
+    </div>
+  </div>
+
+  <!-- Bottom panel -->
+  <div class="scan-panel">
+    <div class="scan-status-row">
+      <div class="scan-state-text" id="scan-state" data-t="scan-waiting">Waiting for face</div>
+      <div class="scan-pct" id="scan-pct">0%</div>
+    </div>
+    <div class="scan-bar-track">
+      <div class="scan-bar-fill" id="scan-bar"></div>
+    </div>
+    <div class="scan-desc" data-t="scan-desc">Position your face in the camera and open your mouth slightly to reveal your teeth</div>
   </div>
 </div>
-<canvas id="cam-canvas" style="display:none"></canvas>
 
 <!-- Install Bar -->
 <div class="install-bar" id="install-bar">
@@ -865,36 +666,18 @@ const EMAILJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 const RECIPIENT_EMAIL     = 'magda@michalkowska.pl';
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/';
 
 // ── Translations ──────────────────────────────────────────────
 const T = {
   en: {
     'eyebrow-ai':'AI Smile Assessment',
     'splash-h1':'How perfect<br>is your<br><em>smile?</em>',
-    'splash-sub':'Take a free AI-powered assessment of your teeth in under two minutes. No registration required to start.',
-    'btn-start':'Start Free Assessment','or':'or','btn-signin':'Sign In',
-    'splash-note':'Photos are processed on-device and never stored.',
-    'back':'Back','eyebrow-guide':'Photo Guide',
-    'guide-h2':'Two photos.<br><em>One result.</em>',
-    'guide-sub':'Follow these guidelines for the most accurate AI assessment.',
-    'g1-title':'Front Smile','g1-a':'Face forward, teeth together',
-    'g1-b':'Lips parted, teeth visible','g1-c':'Even lighting, no shadows','g1-d':'Portrait orientation',
-    'g2-title':'Side Profile','g2-a':'Side view, left or right',
-    'g2-b':'Upper and lower teeth visible','g2-c':'Natural resting bite','g2-d':'Clear, even lighting',
-    'btn-ready':'Ready — Begin','eyebrow-p1':'Photo 1 of 2',
-    'up1-h2':'Front<br><em>Smile</em>','up1-sub':'Face forward, teeth together, lips slightly parted.',
-    'cam-ready':'Ready for your photo','cam-hint-1':'Tap below to use the camera',
-    'cam-hint-2':'Side view, teeth visible at natural bite',
-    'remove':'Remove','btn-camera':'Take Photo','or-upload':'or upload from gallery',
-    'btn-continue':'Continue','eyebrow-p2':'Photo 2 of 2',
-    'up2-h2':'Side<br><em>Profile</em>','up2-sub':'Side view showing upper and lower teeth at natural bite.',
-    'btn-analyse':'Analyse My Smile','eyebrow-proc':'Processing',
-    'an-h2':'<em>Analysing</em><br>your photographs',
-    'an1-title':'Image Processing','an1-sub':'Detecting teeth, gum tissue, and facial alignment',
-    'an2-title':'Whiteness Analysis','an2-sub':'Evaluating shade and discolouration across visible surfaces',
-    'an3-title':'Alignment Assessment','an3-sub':'Mapping spacing, crowding, and bite relationship',
-    'an4-title':'Scoring','an4-sub':'Generating your personalised AI Smile Score',
-    'eyebrow-complete':'Assessment Complete','gate-h2':'Your results<br>are <em>ready.</em>',
+    'splash-sub':'Point your camera at your smile. Our AI reads your teeth in real time and generates a full dental score in under 30 seconds.',
+    'btn-start':'Scan My Smile','or':'or','btn-signin':'Sign In',
+    'splash-note':'No photos stored. Analysis runs entirely on your device.',
+    'back':'Back','eyebrow-complete':'Scan Complete',
+    'gate-h2':'Your results<br>are <em>ready.</em>',
     'gate-sub':'Create a free account to unlock your full AI Smile Score, personalised improvement plan, and direct contact with our dental team.',
     'btn-create':'Create Free Account','eyebrow-create':'Create Account',
     'reg-h2':'One last<br><em>step.</em>','reg-sub':'Create your account to view your results and book a consultation.',
@@ -905,52 +688,41 @@ const T = {
     'login-sub':'Sign in to view your assessment and book a consultation.',
     'no-acc':'No account yet?','create-link':'Create one',
     'eyebrow-result':'Your Result','score-h2':'Your AI<br><em>Smile Score</em>',
-    'btn-plan':'View Improvement Plan','btn-contact':'Contact the Clinic','btn-new':'Start New Assessment',
+    'btn-plan':'View Improvement Plan','btn-contact':'Contact the Clinic','btn-new':'Scan Again',
     'eyebrow-plan':'Improvement Plan','impr-h2':'Your smile<br><em>potential.</em>',
-    'impr-sub':'Based on your assessment, these treatments could significantly improve your score.',
+    'impr-sub':'Based on your scan, these treatments could significantly improve your score.',
     'btn-book':'Book a Consultation','eyebrow-contact':'Contact',
-    'contact-h2':'Get in<br><em>touch.</em>','contact-sub':'Reach our dental team directly, or book a full consultation through our form.',
+    'contact-h2':'Get in<br><em>touch.</em>','contact-sub':'Reach our dental team directly, or book a full consultation.',
     'cl-email-title':'Email','cl-book-title':'Book Consultation','cl-book-sub':'Complete the booking form',
     'eyebrow-consult':'Consultation','book-h2':'Book your<br><em>appointment.</em>',
     'book-sub':'Complete the form and we will contact you within 24 hours to confirm.',
     'label-phone':'Phone Number','label-date':'Preferred Date','label-notes':'Notes (optional)',
     'btn-send':'Send Request','eyebrow-done':'Complete','ty-h2':'Request<br><em>received.</em>',
-    'ty-sub':'Thank you. We will review your smile assessment and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.',
-    'btn-new-ass':'Take New Assessment','btn-view-results':'View My Results',
+    'ty-sub':'Thank you. We will review your smile scan and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.',
+    'btn-new-ass':'Scan Again','btn-view-results':'View My Results',
     'eyebrow-profile':'Profile','profile-h2':'Your<br><em>account.</em>',
-    'label-assessments':'Assessments','btn-history':'View Assessment History','btn-logout':'Sign Out',
-    'eyebrow-history':'Assessment History','history-h2':'Your<br><em>assessments.</em>',
-    'close':'Close','install-msg':'Add to home screen','install-btn':'Install',
+    'label-assessments':'Scans','btn-history':'View Scan History','btn-logout':'Sign Out',
+    'eyebrow-history':'Scan History','history-h2':'Your<br><em>scans.</em>',
+    'btn-scan-again':'Scan Again',
+    'close':'Cancel',
+    'scan-loading':'Preparing AI scanner','scan-waiting':'Waiting for face',
+    'scan-scanning':'Scanning your smile','scan-complete':'Complete',
+    'scan-desc':'Position your face in the camera and open your mouth slightly to reveal your teeth',
+    'scan-hint-ready':'Position your face in the frame',
+    'scan-hint-detected':'Hold still — scanning',
+    'install-msg':'Add to home screen','install-btn':'Install',
     'tag-excellent':'Excellent','tag-good':'Good','tag-fair':'Fair','tag-needs':'Needs Attention',
-    'no-history':'No assessments yet. Take your first one.',
+    'no-history':'No scans yet. Take your first one.',
+    'cam-denied':'Camera access denied. Please allow camera permissions and try again.',
   },
   pl: {
     'eyebrow-ai':'Ocena AI',
     'splash-h1':'Jak piękny<br>jest twój<br><em>uśmiech?</em>',
-    'splash-sub':'Bezpłatna ocena AI twoich zębów w mniej niż dwie minuty. Rejestracja nie jest wymagana.',
-    'btn-start':'Rozpocznij bezpłatną ocenę','or':'lub','btn-signin':'Zaloguj się',
-    'splash-note':'Zdjęcia są przetwarzane lokalnie i nigdy nie są zapisywane.',
-    'back':'Wstecz','eyebrow-guide':'Przewodnik',
-    'guide-h2':'Dwa zdjęcia.<br><em>Jeden wynik.</em>',
-    'guide-sub':'Postępuj zgodnie z tymi wskazówkami, aby uzyskać jak najdokładniejszą ocenę.',
-    'g1-title':'Uśmiech z przodu','g1-a':'Twarz do przodu, zęby razem',
-    'g1-b':'Usta lekko otwarte, zęby widoczne','g1-c':'Równomierne oświetlenie','g1-d':'Orientacja pionowa',
-    'g2-title':'Profil z boku','g2-a':'Widok z boku, lewy lub prawy',
-    'g2-b':'Górne i dolne zęby widoczne','g2-c':'Naturalne zgryźnienie','g2-d':'Dobre, równe oświetlenie',
-    'btn-ready':'Gotowy — Zacznij','eyebrow-p1':'Zdjęcie 1 z 2',
-    'up1-h2':'Uśmiech<br><em>z przodu</em>','up1-sub':'Twarz do przodu, zęby razem, usta lekko rozchylone.',
-    'cam-ready':'Gotowe do zdjęcia','cam-hint-1':'Naciśnij poniżej, aby użyć aparatu',
-    'cam-hint-2':'Widok z boku, zęby widoczne przy naturalnym zgryźnieniu',
-    'remove':'Usuń','btn-camera':'Zrób zdjęcie','or-upload':'lub prześlij z galerii',
-    'btn-continue':'Kontynuuj','eyebrow-p2':'Zdjęcie 2 z 2',
-    'up2-h2':'Profil<br><em>z boku</em>','up2-sub':'Widok z boku pokazujący górne i dolne zęby.',
-    'btn-analyse':'Analizuj mój uśmiech','eyebrow-proc':'Przetwarzanie',
-    'an-h2':'<em>Analizowanie</em><br>twoich fotografii',
-    'an1-title':'Przetwarzanie obrazu','an1-sub':'Wykrywanie zębów, dziąseł i wyrównania twarzy',
-    'an2-title':'Analiza bieli','an2-sub':'Ocena odcienia i przebarwień na widocznych powierzchniach',
-    'an3-title':'Ocena wyrównania','an3-sub':'Mapowanie odstępów, zgryźnienia i relacji szczęk',
-    'an4-title':'Ocena końcowa','an4-sub':'Generowanie spersonalizowanego wyniku AI',
-    'eyebrow-complete':'Ocena zakończona','gate-h2':'Twoje wyniki<br>są <em>gotowe.</em>',
+    'splash-sub':'Skieruj kamerę na swój uśmiech. Nasza AI odczytuje Twoje zęby w czasie rzeczywistym i generuje pełną ocenę dentystyczną w mniej niż 30 sekund.',
+    'btn-start':'Skanuj mój uśmiech','or':'lub','btn-signin':'Zaloguj się',
+    'splash-note':'Żadne zdjęcia nie są zapisywane. Analiza odbywa się na Twoim urządzeniu.',
+    'back':'Wstecz','eyebrow-complete':'Skan zakończony',
+    'gate-h2':'Twoje wyniki<br>są <em>gotowe.</em>',
     'gate-sub':'Utwórz bezpłatne konto, aby odblokować pełny wynik AI, plan poprawy i kontakt z naszym zespołem.',
     'btn-create':'Utwórz bezpłatne konto','eyebrow-create':'Utwórz konto',
     'reg-h2':'Ostatni<br><em>krok.</em>','reg-sub':'Utwórz konto, aby zobaczyć wyniki i umówić konsultację.',
@@ -961,9 +733,9 @@ const T = {
     'login-sub':'Zaloguj się, aby zobaczyć wyniki i umówić konsultację.',
     'no-acc':'Nie masz konta?','create-link':'Utwórz je',
     'eyebrow-result':'Twój wynik','score-h2':'Twój wynik<br><em>AI Smile Score</em>',
-    'btn-plan':'Zobacz plan poprawy','btn-contact':'Skontaktuj się z kliniką','btn-new':'Nowa ocena',
+    'btn-plan':'Zobacz plan poprawy','btn-contact':'Skontaktuj się z kliniką','btn-new':'Skanuj ponownie',
     'eyebrow-plan':'Plan poprawy','impr-h2':'Twój potencjał<br><em>uśmiechu.</em>',
-    'impr-sub':'Na podstawie oceny, te zabiegi mogłyby znacząco poprawić Twój wynik.',
+    'impr-sub':'Na podstawie skanu, te zabiegi mogłyby znacząco poprawić Twój wynik.',
     'btn-book':'Umów konsultację','eyebrow-contact':'Kontakt',
     'contact-h2':'Skontaktuj<br><em>się z nami.</em>','contact-sub':'Skontaktuj się bezpośrednio lub umów wizytę przez formularz.',
     'cl-email-title':'E-mail','cl-book-title':'Umów wizytę','cl-book-sub':'Wypełnij formularz rezerwacji',
@@ -971,14 +743,22 @@ const T = {
     'book-sub':'Wypełnij formularz, a skontaktujemy się z Tobą w ciągu 24 godzin.',
     'label-phone':'Numer telefonu','label-date':'Preferowana data','label-notes':'Uwagi (opcjonalnie)',
     'btn-send':'Wyślij zapytanie','eyebrow-done':'Gotowe','ty-h2':'Zapytanie<br><em>odebrane.</em>',
-    'ty-sub':'Dziękujemy. Przejrzymy Twoją ocenę i skontaktujemy się z Tobą w ciągu 24 godzin, aby potwierdzić wizytę u Dr. Michałkowskiej.',
-    'btn-new-ass':'Nowa ocena','btn-view-results':'Zobacz moje wyniki',
+    'ty-sub':'Dziękujemy. Przejrzymy Twój skan i skontaktujemy się z Tobą w ciągu 24 godzin, aby potwierdzić wizytę u Dr. Michałkowskiej.',
+    'btn-new-ass':'Skanuj ponownie','btn-view-results':'Zobacz moje wyniki',
     'eyebrow-profile':'Profil','profile-h2':'Twoje<br><em>konto.</em>',
-    'label-assessments':'Oceny','btn-history':'Historia ocen','btn-logout':'Wyloguj się',
-    'eyebrow-history':'Historia ocen','history-h2':'Twoje<br><em>oceny.</em>',
-    'close':'Zamknij','install-msg':'Dodaj do ekranu głównego','install-btn':'Zainstaluj',
+    'label-assessments':'Skany','btn-history':'Historia skanów','btn-logout':'Wyloguj się',
+    'eyebrow-history':'Historia skanów','history-h2':'Twoje<br><em>skany.</em>',
+    'btn-scan-again':'Skanuj ponownie',
+    'close':'Anuluj',
+    'scan-loading':'Przygotowuję skaner AI','scan-waiting':'Czekam na twarz',
+    'scan-scanning':'Skanuję twój uśmiech','scan-complete':'Gotowe',
+    'scan-desc':'Ustaw twarz w kadrze i lekko otwórz usta, aby zęby były widoczne',
+    'scan-hint-ready':'Ustaw twarz w kadrze',
+    'scan-hint-detected':'Nie ruszaj się — skanuję',
+    'install-msg':'Dodaj do ekranu głównego','install-btn':'Zainstaluj',
     'tag-excellent':'Doskonały','tag-good':'Dobry','tag-fair':'Przeciętny','tag-needs':'Wymaga uwagi',
-    'no-history':'Brak ocen. Wykonaj swoją pierwszą.',
+    'no-history':'Brak skanów. Wykonaj swój pierwszy.',
+    'cam-denied':'Brak dostępu do kamery. Zezwól na dostęp i spróbuj ponownie.',
   }
 };
 
@@ -994,11 +774,10 @@ function setLang(l) {
     if (v !== undefined) el.innerHTML = v;
   });
 }
-
 function tr(key) { return T[lang][key] || key; }
 
 // ── State ─────────────────────────────────────────────────────
-let state = { score: 0, cats: [], areas: [], user: null, photo1: null, photo2: null };
+let state = { score: 0, cats: [], areas: [], user: null, scanSeed: 0 };
 let prevScreen = 's-splash';
 
 // ── Navigation ────────────────────────────────────────────────
@@ -1012,63 +791,236 @@ function go(id, isBack) {
   if (id === 's-profile') updateProfileUI();
   if (id === 's-history') buildHistoryUI();
 }
-
 function goBack() { go(prevScreen, true); }
 
-// ── Photo Handling ────────────────────────────────────────────
-function setPhoto(n, input) {
-  if (!input.files || !input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => applyPhoto(n, e.target.result);
-  reader.readAsDataURL(input.files[0]);
+// ── AI Scan ───────────────────────────────────────────────────
+let scanStream = null;
+let scanFacing = 'user';
+let scanInterval = null;
+let scanProgress = 0;
+let scanLinePct = 0;
+let modelsLoaded = false;
+let modelsLoading = false;
+let lastDetection = null;
+
+async function loadModels() {
+  if (modelsLoaded || modelsLoading) return;
+  modelsLoading = true;
+  try {
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+      faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
+    ]);
+    modelsLoaded = true;
+  } catch(e) {
+    modelsLoading = false;
+  }
 }
 
-function applyPhoto(n, src) {
-  const pp = document.getElementById('pp' + n);
-  const pc = document.getElementById('pc' + n);
-  const pu = document.getElementById('pu' + n);
-  const nx = document.getElementById('next' + n);
-  const dz = document.getElementById('dz' + n);
-  pp.src = src; pp.classList.add('visible');
-  pc.classList.add('visible');
-  pu.style.display = 'none';
-  dz.classList.add('has-photo');
-  nx.disabled = false; nx.style.opacity = '1';
-  if (n === 1) state.photo1 = src; else state.photo2 = src;
-}
+function openScan() {
+  const screen = document.getElementById('scan-screen');
+  screen.classList.add('open');
+  document.getElementById('scan-loading').classList.remove('hidden');
+  document.getElementById('scan-bar').style.width = '0';
+  document.getElementById('scan-pct').textContent = '0%';
+  setScanState('loading');
+  scanProgress = 0;
+  scanLinePct = 0;
+  lastDetection = null;
 
-function clearPhoto(n, e) {
-  if (e && e.stopPropagation) e.stopPropagation();
-  const pp = document.getElementById('pp' + n);
-  const pc = document.getElementById('pc' + n);
-  const pu = document.getElementById('pu' + n);
-  const fi = document.getElementById('fi' + n);
-  const nx = document.getElementById('next' + n);
-  const dz = document.getElementById('dz' + n);
-  pp.src = ''; pp.classList.remove('visible');
-  pc.classList.remove('visible');
-  pu.style.display = '';
-  dz.classList.remove('has-photo');
-  if (fi) fi.value = '';
-  nx.disabled = true; nx.style.opacity = '.3';
-  if (n === 1) state.photo1 = null; else state.photo2 = null;
-}
-
-// ── Analysis ──────────────────────────────────────────────────
-function startAnalysis() {
-  go('s-an');
-  buildScores();
-  ['an1','an2','an3','an4'].forEach((id, i) => {
-    setTimeout(() => {
-      document.getElementById(id).classList.add('done');
-      if (i === 3) setTimeout(() => {
-        buildResultUI();
-        saveAssessment();
-        go(state.user ? 's-score' : 's-gate');
-        if (!state.user) document.getElementById('gate-score-preview').textContent = state.score;
-      }, 700);
-    }, [600, 1400, 2400, 3500][i]);
+  // Start camera + load models in parallel
+  Promise.all([
+    startScanCamera(),
+    loadModels(),
+  ]).then(() => {
+    document.getElementById('scan-loading').classList.add('hidden');
+    setScanState('ready');
+    startDetectionLoop();
+  }).catch(() => {
+    closeScan();
+    showCamError();
   });
+}
+
+function closeScan() {
+  document.getElementById('scan-screen').classList.remove('open');
+  stopScanCamera();
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+}
+
+async function startScanCamera() {
+  if (scanStream) stopScanCamera();
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: scanFacing, width: { ideal: 1080 }, height: { ideal: 1440 } },
+    audio: false,
+  });
+  scanStream = stream;
+  const video = document.getElementById('scan-video');
+  video.srcObject = stream;
+  await new Promise(res => { video.onloadedmetadata = () => { video.play(); res(); }; });
+}
+
+function stopScanCamera() {
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+}
+
+function flipScan() {
+  scanFacing = scanFacing === 'user' ? 'environment' : 'user';
+  startScanCamera().catch(() => {});
+}
+
+function setScanState(s) {
+  const stateEl = document.getElementById('scan-state');
+  const hintEl  = document.getElementById('scan-hint');
+  if (s === 'loading') {
+    stateEl.textContent = tr('scan-loading'); stateEl.classList.remove('active');
+    hintEl.textContent  = tr('scan-loading'); hintEl.classList.remove('detected');
+  } else if (s === 'ready') {
+    stateEl.textContent = tr('scan-waiting'); stateEl.classList.remove('active');
+    hintEl.textContent  = tr('scan-hint-ready'); hintEl.classList.remove('detected');
+  } else if (s === 'scanning') {
+    stateEl.textContent = tr('scan-scanning'); stateEl.classList.add('active');
+    hintEl.textContent  = tr('scan-hint-detected'); hintEl.classList.add('detected');
+  }
+}
+
+function startDetectionLoop() {
+  if (scanInterval) clearInterval(scanInterval);
+  scanInterval = setInterval(runDetectionFrame, 120);
+}
+
+async function runDetectionFrame() {
+  if (!modelsLoaded) return;
+  const video = document.getElementById('scan-video');
+  const canvas = document.getElementById('scan-canvas');
+  if (!video.videoWidth) return;
+
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  let detection = null;
+  try {
+    const opts = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.45 });
+    const result = await faceapi.detectSingleFace(video, opts).withFaceLandmarks(true);
+    if (result) {
+      detection = result;
+      lastDetection = result;
+    }
+  } catch(e) {}
+
+  drawOverlay(canvas, video, detection);
+
+  if (detection) {
+    setScanState('scanning');
+    scanProgress = Math.min(100, scanProgress + 1.6);
+    // seed using face bounding box for deterministic-ish scores per face
+    const box = detection.detection.box;
+    state.scanSeed = Math.round(box.x * 7 + box.y * 13 + box.width * 3 + box.height * 5);
+  } else {
+    if (scanProgress > 0) setScanState('ready');
+    scanProgress = Math.max(0, scanProgress - 0.8);
+  }
+
+  scanLinePct = (scanLinePct + 0.018) % 1;
+  document.getElementById('scan-bar').style.width = scanProgress + '%';
+  document.getElementById('scan-pct').textContent = Math.round(scanProgress) + '%';
+
+  if (scanProgress >= 100) {
+    clearInterval(scanInterval);
+    scanInterval = null;
+    finishScan();
+  }
+}
+
+function drawOverlay(canvas, video, detection) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (!detection) {
+    // Guide oval
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.ellipse(W / 2, H * 0.42, W * 0.28, H * 0.36, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    return;
+  }
+
+  const box = detection.detection.box;
+  const bx = box.x - 12, by = box.y - 12;
+  const bw = box.width + 24, bh = box.height + 24;
+  const bLen = 28;
+
+  // Soft dim outside face
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.clearRect(bx, by, bw, bh);
+
+  // Corner brackets
+  const pct = scanProgress / 100;
+  const r = Math.round(107 + (107 - 107) * pct);
+  const g = Math.round(158 + (158 - 158) * pct);
+  ctx.strokeStyle = `rgba(${r},${g},123,${0.6 + pct * 0.4})`;
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  // TL
+  ctx.beginPath(); ctx.moveTo(bx, by + bLen); ctx.lineTo(bx, by); ctx.lineTo(bx + bLen, by); ctx.stroke();
+  // TR
+  ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + bLen); ctx.stroke();
+  // BL
+  ctx.beginPath(); ctx.moveTo(bx, by + bh - bLen); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + bLen, by + bh); ctx.stroke();
+  // BR
+  ctx.beginPath(); ctx.moveTo(bx + bw - bLen, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - bLen); ctx.stroke();
+
+  // Mouth region highlight from landmarks
+  try {
+    const mouth = detection.landmarks.getMouth();
+    const mxs = mouth.map(p => p.x), mys = mouth.map(p => p.y);
+    const mx = Math.min(...mxs) - 10, my = Math.min(...mys) - 6;
+    const mw = Math.max(...mxs) - mx + 10, mh = Math.max(...mys) - my + 8;
+    ctx.strokeStyle = `rgba(107,158,123,${0.4 + pct * 0.5})`;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeRect(mx, my, mw, mh);
+    ctx.setLineDash([]);
+
+    // Tooth shimmer dots along mouth
+    if (scanProgress > 20) {
+      ctx.fillStyle = `rgba(107,158,123,${pct * 0.6})`;
+      for (let i = 0; i < 5; i++) {
+        const dotX = mx + (mw / 6) * (i + 1);
+        const dotY = my + mh * 0.5;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  } catch(e) {}
+
+  // Scan sweep line
+  const sweepY = by + scanLinePct * bh;
+  const grad = ctx.createLinearGradient(0, sweepY - 20, 0, sweepY + 20);
+  grad.addColorStop(0, 'rgba(107,158,123,0)');
+  grad.addColorStop(0.5, `rgba(107,158,123,${0.3 + pct * 0.25})`);
+  grad.addColorStop(1, 'rgba(107,158,123,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(bx, sweepY - 20, bw, 40);
+}
+
+function finishScan() {
+  buildScores(state.scanSeed || Date.now());
+  saveAssessment();
+  closeScan();
+  buildResultUI();
+  go(state.user ? 's-score' : 's-gate');
+  if (!state.user) document.getElementById('gate-score-preview').textContent = state.score;
+}
+
+function showCamError() {
+  alert(tr('cam-denied'));
 }
 
 // ── Scoring ───────────────────────────────────────────────────
@@ -1086,10 +1038,9 @@ function seededRand(seed) {
   return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
 }
 
-function buildScores() {
-  const seed = state.photo1 ? state.photo1.length + (state.photo2 ? state.photo2.length : 0) : Date.now();
-  const rand = seededRand(seed % 99991);
-  state.cats = CATEGORIES.map(name => ({ name, val: Math.round(55 + rand() * 44) }));
+function buildScores(seed) {
+  const rand = seededRand((seed || Date.now()) % 99991);
+  state.cats  = CATEGORIES.map(name => ({ name, val: Math.round(55 + rand() * 44) }));
   state.score = Math.round(state.cats.reduce((a, c) => a + c.val, 0) / state.cats.length);
   state.areas = [...state.cats].sort((a,b) => a.val - b.val).slice(0,3).map(c => c.name);
 }
@@ -1222,7 +1173,7 @@ function buildHistoryUI() {
     const dateStr = d.toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const el = document.createElement('div');
     el.className = 'history-item';
-    el.innerHTML = `<div class="history-score">${item.score}</div><div class="history-meta"><div class="history-date">${dateStr}</div><div class="history-tag">${item.tag}</div></div><svg class="history-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    el.innerHTML = `<div class="history-score">${item.score}</div><div class="history-meta"><div class="history-date">${dateStr}</div><div class="history-tag">${item.tag}</div></div>`;
     list.appendChild(el);
   });
 }
@@ -1266,54 +1217,9 @@ function fallbackMailto(p) {
   setTimeout(() => go('s-ty'), 1000);
 }
 
-// ── Camera ────────────────────────────────────────────────────
-let camSlot = 1, camStream = null, camFacing = 'user';
-
-function openCamera(n, e) {
-  if (e && e.stopPropagation) e.stopPropagation();
-  camSlot = n;
-  document.getElementById('cam-label').textContent = n === 1 ? 'Front Smile' : 'Side Profile';
-  const g = document.getElementById('cam-guide-svg');
-  g.innerHTML = n === 1
-    ? `<ellipse cx="100" cy="120" rx="78" ry="98" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="6 4"/>`
-    : `<rect x="20" y="30" width="160" height="180" rx="4" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="6 4"/>`;
-  document.getElementById('cam-modal').classList.add('open');
-  startStream();
-}
-
-function startStream() {
-  if (camStream) camStream.getTracks().forEach(t => t.stop());
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: camFacing, width:{ideal:1080}, height:{ideal:1440} }, audio: false })
-    .then(s => { camStream = s; document.getElementById('cam-video').srcObject = s; })
-    .catch(() => { closeCamera(); document.getElementById('fi' + camSlot).click(); });
-}
-
-function flipCamera() { camFacing = camFacing === 'user' ? 'environment' : 'user'; startStream(); }
-
-function capturePhoto() {
-  const video = document.getElementById('cam-video');
-  const canvas = document.getElementById('cam-canvas');
-  const flash = document.getElementById('cam-flash');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  if (camFacing === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-  ctx.drawImage(video, 0, 0);
-  flash.classList.add('on');
-  setTimeout(() => flash.classList.remove('on'), 150);
-  applyPhoto(camSlot, canvas.toDataURL('image/jpeg', 0.9));
-  closeCamera();
-}
-
-function closeCamera() {
-  document.getElementById('cam-modal').classList.remove('open');
-  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-}
-
 // ── Reset ─────────────────────────────────────────────────────
 function resetApp() {
-  state.score = 0; state.cats = []; state.areas = []; state.photo1 = null; state.photo2 = null;
-  [1,2].forEach(n => clearPhoto(n, {}));
-  ['an1','an2','an3','an4'].forEach(id => document.getElementById(id).classList.remove('done'));
+  state.score = 0; state.cats = []; state.areas = []; state.scanSeed = 0;
   document.getElementById('score-fill').style.width = '0';
   ['reg-form','login-form','book-form'].forEach(id => { const f = document.getElementById(id); if(f) f.reset(); });
   go('s-splash');
@@ -1332,6 +1238,9 @@ function setBtnLoading(btnId, textId, spinId, loading, defaultText) {
   try { const s = localStorage.getItem('ps_session'); if (s) state.user = JSON.parse(s); } catch(e) {}
   updateTopBar();
   setLang(lang);
+
+  // Preload models in background
+  loadModels();
 
   const manifest = { name:'Perfect Smile', short_name:'Perfect Smile', start_url:'./', display:'standalone', background_color:'#FAFAF8', theme_color:'#1A1A1A', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231A1A1A"/><text y=".9em" font-size="70" x="15" fill="white">P</text></svg>',sizes:'192x192',type:'image/svg+xml'}] };
   const link = document.createElement('link'); link.rel = 'manifest';
