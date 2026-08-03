@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Perfect Smile — AI Smile Assessment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#1A1A1A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -13,454 +13,430 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
 <style>
-/* ── Reset ──────────────────────────────────────────────── */
+:root {
+  --bg: #FAFAF8;
+  --surface: #F5F3F0;
+  --border: #E8E4DF;
+  --text: #1A1A1A;
+  --muted: #6B6560;
+  --faint: #A8A09A;
+  --bar-h: 64px;
+  --r: 7px;
+  --r-sm: 4px;
+  --max-w: 560px;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #fff;
-  color: #111;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Top Bar ────────────────────────────────────────────── */
+/* ── Top Bar ── */
 .top-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 60px;
-  background: #111;
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  z-index: 200;
-  flex-shrink: 0;
+  position: fixed; top: 0; left: 0; right: 0;
+  height: var(--bar-h); background: var(--text);
+  display: flex; align-items: center; padding: 0 24px; z-index: 200; gap: 12px;
 }
 .top-brand {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 20px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  color: #fff;
+  font-size: 20px; font-weight: 400; letter-spacing: 0.02em; color: #fff; flex: 1;
 }
 .top-brand em { font-style: italic; font-weight: 300; }
-
-/* ── Page ───────────────────────────────────────────────── */
-.page {
-  padding-top: 60px;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.top-lang {
+  display: flex; gap: 2px;
+  background: rgba(255,255,255,.08); border-radius: var(--r-sm); padding: 3px;
 }
+.top-lang-btn {
+  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500;
+  letter-spacing: 0.08em; color: rgba(255,255,255,.45); background: none;
+  border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; transition: all .2s;
+}
+.top-lang-btn.active { background: rgba(255,255,255,.15); color: #fff; }
+.top-profile-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  color: #fff; display: none; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .2s; flex-shrink: 0;
+}
+.top-profile-btn.visible { display: flex; }
+.top-profile-btn:hover { background: rgba(255,255,255,.2); }
 
-/* ── Screens ────────────────────────────────────────────── */
+/* ── Page & Screens ── */
+.page { padding-top: var(--bar-h); min-height: 100dvh; display: flex; flex-direction: column; }
 .screen {
-  display: none;
-  flex-direction: column;
-  flex: 1;
-  width: 100%;
-  max-width: 580px;
-  margin: 0 auto;
-  padding: 56px 40px 48px;
+  display: none; flex-direction: column; flex: 1;
+  width: 100%; max-width: var(--max-w); margin: 0 auto;
+  padding: 52px 32px 60px;
   animation: fadeUp .3s ease both;
 }
 .screen.active { display: flex; }
-
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @media (max-width: 600px) {
-  .top-bar { padding: 0 24px; }
-  .screen { padding: 36px 24px 40px; }
+  .top-bar { padding: 0 20px; }
+  .screen { padding: 40px 20px 52px; }
 }
 
-/* ── Typography ─────────────────────────────────────────── */
+/* ── Typography ── */
 .eyebrow {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #999;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--faint); display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
 }
-.eyebrow::before {
-  content: '';
-  display: block;
-  width: 20px;
-  height: 1px;
-  background: #ccc;
-  flex-shrink: 0;
-}
+.eyebrow::before { content: ''; display: block; width: 18px; height: 1px; background: var(--border); flex-shrink: 0; }
 h1 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 56px;
-  font-weight: 300;
-  line-height: 1.05;
-  color: #111;
-  letter-spacing: -0.01em;
+  font-size: 60px; font-weight: 300; line-height: 1.04; color: var(--text); letter-spacing: -0.01em;
 }
 h1 em { font-style: italic; }
 h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 40px;
-  font-weight: 300;
-  line-height: 1.1;
-  color: #111;
+  font-size: 44px; font-weight: 300; line-height: 1.1; color: var(--text);
 }
 h2 em { font-style: italic; }
-
 @media (max-width: 600px) {
-  h1 { font-size: 40px; }
-  h2 { font-size: 30px; }
+  h1 { font-size: 44px; }
+  h2 { font-size: 36px; }
 }
-
-.body-text {
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.75;
-  color: #555;
-}
+.body-text { font-size: 14px; font-weight: 300; line-height: 1.82; color: var(--muted); }
 .spacer { flex: 1; }
 
-/* ── Buttons ────────────────────────────────────────────── */
+/* ── Buttons ── */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  transition: opacity .2s, transform .15s;
-  text-decoration: none;
-  padding: 18px 32px;
-  white-space: nowrap;
-  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; border: none;
+  border-radius: var(--r); cursor: pointer;
+  transition: opacity .2s, transform .15s, background .2s;
+  text-decoration: none; padding: 17px 32px; white-space: nowrap; width: 100%;
 }
-.btn:active { transform: scale(.98); opacity: .8; }
-.btn-primary  { background: #111; color: #fff; }
-.btn-primary:hover { opacity: .85; }
-.btn-outline  { background: transparent; color: #111; border: 1px solid #111; }
-.btn-outline:hover { background: #f5f5f5; }
-.btn-ghost    { background: transparent; color: #888; font-size: 11px; padding: 14px 0; letter-spacing: 0.06em; text-transform: none; }
-.btn-ghost:hover { color: #111; }
+.btn:active { transform: scale(.98); opacity: .85; }
+.btn-primary { background: var(--text); color: #fff; }
+.btn-primary:hover { opacity: .88; }
+.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--text); background: var(--surface); }
+.btn-ghost { background: transparent; color: var(--faint); font-size: 11px; padding: 14px 0; letter-spacing: 0.06em; text-transform: none; }
+.btn-ghost:hover { color: var(--text); }
 
-/* ── Back button ────────────────────────────────────────── */
+/* ── Back button ── */
 .back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #bbb;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 40px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--faint); background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 36px;
   transition: color .2s;
 }
-.back-btn:hover { color: #111; }
+.back-btn:hover { color: var(--text); }
 .back-btn svg { transition: transform .2s; }
 .back-btn:hover svg { transform: translateX(-3px); }
 
-/* ── Divider ────────────────────────────────────────────── */
+/* ── Divider ── */
 .divider {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 20px 0;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #ccc;
+  display: flex; align-items: center; gap: 16px; margin: 20px 0;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
 }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #eee; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* ── Forms ──────────────────────────────────────────────── */
-.form-group { margin-bottom: 24px; }
+/* ── Forms ── */
+.form-group { margin-bottom: 20px; }
 .form-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #aaa;
-  margin-bottom: 8px;
+  display: block; font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--faint); margin-bottom: 8px;
 }
 .form-input {
-  width: 100%;
-  padding: 12px 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 300;
-  color: #111;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #ddd;
-  border-radius: 0;
-  outline: none;
-  transition: border-color .2s;
-  appearance: none;
+  width: 100%; padding: 13px 16px;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 300; color: var(--text);
+  background: #fff; border: 1.5px solid var(--border); border-radius: var(--r);
+  outline: none; transition: border-color .2s; appearance: none;
 }
-.form-input:focus { border-bottom-color: #111; }
-.form-input::placeholder { color: #ccc; }
-textarea.form-input { resize: vertical; min-height: 80px; padding-top: 10px; }
+.form-input:focus { border-color: var(--text); }
+.form-input::placeholder { color: var(--faint); }
+textarea.form-input { resize: vertical; min-height: 88px; }
 
-/* ── Photo Upload ───────────────────────────────────────── */
-.photo-upload {
-  border: 1px solid #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 220px;
-  position: relative;
-  cursor: pointer;
-  overflow: hidden;
-  transition: border-color .2s;
-  background: #fafafa;
+/* ── Camera Zone (primary upload) ── */
+.cam-zone { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
+.cam-preview-wrap {
+  position: relative; border-radius: var(--r); overflow: hidden;
+  background: var(--surface); border: 1.5px solid var(--border);
+  aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
 }
-.photo-upload:hover { border-color: #999; }
-.photo-upload.has-photo { background: #f0f0f0; }
-.photo-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
-.photo-upload-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 32px;
-  pointer-events: none;
+.cam-preview-wrap.has-photo { border-color: transparent; }
+.cam-preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+.cam-preview-img.visible { display: block; }
+.cam-preview-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 32px; pointer-events: none;
 }
-.upload-icon {
-  width: 40px; height: 40px;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.cam-preview-icon {
+  width: 56px; height: 56px; border-radius: 50%; background: var(--border);
+  display: flex; align-items: center; justify-content: center;
 }
-.upload-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #888; }
-.upload-sub { font-size: 12px; font-weight: 300; color: #bbb; text-align: center; line-height: 1.6; }
-.photo-preview { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; display: none; }
-.photo-preview.visible { display: block; }
-.photo-clear {
-  position: absolute; top: 12px; right: 12px; z-index: 3;
-  background: #fff; border: 1px solid #ddd; padding: 6px 12px;
+.cam-preview-label { font-size: 12px; font-weight: 400; color: var(--muted); }
+.cam-preview-sub { font-size: 11px; font-weight: 300; color: var(--faint); text-align: center; line-height: 1.65; }
+.cam-remove {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(250,250,248,.92); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 6px 12px;
   font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-  cursor: pointer; display: none; color: #111; transition: background .2s;
+  color: var(--text); cursor: pointer; display: none; backdrop-filter: blur(4px);
 }
-.photo-clear:hover { background: #f0f0f0; }
-.photo-clear.visible { display: block; }
-.camera-btn {
-  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 3;
-  background: #111; color: #fff; border: none; padding: 10px 20px;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  cursor: pointer; white-space: nowrap; transition: opacity .2s;
+.cam-remove.visible { display: block; }
+.cam-file-link {
+  text-align: center; font-size: 12px; font-weight: 400; color: var(--faint);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  padding: 4px 0; transition: color .2s; background: none; border: none;
+  font-family: 'Inter', sans-serif; width: 100%;
 }
-.camera-btn:hover { opacity: .8; }
+.cam-file-link:hover { color: var(--text); }
+input[type="file"].hf { display: none; }
 
-/* ── Guide Cards ────────────────────────────────────────── */
-.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 36px; }
+/* ── Guide Cards ── */
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 32px; }
 @media (max-width: 480px) { .guide-grid { grid-template-columns: 1fr; } }
-.guide-card { border: 1px solid #eee; padding: 24px 20px; }
+.guide-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 24px 20px;
+}
 .guide-num {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 44px; font-weight: 300; color: #e0e0e0; line-height: 1; margin-bottom: 12px;
+  font-size: 40px; font-weight: 300; color: var(--border); line-height: 1; margin-bottom: 12px;
 }
-.guide-card-title { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 10px; }
-.guide-card-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.guide-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+.guide-card-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
 .guide-card-list li {
-  font-size: 12px; font-weight: 300; color: #888; padding-left: 12px;
-  position: relative; line-height: 1.5;
+  font-size: 12px; font-weight: 300; color: var(--muted);
+  padding-left: 14px; position: relative; line-height: 1.55;
 }
 .guide-card-list li::before {
-  content: ''; position: absolute; left: 0; top: 8px;
-  width: 4px; height: 1px; background: #ccc;
+  content: ''; position: absolute; left: 0; top: 8px; width: 4px; height: 1px; background: var(--faint);
 }
 
-/* ── Analysis Steps ─────────────────────────────────────── */
+/* ── Analysis Steps ── */
 .an-steps { display: flex; flex-direction: column; margin-top: 40px; }
 .an-step {
   display: flex; align-items: flex-start; gap: 20px;
-  padding: 20px 0; border-bottom: 1px solid #f5f5f5;
-  opacity: .2; transition: opacity .5s;
+  padding: 22px 0; border-bottom: 1px solid var(--border);
+  opacity: .2; transition: opacity .6s;
 }
 .an-step.done { opacity: 1; }
 .an-step-num {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 20px; font-weight: 300; color: #ccc; min-width: 28px; line-height: 1; padding-top: 2px;
+  font-size: 20px; font-weight: 300; color: var(--border); min-width: 28px; line-height: 1; padding-top: 2px;
 }
-.an-step.done .an-step-num { color: #111; }
-.an-step-text { font-size: 13px; font-weight: 300; color: #999; line-height: 1.6; }
-.an-step.done .an-step-text { color: #444; }
-.an-step-label { font-size: 12px; font-weight: 500; color: #111; margin-bottom: 2px; }
+.an-step.done .an-step-num { color: var(--text); }
+.an-step-text { font-size: 13px; font-weight: 300; color: var(--faint); line-height: 1.65; }
+.an-step.done .an-step-text { color: var(--muted); }
+.an-step-label { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
 
-/* ── Gate Screen ────────────────────────────────────────── */
+/* ── Gate ── */
 .gate-preview {
-  border: 1px solid #eee; padding: 28px; margin-bottom: 32px;
-  position: relative; overflow: hidden; margin-top: 28px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+  padding: 28px 24px; margin: 28px 0 32px; position: relative; overflow: hidden;
 }
 .gate-preview::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,.96) 55%);
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, var(--surface) 60%);
 }
 .gate-score-preview {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 80px; font-weight: 300; color: #ddd; text-align: center; line-height: 1;
-  filter: blur(5px); margin-bottom: 12px;
+  font-size: 80px; font-weight: 300; color: var(--border); text-align: center;
+  line-height: 1; filter: blur(6px); margin-bottom: 12px;
 }
-.gate-blur-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f8f8f8; }
-.gate-blur-label { height: 10px; background: #f0f0f0; border-radius: 2px; width: 90px; }
-.gate-blur-bar   { height: 2px; background: #ececec; border-radius: 1px; }
+.gate-blur-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border); gap: 16px;
+}
+.gate-blur-label { height: 8px; background: var(--border); border-radius: 4px; width: 80px; flex-shrink: 0; }
+.gate-blur-bar { height: 3px; background: var(--border); border-radius: 2px; flex: 1; }
 
-/* ── Score ──────────────────────────────────────────────── */
+/* ── Score ── */
 .score-hero {
-  padding: 32px 0 28px;
-  border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 28px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+  padding: 28px 24px 24px; margin: 24px 0 28px;
 }
 .score-hero-num {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 96px; font-weight: 300; line-height: 1;
-  color: #111; letter-spacing: -0.02em;
+  font-size: 88px; font-weight: 300; line-height: 1; color: var(--text); letter-spacing: -0.02em;
 }
-.score-hero-row { display: flex; align-items: baseline; gap: 12px; }
+.score-hero-row { display: flex; align-items: baseline; gap: 10px; }
 .score-hero-denom {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 28px; font-weight: 300; color: #ccc;
+  font-size: 28px; font-weight: 300; color: var(--faint);
 }
 .score-hero-tag {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
-  color: #888; margin-top: 8px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted); margin-top: 8px;
 }
-.score-gauge-bar { height: 2px; background: #eee; margin-bottom: 4px; overflow: hidden; }
-.score-gauge-fill { height: 100%; background: #111; width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+.score-gauge-bar { height: 3px; background: var(--border); margin-top: 16px; border-radius: 2px; overflow: hidden; }
+.score-gauge-fill { height: 100%; background: var(--text); width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1); border-radius: 2px; }
 .score-cats { display: flex; flex-direction: column; }
 .score-cat {
   display: flex; align-items: center; padding: 13px 0;
-  border-bottom: 1px solid #f5f5f5; gap: 16px;
-  animation: fadeUp .4s ease both;
+  border-bottom: 1px solid var(--border); gap: 16px; animation: fadeUp .4s ease both;
 }
-.score-cat-name { font-size: 12px; font-weight: 400; color: #555; width: 130px; flex-shrink: 0; }
-.score-cat-bar-wrap { flex: 1; height: 2px; background: #eee; overflow: hidden; }
-.score-cat-bar { height: 100%; background: #111; width: 0; transition: width 1s ease; }
+.score-cat-name { font-size: 12px; font-weight: 400; color: var(--muted); width: 130px; flex-shrink: 0; }
+.score-cat-bar-wrap { flex: 1; height: 3px; background: var(--border); overflow: hidden; border-radius: 2px; }
+.score-cat-bar { height: 100%; width: 0; transition: width 1s ease; border-radius: 2px; }
+.score-cat-bar.hi { background: #6B9E7B; }
+.score-cat-bar.mi { background: #C4974A; }
+.score-cat-bar.lo { background: #C47A6B; }
 .score-cat-val {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 17px; font-weight: 300; color: #111; width: 28px; text-align: right;
+  font-size: 17px; font-weight: 300; color: var(--text); width: 28px; text-align: right;
 }
 
-/* ── Improvement ────────────────────────────────────────── */
-.impr-list { display: flex; flex-direction: column; margin-top: 32px; }
-.impr-item { padding: 24px 0; border-bottom: 1px solid #f5f5f5; animation: fadeUp .4s ease both; }
+/* ── Improvements ── */
+.impr-list { display: flex; flex-direction: column; margin-top: 28px; }
+.impr-item { padding: 22px 0; border-bottom: 1px solid var(--border); animation: fadeUp .4s ease both; }
 .impr-item-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-.impr-item-name { font-size: 14px; font-weight: 400; color: #111; }
-.impr-item-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; }
-.impr-item-desc { font-size: 13px; font-weight: 300; color: #777; line-height: 1.65; }
+.impr-item-name { font-size: 14px; font-weight: 400; color: var(--text); }
+.impr-item-tag { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+.impr-item-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
 
-/* ── Auth ───────────────────────────────────────────────── */
-.auth-note { font-size: 12px; font-weight: 300; color: #bbb; line-height: 1.6; margin-top: 16px; }
-.auth-switch { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 300; color: #aaa; margin-top: 24px; }
+/* ── Auth ── */
+.auth-note { font-size: 12px; font-weight: 300; color: var(--faint); line-height: 1.65; margin-top: 16px; }
+.auth-switch { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 300; color: var(--faint); margin-top: 20px; }
 .auth-switch button {
   background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 500;
-  color: #111; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0;
+  color: var(--text); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0;
 }
 
-/* ── Thank You ──────────────────────────────────────────── */
+/* ── Thank You ── */
 .ty-check {
-  width: 56px; height: 56px; border: 1px solid #111; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; margin-bottom: 32px;
+  width: 52px; height: 52px; background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 28px;
 }
 
-/* ── Alerts ─────────────────────────────────────────────── */
+/* ── Alerts ── */
 .alert {
-  padding: 12px 16px; font-size: 12px; font-weight: 400;
-  line-height: 1.5; margin-bottom: 20px; display: none;
+  padding: 13px 16px; font-size: 12px; font-weight: 400;
+  line-height: 1.55; margin-bottom: 20px; display: none; border-radius: var(--r-sm);
 }
 .alert.visible { display: block; }
-.alert-err { background: #fdf0f0; border: 1px solid #f0d0d0; color: #c00; }
-.alert-ok  { background: #f0f5f0; border: 1px solid #c0d8c0; color: #2a6a2a; }
+.alert-err { background: #FDF4F3; border: 1px solid #EDD5D0; color: #8B3A34; }
+.alert-ok  { background: #F3F8F4; border: 1px solid #C8DFD0; color: #2E6648; }
 
-/* ── Camera Modal ───────────────────────────────────────── */
+/* ── Contact Links ── */
+.contact-links { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.contact-link {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+  text-decoration: none; color: var(--text); font-size: 13px; font-weight: 400;
+  transition: border-color .2s; cursor: pointer; font-family: 'Inter', sans-serif; width: 100%; text-align: left;
+}
+.contact-link:hover { border-color: var(--muted); }
+.contact-link-icon {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.contact-link-meta { display: flex; flex-direction: column; gap: 2px; }
+.contact-link-title { font-size: 13px; font-weight: 400; color: var(--text); }
+.contact-link-sub { font-size: 11px; font-weight: 300; color: var(--faint); }
+
+/* ── History ── */
+.history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+.history-item {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+  padding: 18px 20px; display: flex; align-items: center; gap: 20px;
+  cursor: pointer; transition: border-color .2s;
+}
+.history-item:hover { border-color: var(--muted); }
+.history-score {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 40px; font-weight: 300; line-height: 1; color: var(--text); flex-shrink: 0; width: 52px;
+}
+.history-meta { flex: 1; }
+.history-date { font-size: 11px; font-weight: 500; color: var(--faint); letter-spacing: 0.04em; margin-bottom: 4px; }
+.history-tag { font-size: 12px; font-weight: 400; color: var(--muted); }
+.history-arrow { color: var(--border); flex-shrink: 0; }
+
+/* ── Profile ── */
+.profile-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 24px; margin-bottom: 20px;
+}
+.profile-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.profile-row:last-child { border-bottom: none; }
+.profile-label { font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+.profile-value { font-size: 13px; font-weight: 300; color: var(--text); }
+
+/* ── Camera Modal ── */
 .cam-modal {
-  position: fixed; inset: 0; background: #000; z-index: 900;
+  position: fixed; inset: 0; background: #080808; z-index: 900;
   display: none; flex-direction: column; align-items: center; justify-content: center;
 }
 .cam-modal.open { display: flex; }
 .cam-video-wrap {
-  width: 100%; max-width: 480px; aspect-ratio: 3/4;
-  position: relative; overflow: hidden;
+  width: 100%; max-width: 460px; aspect-ratio: 3/4;
+  position: relative; overflow: hidden; border-radius: var(--r);
 }
 @media (max-width: 600px) {
   .cam-modal { justify-content: flex-end; }
-  .cam-video-wrap { max-width: 100%; aspect-ratio: auto; flex: 1; }
+  .cam-video-wrap { max-width: 100%; aspect-ratio: auto; flex: 1; border-radius: 0; }
 }
 .cam-video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cam-guide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-.cam-guide svg { opacity: .4; }
-.cam-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .1s; }
+.cam-guide svg { opacity: .35; }
+.cam-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .12s; }
 .cam-flash.on { opacity: 1; }
 .cam-controls {
   display: flex; align-items: center; justify-content: center;
-  gap: 32px; padding: 28px; width: 100%; max-width: 480px;
+  gap: 32px; padding: 28px 20px; width: 100%; max-width: 460px;
 }
 .cam-capture {
-  width: 64px; height: 64px; border-radius: 50%;
-  background: #fff; border: 3px solid #fff; cursor: pointer;
-  box-shadow: 0 0 0 3px #555; transition: transform .15s;
+  width: 68px; height: 68px; border-radius: 50%; background: #fff;
+  cursor: pointer; box-shadow: 0 0 0 3px rgba(255,255,255,.25); transition: transform .15s; border: none;
 }
-.cam-capture:active { transform: scale(.92); }
+.cam-capture:active { transform: scale(.9); }
 .cam-flip {
-  background: none; border: 1px solid #555; border-radius: 50%;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); border-radius: 50%;
   width: 44px; height: 44px; color: #fff; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; transition: border-color .2s;
+  display: flex; align-items: center; justify-content: center; transition: background .2s;
 }
-.cam-flip:hover { border-color: #fff; }
+.cam-flip:hover { background: rgba(255,255,255,.15); }
 .cam-close {
-  position: absolute; top: 20px; right: 20px; background: none;
-  border: 1px solid #444; color: #fff; padding: 8px 16px;
-  font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-  cursor: pointer; font-family: 'Inter', sans-serif;
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  color: #fff; padding: 9px 18px; font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  font-family: 'Inter', sans-serif; border-radius: var(--r-sm);
 }
 .cam-label {
   font-size: 10px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
-  color: #666; position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  color: rgba(255,255,255,.4); position: absolute; bottom: 16px; left: 50%;
+  transform: translateX(-50%); white-space: nowrap;
 }
 
-/* ── Install Bar ────────────────────────────────────────── */
+/* ── Install Bar ── */
 .install-bar {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: #111; color: #fff; padding: 14px 20px;
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: #fff; padding: 14px 18px;
   display: none; align-items: center; gap: 16px;
-  font-size: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.2); z-index: 800; white-space: nowrap;
+  font-size: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.15); z-index: 800;
+  white-space: nowrap; border-radius: var(--r);
 }
 .install-bar.visible { display: flex; }
 .install-bar-btn {
-  background: #fff; color: #111; border: none; padding: 8px 16px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; cursor: pointer; font-family: 'Inter', sans-serif;
+  background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.2);
+  padding: 8px 16px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  cursor: pointer; font-family: 'Inter', sans-serif; border-radius: var(--r-sm);
 }
-.install-bar-close { background: none; border: none; color: #777; cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px; }
+.install-bar-close { background: none; border: none; color: rgba(255,255,255,.4); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
 
-/* ── Spinner ────────────────────────────────────────────── */
+/* ── Spinner ── */
 .spin {
-  width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
   border-radius: 50%; animation: spin .7s linear infinite; display: none;
 }
 .spin.visible { display: inline-block; }
@@ -469,303 +445,394 @@ textarea.form-input { resize: vertical; min-height: 80px; padding-top: 10px; }
 </head>
 <body>
 
-<!-- ═══════════ TOP BAR ═══════════ -->
 <header class="top-bar">
   <div class="top-brand">Perfect <em>Smile</em></div>
+  <div class="top-actions">
+    <div class="top-lang">
+      <button class="top-lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button class="top-lang-btn" id="lang-pl" onclick="setLang('pl')">PL</button>
+    </div>
+    <button class="top-profile-btn" id="top-profile-btn" onclick="go('s-profile')" title="Profile">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </button>
+  </div>
 </header>
 
-<!-- ═══════════ SCREENS ═══════════ -->
 <main class="page" id="page">
 
-  <!-- ── Splash ── -->
+  <!-- Splash -->
   <div class="screen active" id="s-splash">
-    <div class="eyebrow">AI Smile Assessment</div>
-    <h1>How perfect<br>is your<br><em>smile?</em></h1>
-    <p class="body-text" style="margin-top:24px">
-      Upload two photos of your teeth and receive a personalised AI Smile Score in under 60 seconds. No registration required to start.
-    </p>
-    <div class="spacer" style="min-height:48px"></div>
-    <button class="btn btn-primary" onclick="go('s-guide')" style="margin-bottom:12px">Start Free Assessment</button>
-    <div class="divider">or</div>
-    <button class="btn btn-outline" onclick="go('s-login')">Sign In</button>
-    <p class="auth-note" style="text-align:center;margin-top:20px">Photos are processed on-device and never stored.</p>
+    <div class="eyebrow" data-t="eyebrow-ai">AI Smile Assessment</div>
+    <h1 data-t="splash-h1">How perfect<br>is your<br><em>smile?</em></h1>
+    <p class="body-text" style="margin-top:28px" data-t="splash-sub">Take a free AI-powered assessment of your teeth in under two minutes. No registration required to start.</p>
+    <div class="spacer" style="min-height:52px"></div>
+    <button class="btn btn-primary" onclick="go('s-guide')" style="margin-bottom:12px" data-t="btn-start">Start Free Assessment</button>
+    <div class="divider" data-t="or">or</div>
+    <button class="btn btn-outline" onclick="go('s-login')" data-t="btn-signin">Sign In</button>
+    <p class="auth-note" style="text-align:center;margin-top:24px" data-t="splash-note">Photos are processed on-device and never stored.</p>
   </div>
 
-  <!-- ── Guide ── -->
+  <!-- Guide -->
   <div class="screen" id="s-guide">
     <button class="back-btn" onclick="go('s-splash',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Photo Guide</div>
-    <h2>Two photos.<br><em>One result.</em></h2>
-    <p class="body-text" style="margin-top:12px">Follow these guidelines closely for the most accurate AI assessment.</p>
+    <div class="eyebrow" data-t="eyebrow-guide">Photo Guide</div>
+    <h2 data-t="guide-h2">Two photos.<br><em>One result.</em></h2>
+    <p class="body-text" style="margin-top:12px" data-t="guide-sub">Follow these guidelines for the most accurate AI assessment.</p>
     <div class="guide-grid">
       <div class="guide-card">
         <div class="guide-num">01</div>
-        <div class="guide-card-title">Front Smile</div>
+        <div class="guide-card-title" data-t="g1-title">Front Smile</div>
         <ul class="guide-card-list">
-          <li>Face forward, teeth together</li>
-          <li>Lips parted, teeth visible</li>
-          <li>Even lighting, no shadows</li>
-          <li>Portrait orientation</li>
+          <li data-t="g1-a">Face forward, teeth together</li>
+          <li data-t="g1-b">Lips parted, teeth visible</li>
+          <li data-t="g1-c">Even lighting, no shadows</li>
+          <li data-t="g1-d">Portrait orientation</li>
         </ul>
       </div>
       <div class="guide-card">
         <div class="guide-num">02</div>
-        <div class="guide-card-title">Side Profile</div>
+        <div class="guide-card-title" data-t="g2-title">Side Profile</div>
         <ul class="guide-card-list">
-          <li>Side view, left or right</li>
-          <li>Upper and lower teeth visible</li>
-          <li>Natural resting bite</li>
-          <li>Clear, even lighting</li>
+          <li data-t="g2-a">Side view, left or right</li>
+          <li data-t="g2-b">Upper and lower teeth visible</li>
+          <li data-t="g2-c">Natural resting bite</li>
+          <li data-t="g2-d">Clear, even lighting</li>
         </ul>
       </div>
     </div>
     <div class="spacer" style="min-height:40px"></div>
-    <button class="btn btn-primary" onclick="go('s-up1')">Ready — Begin</button>
+    <button class="btn btn-primary" onclick="go('s-up1')" data-t="btn-ready">Ready — Begin</button>
   </div>
 
-  <!-- ── Upload 1 ── -->
+  <!-- Upload 1 -->
   <div class="screen" id="s-up1">
     <button class="back-btn" onclick="go('s-guide',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Photo 1 of 2</div>
-    <h2>Front<br><em>Smile</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:24px">Face forward, teeth together, lips slightly parted.</p>
-    <div class="photo-upload" id="dz1" onclick="document.getElementById('fi1').click()">
-      <input type="file" id="fi1" accept="image/*" onchange="setPhoto(1,this)" onclick="event.stopPropagation()">
-      <div class="photo-upload-inner" id="pu1">
-        <div class="upload-icon">
-          <svg width="16" height="16" fill="none" stroke="#bbb" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="eyebrow" data-t="eyebrow-p1">Photo 1 of 2</div>
+    <h2 data-t="up1-h2">Front<br><em>Smile</em></h2>
+    <p class="body-text" style="margin-top:10px" data-t="up1-sub">Face forward, teeth together, lips slightly parted.</p>
+    <div class="cam-zone">
+      <div class="cam-preview-wrap" id="dz1">
+        <img class="cam-preview-img" id="pp1" src="" alt="">
+        <div class="cam-preview-placeholder" id="pu1">
+          <div class="cam-preview-icon">
+            <svg width="22" height="22" fill="none" stroke="#A8A09A" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div class="cam-preview-label" data-t="cam-ready">Ready for your photo</div>
+          <div class="cam-preview-sub" data-t="cam-hint-1">Tap below to use the camera</div>
         </div>
-        <div class="upload-label">Upload Photo</div>
-        <div class="upload-sub">Tap to select from your gallery</div>
+        <button class="cam-remove" id="pc1" onclick="clearPhoto(1,event)" data-t="remove">Remove</button>
       </div>
-      <img class="photo-preview" id="pp1" src="" alt="">
-      <button class="photo-clear" id="pc1" onclick="clearPhoto(1,event)">Remove</button>
-      <button class="camera-btn" id="cb1" onclick="openCamera(1,event)">Use Camera</button>
+      <button class="btn btn-primary" onclick="openCamera(1,event)">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span data-t="btn-camera">Take Photo</span>
+      </button>
+      <button class="cam-file-link" onclick="document.getElementById('fi1').click()" data-t="or-upload">or upload from gallery</button>
+      <input type="file" class="hf" id="fi1" accept="image/*" onchange="setPhoto(1,this)">
     </div>
-    <div class="spacer" style="min-height:28px"></div>
-    <button class="btn btn-primary" id="next1" onclick="go('s-up2')" disabled style="opacity:.3">Continue</button>
+    <button class="btn btn-outline" id="next1" onclick="go('s-up2')" disabled style="opacity:.3" data-t="btn-continue">Continue</button>
   </div>
 
-  <!-- ── Upload 2 ── -->
+  <!-- Upload 2 -->
   <div class="screen" id="s-up2">
     <button class="back-btn" onclick="go('s-up1',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Photo 2 of 2</div>
-    <h2>Side<br><em>Profile</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:24px">Side view showing upper and lower teeth at natural bite.</p>
-    <div class="photo-upload" id="dz2" onclick="document.getElementById('fi2').click()">
-      <input type="file" id="fi2" accept="image/*" onchange="setPhoto(2,this)" onclick="event.stopPropagation()">
-      <div class="photo-upload-inner" id="pu2">
-        <div class="upload-icon">
-          <svg width="16" height="16" fill="none" stroke="#bbb" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="eyebrow" data-t="eyebrow-p2">Photo 2 of 2</div>
+    <h2 data-t="up2-h2">Side<br><em>Profile</em></h2>
+    <p class="body-text" style="margin-top:10px" data-t="up2-sub">Side view showing upper and lower teeth at natural bite.</p>
+    <div class="cam-zone">
+      <div class="cam-preview-wrap" id="dz2">
+        <img class="cam-preview-img" id="pp2" src="" alt="">
+        <div class="cam-preview-placeholder" id="pu2">
+          <div class="cam-preview-icon">
+            <svg width="22" height="22" fill="none" stroke="#A8A09A" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <div class="cam-preview-label" data-t="cam-ready">Ready for your photo</div>
+          <div class="cam-preview-sub" data-t="cam-hint-2">Side view, teeth visible at natural bite</div>
         </div>
-        <div class="upload-label">Upload Photo</div>
-        <div class="upload-sub">Tap to select from your gallery</div>
+        <button class="cam-remove" id="pc2" onclick="clearPhoto(2,event)" data-t="remove">Remove</button>
       </div>
-      <img class="photo-preview" id="pp2" src="" alt="">
-      <button class="photo-clear" id="pc2" onclick="clearPhoto(2,event)">Remove</button>
-      <button class="camera-btn" id="cb2" onclick="openCamera(2,event)">Use Camera</button>
+      <button class="btn btn-primary" onclick="openCamera(2,event)">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span data-t="btn-camera">Take Photo</span>
+      </button>
+      <button class="cam-file-link" onclick="document.getElementById('fi2').click()" data-t="or-upload">or upload from gallery</button>
+      <input type="file" class="hf" id="fi2" accept="image/*" onchange="setPhoto(2,this)">
     </div>
-    <div class="spacer" style="min-height:28px"></div>
-    <button class="btn btn-primary" id="next2" onclick="startAnalysis()" disabled style="opacity:.3">Analyse My Smile</button>
+    <button class="btn btn-outline" id="next2" onclick="startAnalysis()" disabled style="opacity:.3" data-t="btn-analyse">Analyse My Smile</button>
   </div>
 
-  <!-- ── Analysing ── -->
+  <!-- Analysing -->
   <div class="screen" id="s-an">
-    <div class="eyebrow">Processing</div>
-    <h2><em>Analysing</em><br>your photographs</h2>
+    <div class="eyebrow" data-t="eyebrow-proc">Processing</div>
+    <h2 data-t="an-h2"><em>Analysing</em><br>your photographs</h2>
     <div class="an-steps">
       <div class="an-step" id="an1">
         <div class="an-step-num">01</div>
-        <div class="an-step-text"><div class="an-step-label">Image Processing</div>Detecting teeth, gum tissue, and facial alignment</div>
+        <div class="an-step-text"><div class="an-step-label" data-t="an1-title">Image Processing</div><span data-t="an1-sub">Detecting teeth, gum tissue, and facial alignment</span></div>
       </div>
       <div class="an-step" id="an2">
         <div class="an-step-num">02</div>
-        <div class="an-step-text"><div class="an-step-label">Whiteness Analysis</div>Evaluating shade and discolouration across visible surfaces</div>
+        <div class="an-step-text"><div class="an-step-label" data-t="an2-title">Whiteness Analysis</div><span data-t="an2-sub">Evaluating shade and discolouration across visible surfaces</span></div>
       </div>
       <div class="an-step" id="an3">
         <div class="an-step-num">03</div>
-        <div class="an-step-text"><div class="an-step-label">Alignment Assessment</div>Mapping spacing, crowding, and bite relationship</div>
+        <div class="an-step-text"><div class="an-step-label" data-t="an3-title">Alignment Assessment</div><span data-t="an3-sub">Mapping spacing, crowding, and bite relationship</span></div>
       </div>
       <div class="an-step" id="an4">
         <div class="an-step-num">04</div>
-        <div class="an-step-text"><div class="an-step-label">Scoring</div>Generating your personalised AI Smile Score</div>
+        <div class="an-step-text"><div class="an-step-label" data-t="an4-title">Scoring</div><span data-t="an4-sub">Generating your personalised AI Smile Score</span></div>
       </div>
     </div>
   </div>
 
-  <!-- ── Gate ── -->
+  <!-- Gate -->
   <div class="screen" id="s-gate">
-    <div class="eyebrow">Assessment Complete</div>
-    <h2>Your results<br>are <em>ready.</em></h2>
-    <p class="body-text" style="margin-top:12px">Create a free account to unlock your full AI Smile Score, personalised improvement plan, and direct contact with our dental team.</p>
+    <div class="eyebrow" data-t="eyebrow-complete">Assessment Complete</div>
+    <h2 data-t="gate-h2">Your results<br>are <em>ready.</em></h2>
+    <p class="body-text" style="margin-top:12px" data-t="gate-sub">Create a free account to unlock your full AI Smile Score, personalised improvement plan, and direct contact with our dental team.</p>
     <div class="gate-preview">
       <div class="gate-score-preview" id="gate-score-preview">78</div>
-      <div class="gate-blur-row"><div class="gate-blur-label"></div><div class="gate-blur-bar" style="width:78%"></div></div>
-      <div class="gate-blur-row"><div class="gate-blur-label"></div><div class="gate-blur-bar" style="width:63%"></div></div>
-      <div class="gate-blur-row"><div class="gate-blur-label"></div><div class="gate-blur-bar" style="width:91%"></div></div>
+      <div class="gate-blur-row"><div class="gate-blur-label"></div><div class="gate-blur-bar" style="width:72%"></div></div>
+      <div class="gate-blur-row"><div class="gate-blur-label"></div><div class="gate-blur-bar" style="width:58%"></div></div>
+      <div class="gate-blur-row"><div class="gate-blur-label"></div><div class="gate-blur-bar" style="width:85%"></div></div>
     </div>
-    <button class="btn btn-primary" onclick="go('s-reg')" style="margin-bottom:12px">Create Free Account</button>
-    <div class="divider">or</div>
-    <button class="btn btn-outline" onclick="go('s-login')">Sign In</button>
+    <button class="btn btn-primary" onclick="go('s-reg')" style="margin-bottom:12px" data-t="btn-create">Create Free Account</button>
+    <div class="divider" data-t="or">or</div>
+    <button class="btn btn-outline" onclick="go('s-login')" data-t="btn-signin">Sign In</button>
   </div>
 
-  <!-- ── Register ── -->
+  <!-- Register -->
   <div class="screen" id="s-reg">
     <button class="back-btn" onclick="regBack()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Create Account</div>
-    <h2>One last<br><em>step.</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:32px">Create your account to view your results and book a consultation.</p>
+    <div class="eyebrow" data-t="eyebrow-create">Create Account</div>
+    <h2 data-t="reg-h2">One last<br><em>step.</em></h2>
+    <p class="body-text" style="margin-top:10px;margin-bottom:32px" data-t="reg-sub">Create your account to view your results and book a consultation.</p>
     <div class="alert alert-err" id="reg-err"></div>
     <form id="reg-form" onsubmit="doRegister(event)">
       <div class="form-group">
-        <label class="form-label" for="r-name">Full Name</label>
-        <input class="form-input" id="r-name" type="text" placeholder="Your name" required autocomplete="name">
+        <label class="form-label" for="r-name" data-t="label-name">Full Name</label>
+        <input class="form-input" id="r-name" type="text" required autocomplete="name" placeholder="Your name">
       </div>
       <div class="form-group">
-        <label class="form-label" for="r-email">Email Address</label>
-        <input class="form-input" id="r-email" type="email" placeholder="you@example.com" required autocomplete="email">
+        <label class="form-label" for="r-email" data-t="label-email">Email Address</label>
+        <input class="form-input" id="r-email" type="email" required autocomplete="email" placeholder="you@example.com">
       </div>
       <div class="form-group">
-        <label class="form-label" for="r-pass">Password</label>
-        <input class="form-input" id="r-pass" type="password" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password">
+        <label class="form-label" for="r-pass" data-t="label-pass">Password</label>
+        <input class="form-input" id="r-pass" type="password" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters">
       </div>
-      <div style="margin-top:36px">
+      <div style="margin-top:32px">
         <button class="btn btn-primary" type="submit" id="reg-btn">
-          <span id="reg-btn-text">Create Account</span>
+          <span id="reg-btn-text" data-t="btn-create-acc">Create Account</span>
           <div class="spin" id="reg-spin"></div>
         </button>
       </div>
     </form>
-    <div class="auth-switch">Already have an account? <button onclick="go('s-login')">Sign in</button></div>
-    <p class="auth-note">By creating an account you agree to our terms. We will never share your data.</p>
+    <div class="auth-switch"><span data-t="have-acc">Already have an account?</span> <button onclick="go('s-login')" data-t="sign-in-link">Sign in</button></div>
+    <p class="auth-note" data-t="reg-note">By creating an account you agree to our terms. We never share your data.</p>
   </div>
 
-  <!-- ── Login ── -->
+  <!-- Login -->
   <div class="screen" id="s-login">
     <button class="back-btn" onclick="loginBack()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Sign In</div>
-    <h2>Welcome<br><em>back.</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:32px">Sign in to view your assessment and book a consultation.</p>
+    <div class="eyebrow" data-t="eyebrow-signin">Sign In</div>
+    <h2 data-t="login-h2">Welcome<br><em>back.</em></h2>
+    <p class="body-text" style="margin-top:10px;margin-bottom:32px" data-t="login-sub">Sign in to view your assessment and book a consultation.</p>
     <div class="alert alert-err" id="login-err"></div>
     <form id="login-form" onsubmit="doLogin(event)">
       <div class="form-group">
-        <label class="form-label" for="l-email">Email Address</label>
-        <input class="form-input" id="l-email" type="email" placeholder="you@example.com" required autocomplete="email">
+        <label class="form-label" for="l-email" data-t="label-email">Email Address</label>
+        <input class="form-input" id="l-email" type="email" required autocomplete="email" placeholder="you@example.com">
       </div>
       <div class="form-group">
-        <label class="form-label" for="l-pass">Password</label>
-        <input class="form-input" id="l-pass" type="password" placeholder="Your password" required autocomplete="current-password">
+        <label class="form-label" for="l-pass" data-t="label-pass">Password</label>
+        <input class="form-input" id="l-pass" type="password" required autocomplete="current-password" placeholder="Your password">
       </div>
-      <div style="margin-top:36px">
+      <div style="margin-top:32px">
         <button class="btn btn-primary" type="submit" id="login-btn">
-          <span id="login-btn-text">Sign In</span>
+          <span id="login-btn-text" data-t="btn-signin">Sign In</span>
           <div class="spin" id="login-spin"></div>
         </button>
       </div>
     </form>
-    <div class="auth-switch">No account yet? <button onclick="go('s-reg')">Create one</button></div>
+    <div class="auth-switch"><span data-t="no-acc">No account yet?</span> <button onclick="go('s-reg')" data-t="create-link">Create one</button></div>
   </div>
 
-  <!-- ── Score ── -->
+  <!-- Score -->
   <div class="screen" id="s-score">
-    <div class="eyebrow">Your Result</div>
-    <h2>Your AI<br><em>Smile Score</em></h2>
+    <div class="eyebrow" data-t="eyebrow-result">Your Result</div>
+    <h2 data-t="score-h2">Your AI<br><em>Smile Score</em></h2>
     <div class="score-hero">
       <div class="score-hero-row">
         <div class="score-hero-num" id="score-num">—</div>
         <div class="score-hero-denom">/100</div>
       </div>
       <div class="score-hero-tag" id="score-tag"></div>
-      <div style="margin-top:16px">
-        <div class="score-gauge-bar"><div class="score-gauge-fill" id="score-fill"></div></div>
-      </div>
+      <div class="score-gauge-bar"><div class="score-gauge-fill" id="score-fill"></div></div>
     </div>
     <div class="score-cats" id="score-cats"></div>
     <div class="spacer" style="min-height:36px"></div>
-    <button class="btn btn-primary" onclick="go('s-impr')" style="margin-bottom:10px">View Improvement Plan</button>
-    <button class="btn btn-ghost" onclick="resetApp()">Start New Assessment</button>
+    <button class="btn btn-primary" onclick="go('s-impr')" style="margin-bottom:10px" data-t="btn-plan">View Improvement Plan</button>
+    <button class="btn btn-outline" onclick="go('s-contact')" style="margin-bottom:10px" data-t="btn-contact">Contact the Clinic</button>
+    <button class="btn btn-ghost" onclick="resetApp()" data-t="btn-new">Start New Assessment</button>
   </div>
 
-  <!-- ── Improvements ── -->
+  <!-- Improvements -->
   <div class="screen" id="s-impr">
     <button class="back-btn" onclick="go('s-score',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Improvement Plan</div>
-    <h2>Your smile<br><em>potential.</em></h2>
-    <p class="body-text" style="margin-top:10px">Based on your assessment, these treatments could significantly improve your score.</p>
+    <div class="eyebrow" data-t="eyebrow-plan">Improvement Plan</div>
+    <h2 data-t="impr-h2">Your smile<br><em>potential.</em></h2>
+    <p class="body-text" style="margin-top:10px" data-t="impr-sub">Based on your assessment, these treatments could significantly improve your score.</p>
     <div class="impr-list" id="impr-list"></div>
     <div class="spacer" style="min-height:36px"></div>
-    <button class="btn btn-primary" onclick="go('s-book')">Book a Consultation</button>
+    <button class="btn btn-primary" onclick="go('s-book')" data-t="btn-book">Book a Consultation</button>
   </div>
 
-  <!-- ── Book ── -->
+  <!-- Contact -->
+  <div class="screen" id="s-contact">
+    <button class="back-btn" onclick="go('s-score',true)">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
+    </button>
+    <div class="eyebrow" data-t="eyebrow-contact">Contact</div>
+    <h2 data-t="contact-h2">Get in<br><em>touch.</em></h2>
+    <p class="body-text" style="margin-top:12px" data-t="contact-sub">Reach our dental team directly, or book a full consultation through our form.</p>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:magda@michalkowska.pl">
+        <div class="contact-link-icon">
+          <svg width="17" height="17" fill="none" stroke="#6B6560" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="contact-link-meta">
+          <div class="contact-link-title" data-t="cl-email-title">Email</div>
+          <div class="contact-link-sub">magda@michalkowska.pl</div>
+        </div>
+      </a>
+      <button class="contact-link" onclick="go('s-book')">
+        <div class="contact-link-icon">
+          <svg width="17" height="17" fill="none" stroke="#6B6560" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="contact-link-meta">
+          <div class="contact-link-title" data-t="cl-book-title">Book Consultation</div>
+          <div class="contact-link-sub" data-t="cl-book-sub">Complete the booking form</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Book -->
   <div class="screen" id="s-book">
     <button class="back-btn" onclick="go('s-impr',true)">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
     </button>
-    <div class="eyebrow">Consultation</div>
-    <h2>Book your<br><em>appointment.</em></h2>
-    <p class="body-text" style="margin-top:10px;margin-bottom:32px">Complete the form and we will contact you within 24 hours to confirm.</p>
+    <div class="eyebrow" data-t="eyebrow-consult">Consultation</div>
+    <h2 data-t="book-h2">Book your<br><em>appointment.</em></h2>
+    <p class="body-text" style="margin-top:10px;margin-bottom:32px" data-t="book-sub">Complete the form and we will contact you within 24 hours to confirm.</p>
     <div class="alert alert-err" id="book-err"></div>
     <form id="book-form" onsubmit="submitForm(event)">
       <div class="form-group">
-        <label class="form-label" for="fn">Full Name</label>
+        <label class="form-label" for="fn" data-t="label-name">Full Name</label>
         <input class="form-input" id="fn" type="text" required autocomplete="name" placeholder="Your name">
       </div>
       <div class="form-group">
-        <label class="form-label" for="fe">Email Address</label>
+        <label class="form-label" for="fe" data-t="label-email">Email Address</label>
         <input class="form-input" id="fe" type="email" required autocomplete="email" placeholder="you@example.com">
       </div>
       <div class="form-group">
-        <label class="form-label" for="fp">Phone Number</label>
+        <label class="form-label" for="fp" data-t="label-phone">Phone Number</label>
         <input class="form-input" id="fp" type="tel" autocomplete="tel" placeholder="+48 000 000 000">
       </div>
       <div class="form-group">
-        <label class="form-label" for="fd">Preferred Date</label>
+        <label class="form-label" for="fd" data-t="label-date">Preferred Date</label>
         <input class="form-input" id="fd" type="date">
       </div>
       <div class="form-group">
-        <label class="form-label" for="fq">Notes (optional)</label>
+        <label class="form-label" for="fq" data-t="label-notes">Notes (optional)</label>
         <textarea class="form-input" id="fq" placeholder="Any questions or preferences"></textarea>
       </div>
-      <div style="margin-top:36px">
+      <div style="margin-top:32px">
         <button class="btn btn-primary" type="submit" id="book-btn">
-          <span id="book-btn-text">Send Request</span>
+          <span id="book-btn-text" data-t="btn-send">Send Request</span>
           <div class="spin" id="book-spin"></div>
         </button>
       </div>
     </form>
   </div>
 
-  <!-- ── Thank You ── -->
+  <!-- Thank You -->
   <div class="screen" id="s-ty">
     <div class="ty-check">
-      <svg width="20" height="20" fill="none" stroke="#111" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg width="18" height="18" fill="none" stroke="#6B9E7B" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <div class="eyebrow">Complete</div>
-    <h2>Request<br><em>received.</em></h2>
-    <p class="body-text" style="margin-top:20px">Thank you. We will review your smile assessment and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.</p>
+    <div class="eyebrow" data-t="eyebrow-done">Complete</div>
+    <h2 data-t="ty-h2">Request<br><em>received.</em></h2>
+    <p class="body-text" style="margin-top:20px" data-t="ty-sub">Thank you. We will review your smile assessment and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.</p>
     <div class="spacer" style="min-height:48px"></div>
-    <button class="btn btn-primary" onclick="resetApp()" style="margin-bottom:10px">Take New Assessment</button>
-    <button class="btn btn-ghost" onclick="go('s-score',true)">View My Results</button>
+    <button class="btn btn-primary" onclick="resetApp()" style="margin-bottom:12px" data-t="btn-new-ass">Take New Assessment</button>
+    <button class="btn btn-ghost" onclick="go('s-score',true)" data-t="btn-view-results">View My Results</button>
+  </div>
+
+  <!-- Profile -->
+  <div class="screen" id="s-profile">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
+    </button>
+    <div class="eyebrow" data-t="eyebrow-profile">Profile</div>
+    <h2 data-t="profile-h2">Your<br><em>account.</em></h2>
+    <div class="profile-card" style="margin-top:28px">
+      <div class="profile-row">
+        <div class="profile-label" data-t="label-name">Name</div>
+        <div class="profile-value" id="pf-name"></div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-label" data-t="label-email">Email</div>
+        <div class="profile-value" id="pf-email"></div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-label" data-t="label-assessments">Assessments</div>
+        <div class="profile-value" id="pf-count"></div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="go('s-history')" style="margin-bottom:10px" data-t="btn-history">View Assessment History</button>
+    <button class="btn btn-ghost" onclick="doLogout()" data-t="btn-logout">Sign Out</button>
+  </div>
+
+  <!-- History -->
+  <div class="screen" id="s-history">
+    <button class="back-btn" onclick="go('s-profile',true)">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <span data-t="back">Back</span>
+    </button>
+    <div class="eyebrow" data-t="eyebrow-history">Assessment History</div>
+    <h2 data-t="history-h2">Your<br><em>assessments.</em></h2>
+    <div class="history-list" id="history-list"></div>
+    <div class="spacer" style="min-height:36px"></div>
+    <button class="btn btn-primary" onclick="go('s-splash')" data-t="btn-new-ass">Take New Assessment</button>
   </div>
 
 </main>
 
-<!-- ═══════════ CAMERA MODAL ═══════════ -->
+<!-- Camera Modal -->
 <div class="cam-modal" id="cam-modal">
-  <button class="cam-close" onclick="closeCamera()">Close</button>
+  <button class="cam-close" onclick="closeCamera()" data-t="close">Close</button>
   <div class="cam-video-wrap">
     <video class="cam-video" id="cam-video" autoplay playsinline muted></video>
     <div class="cam-guide">
@@ -786,33 +853,169 @@ textarea.form-input { resize: vertical; min-height: 80px; padding-top: 10px; }
 </div>
 <canvas id="cam-canvas" style="display:none"></canvas>
 
-<!-- ═══════════ INSTALL BAR ═══════════ -->
+<!-- Install Bar -->
 <div class="install-bar" id="install-bar">
-  <span>Add Perfect Smile to your home screen</span>
-  <button class="install-bar-btn" id="install-btn">Install</button>
+  <span data-t="install-msg">Add to home screen</span>
+  <button class="install-bar-btn" id="install-btn" data-t="install-btn">Install</button>
   <button class="install-bar-close" onclick="document.getElementById('install-bar').classList.remove('visible')">&times;</button>
 </div>
 
 <script>
-// ══ CONFIG ════════════════════════════════════════════════
 const EMAILJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';
 const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
 const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 const RECIPIENT_EMAIL     = 'magda@michalkowska.pl';
 
-// ══ STATE ═════════════════════════════════════════════════
-let state = { score: 0, cats: [], areas: [], user: null, photo1: null, photo2: null };
+// ── Translations ──────────────────────────────────────────────
+const T = {
+  en: {
+    'eyebrow-ai':'AI Smile Assessment',
+    'splash-h1':'How perfect<br>is your<br><em>smile?</em>',
+    'splash-sub':'Take a free AI-powered assessment of your teeth in under two minutes. No registration required to start.',
+    'btn-start':'Start Free Assessment','or':'or','btn-signin':'Sign In',
+    'splash-note':'Photos are processed on-device and never stored.',
+    'back':'Back','eyebrow-guide':'Photo Guide',
+    'guide-h2':'Two photos.<br><em>One result.</em>',
+    'guide-sub':'Follow these guidelines for the most accurate AI assessment.',
+    'g1-title':'Front Smile','g1-a':'Face forward, teeth together',
+    'g1-b':'Lips parted, teeth visible','g1-c':'Even lighting, no shadows','g1-d':'Portrait orientation',
+    'g2-title':'Side Profile','g2-a':'Side view, left or right',
+    'g2-b':'Upper and lower teeth visible','g2-c':'Natural resting bite','g2-d':'Clear, even lighting',
+    'btn-ready':'Ready — Begin','eyebrow-p1':'Photo 1 of 2',
+    'up1-h2':'Front<br><em>Smile</em>','up1-sub':'Face forward, teeth together, lips slightly parted.',
+    'cam-ready':'Ready for your photo','cam-hint-1':'Tap below to use the camera',
+    'cam-hint-2':'Side view, teeth visible at natural bite',
+    'remove':'Remove','btn-camera':'Take Photo','or-upload':'or upload from gallery',
+    'btn-continue':'Continue','eyebrow-p2':'Photo 2 of 2',
+    'up2-h2':'Side<br><em>Profile</em>','up2-sub':'Side view showing upper and lower teeth at natural bite.',
+    'btn-analyse':'Analyse My Smile','eyebrow-proc':'Processing',
+    'an-h2':'<em>Analysing</em><br>your photographs',
+    'an1-title':'Image Processing','an1-sub':'Detecting teeth, gum tissue, and facial alignment',
+    'an2-title':'Whiteness Analysis','an2-sub':'Evaluating shade and discolouration across visible surfaces',
+    'an3-title':'Alignment Assessment','an3-sub':'Mapping spacing, crowding, and bite relationship',
+    'an4-title':'Scoring','an4-sub':'Generating your personalised AI Smile Score',
+    'eyebrow-complete':'Assessment Complete','gate-h2':'Your results<br>are <em>ready.</em>',
+    'gate-sub':'Create a free account to unlock your full AI Smile Score, personalised improvement plan, and direct contact with our dental team.',
+    'btn-create':'Create Free Account','eyebrow-create':'Create Account',
+    'reg-h2':'One last<br><em>step.</em>','reg-sub':'Create your account to view your results and book a consultation.',
+    'label-name':'Full Name','label-email':'Email Address','label-pass':'Password',
+    'btn-create-acc':'Create Account','have-acc':'Already have an account?','sign-in-link':'Sign in',
+    'reg-note':'By creating an account you agree to our terms. We never share your data.',
+    'eyebrow-signin':'Sign In','login-h2':'Welcome<br><em>back.</em>',
+    'login-sub':'Sign in to view your assessment and book a consultation.',
+    'no-acc':'No account yet?','create-link':'Create one',
+    'eyebrow-result':'Your Result','score-h2':'Your AI<br><em>Smile Score</em>',
+    'btn-plan':'View Improvement Plan','btn-contact':'Contact the Clinic','btn-new':'Start New Assessment',
+    'eyebrow-plan':'Improvement Plan','impr-h2':'Your smile<br><em>potential.</em>',
+    'impr-sub':'Based on your assessment, these treatments could significantly improve your score.',
+    'btn-book':'Book a Consultation','eyebrow-contact':'Contact',
+    'contact-h2':'Get in<br><em>touch.</em>','contact-sub':'Reach our dental team directly, or book a full consultation through our form.',
+    'cl-email-title':'Email','cl-book-title':'Book Consultation','cl-book-sub':'Complete the booking form',
+    'eyebrow-consult':'Consultation','book-h2':'Book your<br><em>appointment.</em>',
+    'book-sub':'Complete the form and we will contact you within 24 hours to confirm.',
+    'label-phone':'Phone Number','label-date':'Preferred Date','label-notes':'Notes (optional)',
+    'btn-send':'Send Request','eyebrow-done':'Complete','ty-h2':'Request<br><em>received.</em>',
+    'ty-sub':'Thank you. We will review your smile assessment and contact you within 24 hours to confirm your appointment with Dr. Michałkowska.',
+    'btn-new-ass':'Take New Assessment','btn-view-results':'View My Results',
+    'eyebrow-profile':'Profile','profile-h2':'Your<br><em>account.</em>',
+    'label-assessments':'Assessments','btn-history':'View Assessment History','btn-logout':'Sign Out',
+    'eyebrow-history':'Assessment History','history-h2':'Your<br><em>assessments.</em>',
+    'close':'Close','install-msg':'Add to home screen','install-btn':'Install',
+    'tag-excellent':'Excellent','tag-good':'Good','tag-fair':'Fair','tag-needs':'Needs Attention',
+    'no-history':'No assessments yet. Take your first one.',
+  },
+  pl: {
+    'eyebrow-ai':'Ocena AI',
+    'splash-h1':'Jak piękny<br>jest twój<br><em>uśmiech?</em>',
+    'splash-sub':'Bezpłatna ocena AI twoich zębów w mniej niż dwie minuty. Rejestracja nie jest wymagana.',
+    'btn-start':'Rozpocznij bezpłatną ocenę','or':'lub','btn-signin':'Zaloguj się',
+    'splash-note':'Zdjęcia są przetwarzane lokalnie i nigdy nie są zapisywane.',
+    'back':'Wstecz','eyebrow-guide':'Przewodnik',
+    'guide-h2':'Dwa zdjęcia.<br><em>Jeden wynik.</em>',
+    'guide-sub':'Postępuj zgodnie z tymi wskazówkami, aby uzyskać jak najdokładniejszą ocenę.',
+    'g1-title':'Uśmiech z przodu','g1-a':'Twarz do przodu, zęby razem',
+    'g1-b':'Usta lekko otwarte, zęby widoczne','g1-c':'Równomierne oświetlenie','g1-d':'Orientacja pionowa',
+    'g2-title':'Profil z boku','g2-a':'Widok z boku, lewy lub prawy',
+    'g2-b':'Górne i dolne zęby widoczne','g2-c':'Naturalne zgryźnienie','g2-d':'Dobre, równe oświetlenie',
+    'btn-ready':'Gotowy — Zacznij','eyebrow-p1':'Zdjęcie 1 z 2',
+    'up1-h2':'Uśmiech<br><em>z przodu</em>','up1-sub':'Twarz do przodu, zęby razem, usta lekko rozchylone.',
+    'cam-ready':'Gotowe do zdjęcia','cam-hint-1':'Naciśnij poniżej, aby użyć aparatu',
+    'cam-hint-2':'Widok z boku, zęby widoczne przy naturalnym zgryźnieniu',
+    'remove':'Usuń','btn-camera':'Zrób zdjęcie','or-upload':'lub prześlij z galerii',
+    'btn-continue':'Kontynuuj','eyebrow-p2':'Zdjęcie 2 z 2',
+    'up2-h2':'Profil<br><em>z boku</em>','up2-sub':'Widok z boku pokazujący górne i dolne zęby.',
+    'btn-analyse':'Analizuj mój uśmiech','eyebrow-proc':'Przetwarzanie',
+    'an-h2':'<em>Analizowanie</em><br>twoich fotografii',
+    'an1-title':'Przetwarzanie obrazu','an1-sub':'Wykrywanie zębów, dziąseł i wyrównania twarzy',
+    'an2-title':'Analiza bieli','an2-sub':'Ocena odcienia i przebarwień na widocznych powierzchniach',
+    'an3-title':'Ocena wyrównania','an3-sub':'Mapowanie odstępów, zgryźnienia i relacji szczęk',
+    'an4-title':'Ocena końcowa','an4-sub':'Generowanie spersonalizowanego wyniku AI',
+    'eyebrow-complete':'Ocena zakończona','gate-h2':'Twoje wyniki<br>są <em>gotowe.</em>',
+    'gate-sub':'Utwórz bezpłatne konto, aby odblokować pełny wynik AI, plan poprawy i kontakt z naszym zespołem.',
+    'btn-create':'Utwórz bezpłatne konto','eyebrow-create':'Utwórz konto',
+    'reg-h2':'Ostatni<br><em>krok.</em>','reg-sub':'Utwórz konto, aby zobaczyć wyniki i umówić konsultację.',
+    'label-name':'Imię i nazwisko','label-email':'Adres e-mail','label-pass':'Hasło',
+    'btn-create-acc':'Utwórz konto','have-acc':'Masz już konto?','sign-in-link':'Zaloguj się',
+    'reg-note':'Tworząc konto, akceptujesz nasze warunki. Nigdy nie udostępniamy danych.',
+    'eyebrow-signin':'Logowanie','login-h2':'Witaj<br><em>z powrotem.</em>',
+    'login-sub':'Zaloguj się, aby zobaczyć wyniki i umówić konsultację.',
+    'no-acc':'Nie masz konta?','create-link':'Utwórz je',
+    'eyebrow-result':'Twój wynik','score-h2':'Twój wynik<br><em>AI Smile Score</em>',
+    'btn-plan':'Zobacz plan poprawy','btn-contact':'Skontaktuj się z kliniką','btn-new':'Nowa ocena',
+    'eyebrow-plan':'Plan poprawy','impr-h2':'Twój potencjał<br><em>uśmiechu.</em>',
+    'impr-sub':'Na podstawie oceny, te zabiegi mogłyby znacząco poprawić Twój wynik.',
+    'btn-book':'Umów konsultację','eyebrow-contact':'Kontakt',
+    'contact-h2':'Skontaktuj<br><em>się z nami.</em>','contact-sub':'Skontaktuj się bezpośrednio lub umów wizytę przez formularz.',
+    'cl-email-title':'E-mail','cl-book-title':'Umów wizytę','cl-book-sub':'Wypełnij formularz rezerwacji',
+    'eyebrow-consult':'Konsultacja','book-h2':'Umów swoją<br><em>wizytę.</em>',
+    'book-sub':'Wypełnij formularz, a skontaktujemy się z Tobą w ciągu 24 godzin.',
+    'label-phone':'Numer telefonu','label-date':'Preferowana data','label-notes':'Uwagi (opcjonalnie)',
+    'btn-send':'Wyślij zapytanie','eyebrow-done':'Gotowe','ty-h2':'Zapytanie<br><em>odebrane.</em>',
+    'ty-sub':'Dziękujemy. Przejrzymy Twoją ocenę i skontaktujemy się z Tobą w ciągu 24 godzin, aby potwierdzić wizytę u Dr. Michałkowskiej.',
+    'btn-new-ass':'Nowa ocena','btn-view-results':'Zobacz moje wyniki',
+    'eyebrow-profile':'Profil','profile-h2':'Twoje<br><em>konto.</em>',
+    'label-assessments':'Oceny','btn-history':'Historia ocen','btn-logout':'Wyloguj się',
+    'eyebrow-history':'Historia ocen','history-h2':'Twoje<br><em>oceny.</em>',
+    'close':'Zamknij','install-msg':'Dodaj do ekranu głównego','install-btn':'Zainstaluj',
+    'tag-excellent':'Doskonały','tag-good':'Dobry','tag-fair':'Przeciętny','tag-needs':'Wymaga uwagi',
+    'no-history':'Brak ocen. Wykonaj swoją pierwszą.',
+  }
+};
 
-// ══ NAVIGATION ════════════════════════════════════════════
-function go(id) {
+let lang = localStorage.getItem('ps_lang') || 'en';
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('ps_lang', l);
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('lang-pl').classList.toggle('active', l === 'pl');
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const v = T[l][el.getAttribute('data-t')];
+    if (v !== undefined) el.innerHTML = v;
+  });
+}
+
+function tr(key) { return T[lang][key] || key; }
+
+// ── State ─────────────────────────────────────────────────────
+let state = { score: 0, cats: [], areas: [], user: null, photo1: null, photo2: null };
+let prevScreen = 's-splash';
+
+// ── Navigation ────────────────────────────────────────────────
+function go(id, isBack) {
+  const cur = document.querySelector('.screen.active');
+  if (cur && !isBack) prevScreen = cur.id;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const next = document.getElementById(id);
   if (next) next.classList.add('active');
-  document.getElementById('page').scrollTop = 0;
   window.scrollTo(0, 0);
+  if (id === 's-profile') updateProfileUI();
+  if (id === 's-history') buildHistoryUI();
 }
 
-// ══ PHOTO HANDLING ════════════════════════════════════════
+function goBack() { go(prevScreen, true); }
+
+// ── Photo Handling ────────────────────────────────────────────
 function setPhoto(n, input) {
   if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
@@ -821,39 +1024,37 @@ function setPhoto(n, input) {
 }
 
 function applyPhoto(n, src) {
-  const dz = document.getElementById('dz' + n);
   const pp = document.getElementById('pp' + n);
   const pc = document.getElementById('pc' + n);
   const pu = document.getElementById('pu' + n);
   const nx = document.getElementById('next' + n);
+  const dz = document.getElementById('dz' + n);
   pp.src = src; pp.classList.add('visible');
   pc.classList.add('visible');
   pu.style.display = 'none';
   dz.classList.add('has-photo');
-  dz.onclick = null;
   nx.disabled = false; nx.style.opacity = '1';
   if (n === 1) state.photo1 = src; else state.photo2 = src;
 }
 
 function clearPhoto(n, e) {
-  e.stopPropagation();
-  const dz = document.getElementById('dz' + n);
+  if (e && e.stopPropagation) e.stopPropagation();
   const pp = document.getElementById('pp' + n);
   const pc = document.getElementById('pc' + n);
   const pu = document.getElementById('pu' + n);
   const fi = document.getElementById('fi' + n);
   const nx = document.getElementById('next' + n);
+  const dz = document.getElementById('dz' + n);
   pp.src = ''; pp.classList.remove('visible');
   pc.classList.remove('visible');
   pu.style.display = '';
   dz.classList.remove('has-photo');
-  dz.onclick = () => fi.click();
-  fi.value = '';
+  if (fi) fi.value = '';
   nx.disabled = true; nx.style.opacity = '.3';
   if (n === 1) state.photo1 = null; else state.photo2 = null;
 }
 
-// ══ ANALYSIS ══════════════════════════════════════════════
+// ── Analysis ──────────────────────────────────────────────────
 function startAnalysis() {
   go('s-an');
   buildScores();
@@ -862,6 +1063,7 @@ function startAnalysis() {
       document.getElementById(id).classList.add('done');
       if (i === 3) setTimeout(() => {
         buildResultUI();
+        saveAssessment();
         go(state.user ? 's-score' : 's-gate');
         if (!state.user) document.getElementById('gate-score-preview').textContent = state.score;
       }, 700);
@@ -869,14 +1071,14 @@ function startAnalysis() {
   });
 }
 
-// ══ SCORING ═══════════════════════════════════════════════
+// ── Scoring ───────────────────────────────────────────────────
 const CATEGORIES = ['Tooth Whiteness','Alignment','Gum Health','Spacing','Symmetry','Bite Relationship','Surface Condition','Enamel Quality','Gum Contour'];
 const TREATMENTS = [
-  { name:'Professional Whitening',   desc:'Clinical-grade bleaching can lighten teeth by up to 8 shades, addressing discolouration and staining.' },
-  { name:'Composite Bonding',        desc:'Tooth-coloured resin applied to reshape, close gaps, and restore chipped or uneven surfaces.' },
-  { name:'Porcelain Veneers',        desc:'Ultra-thin ceramic shells bonded to the front surface for a complete smile transformation.' },
-  { name:'Orthodontic Alignment',    desc:'Clear aligner therapy to correct crowding, spacing, and bite relationship over 6–18 months.' },
-  { name:'Gum Contouring',           desc:'Laser reshaping of the gum line to create balance and reveal more of the natural tooth surface.' },
+  { name:'Professional Whitening', desc:'Clinical-grade bleaching can lighten teeth by up to 8 shades, addressing discolouration and staining.' },
+  { name:'Composite Bonding', desc:'Tooth-coloured resin applied to reshape, close gaps, and restore chipped or uneven surfaces.' },
+  { name:'Porcelain Veneers', desc:'Ultra-thin ceramic shells bonded to the front surface for a complete smile transformation.' },
+  { name:'Orthodontic Alignment', desc:'Clear aligner therapy to correct crowding, spacing, and bite relationship over 6–18 months.' },
+  { name:'Gum Contouring', desc:'Laser reshaping of the gum line to create balance and reveal more of the natural tooth surface.' },
 ];
 
 function seededRand(seed) {
@@ -893,12 +1095,15 @@ function buildScores() {
 }
 
 function scoreTag(s) {
-  if (s >= 85) return 'Excellent'; if (s >= 70) return 'Good';
-  if (s >= 55) return 'Fair'; return 'Needs Attention';
+  if (s >= 85) return tr('tag-excellent');
+  if (s >= 70) return tr('tag-good');
+  if (s >= 55) return tr('tag-fair');
+  return tr('tag-needs');
 }
 
+function barCls(v) { return v >= 75 ? 'hi' : v >= 60 ? 'mi' : 'lo'; }
+
 function buildResultUI() {
-  // Score screen
   document.getElementById('score-num').textContent = state.score;
   document.getElementById('score-tag').textContent = scoreTag(state.score);
   setTimeout(() => { document.getElementById('score-fill').style.width = state.score + '%'; }, 100);
@@ -909,12 +1114,11 @@ function buildResultUI() {
     const row = document.createElement('div');
     row.className = 'score-cat';
     row.style.animationDelay = (i * 50) + 'ms';
-    row.innerHTML = `<div class="score-cat-name">${c.name}</div><div class="score-cat-bar-wrap"><div class="score-cat-bar" id="bar${i}"></div></div><div class="score-cat-val">${c.val}</div>`;
+    row.innerHTML = `<div class="score-cat-name">${c.name}</div><div class="score-cat-bar-wrap"><div class="score-cat-bar ${barCls(c.val)}" id="bar${i}"></div></div><div class="score-cat-val">${c.val}</div>`;
     catsEl.appendChild(row);
     setTimeout(() => { const b = document.getElementById('bar'+i); if(b) b.style.width = c.val+'%'; }, 200 + i*60);
   });
 
-  // Improvements screen
   const imprEl = document.getElementById('impr-list');
   imprEl.innerHTML = '';
   TREATMENTS.slice(0,4).forEach((t, i) => {
@@ -925,7 +1129,6 @@ function buildResultUI() {
     imprEl.appendChild(item);
   });
 
-  // Pre-fill booking
   if (state.user) {
     const fn = document.getElementById('fn'), fe = document.getElementById('fe');
     if (fn && !fn.value) fn.value = state.user.name;
@@ -933,10 +1136,10 @@ function buildResultUI() {
   }
 }
 
-// ══ AUTH ══════════════════════════════════════════════════
+// ── Auth ──────────────────────────────────────────────────────
 function doRegister(e) {
   e.preventDefault();
-  const name = document.getElementById('r-name').value.trim();
+  const name  = document.getElementById('r-name').value.trim();
   const email = document.getElementById('r-email').value.trim();
   const pass  = document.getElementById('r-pass').value;
   const errEl = document.getElementById('reg-err');
@@ -948,7 +1151,8 @@ function doRegister(e) {
     const user = { name, email };
     localStorage.setItem('ps_session', JSON.stringify(user));
     state.user = user;
-    setBtnLoading('reg-btn','reg-btn-text','reg-spin',false,'Create Account');
+    updateTopBar();
+    setBtnLoading('reg-btn','reg-btn-text','reg-spin',false, tr('btn-create-acc'));
     buildResultUI(); go('s-score');
   }, 900);
 }
@@ -968,37 +1172,91 @@ function doLogin(e) {
     const user = { name: stored.name, email };
     localStorage.setItem('ps_session', JSON.stringify(user));
     state.user = user;
-    setBtnLoading('login-btn','login-btn-text','login-spin',false,'Sign In');
+    updateTopBar();
+    setBtnLoading('login-btn','login-btn-text','login-spin',false, tr('btn-signin'));
     if (state.score > 0) { buildResultUI(); go('s-score'); } else { go('s-splash'); }
   }, 700);
+}
+
+function doLogout() {
+  localStorage.removeItem('ps_session');
+  state.user = null;
+  updateTopBar();
+  resetApp();
 }
 
 function regBack()   { go(state.score > 0 ? 's-gate' : 's-splash'); }
 function loginBack() { go(state.score > 0 ? 's-gate' : 's-splash'); }
 
-// ══ BOOKING ═══════════════════════════════════════════════
+function updateTopBar() {
+  const btn = document.getElementById('top-profile-btn');
+  if (state.user) btn.classList.add('visible'); else btn.classList.remove('visible');
+}
+
+// ── History ───────────────────────────────────────────────────
+function saveAssessment() {
+  if (!state.user) return;
+  const key = 'ps_hist_' + state.user.email;
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(key)) || []; } catch(e) {}
+  hist.unshift({ score: state.score, tag: scoreTag(state.score), date: new Date().toISOString(), cats: state.cats });
+  if (hist.length > 20) hist = hist.slice(0, 20);
+  localStorage.setItem(key, JSON.stringify(hist));
+}
+
+function loadHistory() {
+  if (!state.user) return [];
+  try { return JSON.parse(localStorage.getItem('ps_hist_' + state.user.email)) || []; } catch(e) { return []; }
+}
+
+function buildHistoryUI() {
+  const list = document.getElementById('history-list');
+  const hist = loadHistory();
+  list.innerHTML = '';
+  if (!hist.length) {
+    list.innerHTML = `<p class="body-text" style="text-align:center;padding:36px 0">${tr('no-history')}</p>`;
+    return;
+  }
+  hist.forEach(item => {
+    const d = new Date(item.date);
+    const dateStr = d.toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const el = document.createElement('div');
+    el.className = 'history-item';
+    el.innerHTML = `<div class="history-score">${item.score}</div><div class="history-meta"><div class="history-date">${dateStr}</div><div class="history-tag">${item.tag}</div></div><svg class="history-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    list.appendChild(el);
+  });
+}
+
+function updateProfileUI() {
+  if (!state.user) return;
+  document.getElementById('pf-name').textContent  = state.user.name;
+  document.getElementById('pf-email').textContent = state.user.email;
+  document.getElementById('pf-count').textContent = loadHistory().length;
+}
+
+// ── Booking ───────────────────────────────────────────────────
 function submitForm(e) {
   e.preventDefault();
   const errEl = document.getElementById('book-err');
   errEl.classList.remove('visible');
   const params = {
-    patient_name:  document.getElementById('fn').value,
-    patient_email: document.getElementById('fe').value,
-    patient_phone: document.getElementById('fp').value,
-    preferred_date:document.getElementById('fd').value,
-    notes:         document.getElementById('fq').value,
-    smile_score:   state.score,
-    areas:         state.areas.join(', '),
-    to_email:      RECIPIENT_EMAIL,
+    patient_name:   document.getElementById('fn').value,
+    patient_email:  document.getElementById('fe').value,
+    patient_phone:  document.getElementById('fp').value,
+    preferred_date: document.getElementById('fd').value,
+    notes:          document.getElementById('fq').value,
+    smile_score:    state.score,
+    areas:          state.areas.join(', '),
+    to_email:       RECIPIENT_EMAIL,
   };
   setBtnLoading('book-btn','book-btn-text','book-spin',true);
   if (EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
     emailjs.init(EMAILJS_PUBLIC_KEY);
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
-      .then(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,'Send Request'); go('s-ty'); })
-      .catch(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,'Send Request'); fallbackMailto(params); });
+      .then(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,tr('btn-send')); go('s-ty'); })
+      .catch(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,tr('btn-send')); fallbackMailto(params); });
   } else {
-    setTimeout(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,'Send Request'); fallbackMailto(params); }, 800);
+    setTimeout(() => { setBtnLoading('book-btn','book-btn-text','book-spin',false,tr('btn-send')); fallbackMailto(params); }, 800);
   }
 }
 
@@ -1008,11 +1266,12 @@ function fallbackMailto(p) {
   setTimeout(() => go('s-ty'), 1000);
 }
 
-// ══ CAMERA ════════════════════════════════════════════════
+// ── Camera ────────────────────────────────────────────────────
 let camSlot = 1, camStream = null, camFacing = 'user';
 
 function openCamera(n, e) {
-  e.stopPropagation(); camSlot = n;
+  if (e && e.stopPropagation) e.stopPropagation();
+  camSlot = n;
   document.getElementById('cam-label').textContent = n === 1 ? 'Front Smile' : 'Side Profile';
   const g = document.getElementById('cam-guide-svg');
   g.innerHTML = n === 1
@@ -1050,17 +1309,17 @@ function closeCamera() {
   if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
 }
 
-// ══ RESET ═════════════════════════════════════════════════
+// ── Reset ─────────────────────────────────────────────────────
 function resetApp() {
   state.score = 0; state.cats = []; state.areas = []; state.photo1 = null; state.photo2 = null;
-  [1,2].forEach(n => { const fi = document.getElementById('fi'+n); if(fi) fi.value=''; clearPhoto(n,{stopPropagation:()=>{}}); });
+  [1,2].forEach(n => clearPhoto(n, {}));
   ['an1','an2','an3','an4'].forEach(id => document.getElementById(id).classList.remove('done'));
   document.getElementById('score-fill').style.width = '0';
-  ['reg-form','login-form','book-form'].forEach(id => { const f=document.getElementById(id); if(f) f.reset(); });
+  ['reg-form','login-form','book-form'].forEach(id => { const f = document.getElementById(id); if(f) f.reset(); });
   go('s-splash');
 }
 
-// ══ HELPERS ═══════════════════════════════════════════════
+// ── Helpers ───────────────────────────────────────────────────
 function showAlert(el, msg) { el.textContent = msg; el.classList.add('visible'); }
 function setBtnLoading(btnId, textId, spinId, loading, defaultText) {
   document.getElementById(btnId).disabled = loading;
@@ -1068,11 +1327,13 @@ function setBtnLoading(btnId, textId, spinId, loading, defaultText) {
   document.getElementById(spinId).classList.toggle('visible', loading);
 }
 
-// ══ INIT ══════════════════════════════════════════════════
+// ── Init ──────────────────────────────────────────────────────
 (function init() {
   try { const s = localStorage.getItem('ps_session'); if (s) state.user = JSON.parse(s); } catch(e) {}
+  updateTopBar();
+  setLang(lang);
 
-  const manifest = { name:'Perfect Smile', short_name:'Perfect Smile', start_url:'./', display:'standalone', background_color:'#ffffff', theme_color:'#111111', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23111"/><text y=".9em" font-size="70" x="15">P</text></svg>',sizes:'192x192',type:'image/svg+xml'}] };
+  const manifest = { name:'Perfect Smile', short_name:'Perfect Smile', start_url:'./', display:'standalone', background_color:'#FAFAF8', theme_color:'#1A1A1A', icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%231A1A1A"/><text y=".9em" font-size="70" x="15" fill="white">P</text></svg>',sizes:'192x192',type:'image/svg+xml'}] };
   const link = document.createElement('link'); link.rel = 'manifest';
   link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/json'}));
   document.head.appendChild(link);
